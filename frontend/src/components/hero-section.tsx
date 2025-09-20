@@ -12,7 +12,7 @@ export function HeroSection() {
                 Lovable for AI agents by Reefs
               </h1>
               <p className="max-w-[506px] text-center text-[#37322f]/80 text-lg font-medium leading-7">
-                Build, deploy, and manage AI agents effortlessly. The developer-first platform for creating intelligent agents that users love.
+                Build, deploy, and manage AI agents effortlessly. The natural language platform for creating intelligent agents that users love.
               </p>
             </div>
           </div>

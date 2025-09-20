@@ -28,7 +28,7 @@ const ppMondwest = localFont({
 export const metadata: Metadata = {
   title: "Reefs - Lovable for AI Agents",
   description:
-    "Build, deploy, and manage AI agents effortlessly. The developer-first platform for creating intelligent agents that users love.",
+    "Build, deploy, and manage AI agents effortlessly. The natural language platform for creating intelligent agents that users love.",
 }
 
 export default function RootLayout({
