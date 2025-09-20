@@ -183,7 +183,7 @@ export default function ComposerActionsPopover({ children }: ComposerActionsPopo
                       onClick={() => handleAction(action.action)}
                       className="flex items-center gap-3 w-full p-2 text-sm text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
                     >
-                      {typeof IconComponent === "function" ? <IconComponent /> : <IconComponent className="h-4 w-4" />}
+                      <IconComponent className="h-4 w-4" />
                       <span>{action.label}</span>
                     </button>
                   )
