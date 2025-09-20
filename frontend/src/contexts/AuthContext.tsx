@@ -9,8 +9,19 @@ import {
   onAuthStateChanged,
   updateProfile
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, firestore } from '../lib/firebase'
+
+interface UserData {
+  firstName: string
+  lastName: string
+  email: string
+  lastLoggedIn: any
+  lastLoggedInIp: string
+  termsAccepted: boolean
+  marketingAccepted: boolean
+  createdAt: any
+}
 
 interface AuthContextType {
   user: User | null
@@ -18,6 +29,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, firstName?: string, lastName?: string, termsAccepted?: boolean, marketingAccepted?: boolean) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  getUserData: (uid: string) => Promise<UserData | null>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -89,12 +101,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut(auth)
   }
 
+  const getUserData = async (uid: string): Promise<UserData | null> => {
+    try {
+      const userDocRef = doc(firestore, 'users', uid)
+      const userDoc = await getDoc(userDocRef)
+      
+      if (userDoc.exists()) {
+        return userDoc.data() as UserData
+      }
+      return null
+    } catch (error) {
+      console.error('Failed to get user data:', error)
+      return null
+    }
+  }
+
   const value = {
     user,
     loading,
     signUp,
     signIn,
-    logout
+    logout,
+    getUserData
   }
 
   return (

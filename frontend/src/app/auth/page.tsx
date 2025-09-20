@@ -8,10 +8,13 @@ import { useAuth } from "../../contexts/AuthContext"
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
-  const [name, setName] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [marketingAccepted, setMarketingAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -29,11 +32,11 @@ export default function AuthPage() {
           setError("Passwords don't match")
           return
         }
-        await signUp(email, password, name)
+        await signUp(email, password, firstName, lastName, termsAccepted, marketingAccepted)
       } else {
         await signIn(email, password)
       }
-      router.push("/")
+      router.push(isSignUp ? "/settings" : "/")
     } catch (error: any) {
       setError(error.message)
     } finally {
@@ -76,20 +79,38 @@ export default function AuthPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {isSignUp && (
-              <div>
-                <label htmlFor="name" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:border-[#37322F] focus:ring-[3px] focus:ring-[rgba(55,50,47,0.1)] transition-all"
-                  placeholder="Enter your full name"
-                  required
-                />
-              </div>
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="firstName" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:border-[#37322F] focus:ring-[3px] focus:ring-[rgba(55,50,47,0.1)] transition-all"
+                      placeholder="First name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lastName" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:border-[#37322F] focus:ring-[3px] focus:ring-[rgba(55,50,47,0.1)] transition-all"
+                      placeholder="Last name"
+                      required
+                    />
+                  </div>
+                </div>
+              </>
             )}
             
             <div>
@@ -136,6 +157,36 @@ export default function AuthPage() {
                   placeholder="Confirm your password"
                   required
                 />
+              </div>
+            )}
+
+            {isSignUp && (
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-[#37322F] bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded focus:ring-[#37322F] focus:ring-2"
+                    required
+                  />
+                  <label htmlFor="terms" className="text-[#37322F] text-sm font-medium leading-5 font-sans">
+                    I agree to the Terms of Service and Privacy Policy
+                  </label>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    id="marketing"
+                    checked={marketingAccepted}
+                    onChange={(e) => setMarketingAccepted(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-[#37322F] bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded focus:ring-[#37322F] focus:ring-2"
+                  />
+                  <label htmlFor="marketing" className="text-[#37322F] text-sm font-medium leading-5 font-sans">
+                    I would like to receive marketing emails and updates
+                  </label>
+                </div>
               </div>
             )}
 
