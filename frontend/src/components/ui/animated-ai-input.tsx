@@ -1,11 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAutoResizeTextarea } from "../../hooks/use-auto-resize-textarea"
 import { Button } from "./button"
 
 export function AnimatedAIInput() {
   const [value, setValue] = useState("")
+  const router = useRouter()
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 120,
     maxHeight: 400,
@@ -20,11 +22,20 @@ export function AnimatedAIInput() {
     "GPT-4-1",
   ]
 
+  const handleSubmit = () => {
+    if (!value.trim()) return
+    
+    // Generate unique project ID
+    const projectId = crypto.randomUUID()
+    
+    // Navigate to project page with initial prompt
+    router.push(`/projects/${projectId}?prompt=${encodeURIComponent(value)}`)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      // Handle send message
-      console.log("Sending message:", value)
+      handleSubmit()
     }
   }
 
@@ -72,6 +83,7 @@ export function AnimatedAIInput() {
               size="sm"
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2"
               disabled={!value.trim()}
+              onClick={handleSubmit}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
