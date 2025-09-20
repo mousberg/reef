@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { Navigation } from "../../components/navigation"
+import { Button } from "../../components/ui/button"
 
 interface UserData {
   firstName: string
@@ -17,9 +18,10 @@ interface UserData {
 }
 
 export default function SettingsPage() {
-  const { user, getUserData } = useAuth()
+  const { user, getUserData, logout } = useAuth()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loggingOut, setLoggingOut] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -41,6 +43,18 @@ export default function SettingsPage() {
 
     fetchUserData()
   }, [user, getUserData, router])
+
+  const handleLogout = async () => {
+    setLoggingOut(true)
+    try {
+      await logout()
+      router.push("/")
+    } catch (error) {
+      console.error("Failed to logout:", error)
+    } finally {
+      setLoggingOut(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -136,6 +150,26 @@ export default function SettingsPage() {
                     <div className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
                       {userData.lastLoggedInIp}
                     </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-[rgba(55,50,47,0.12)]">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-[#2F3037] text-lg font-medium leading-6 font-sans mb-1">
+                        Account Actions
+                      </h3>
+                      <p className="text-[#37322F] text-sm font-medium leading-5 font-sans opacity-70">
+                        Manage your account settings
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={handleLogout}
+                      disabled={loggingOut}
+                      className="bg-red-600 hover:bg-red-700 text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
+                    >
+                      {loggingOut ? "Logging out..." : "Logout"}
+                    </Button>
                   </div>
                 </div>
               </div>
