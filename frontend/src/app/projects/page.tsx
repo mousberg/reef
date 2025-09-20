@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Navigation } from "../../components/navigation"
+import { Footer } from "../../components/Footer"
 
 interface Project {
   id: string
@@ -175,6 +176,8 @@ export default function ProjectsPage() {
               )}
             </div>
           </div>
+
+          <Footer />
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { Button } from "../../components/ui/button"
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore"
 import { firestore } from "../../lib/firebase"
 import { toast } from "sonner"
+import { Footer } from "../../components/Footer"
 
 interface UserData {
   firstName: string
@@ -232,6 +233,8 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+
+          <Footer />
         </div>
       </div>
     </div>
