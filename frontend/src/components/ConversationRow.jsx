@@ -1,6 +1,6 @@
 import React from "react";
 import { Star } from "lucide-react";
-import { cls, timeAgo } from "./utils";
+import { cls, timeAgo } from "../lib/utils";
 
 export default function ConversationRow({ data, active, onSelect, onTogglePin, showMeta }) {
   const count = Array.isArray(data.messages) ? data.messages.length : data.messageCount;

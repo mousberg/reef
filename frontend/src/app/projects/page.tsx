@@ -9,7 +9,6 @@ import { Navigation } from "../../components/navigation"
 interface Project {
   id: string
   name: string
-  description: string
   createdAt: any
   updatedAt: any
 }
@@ -18,9 +17,6 @@ export default function ProjectsPage() {
   const { user, getUserProjects, createProject } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [newProjectName, setNewProjectName] = useState("")
-  const [newProjectDescription, setNewProjectDescription] = useState("")
   const [creating, setCreating] = useState(false)
   const router = useRouter()
 
@@ -44,27 +40,16 @@ export default function ProjectsPage() {
     fetchProjects()
   }, [user, getUserProjects, router])
 
-  const handleCreateProject = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!user || !newProjectName.trim()) return
+  const handleCreateProject = async () => {
+    if (!user) return
 
     setCreating(true)
     try {
-      const projectId = await createProject(user.uid, newProjectName.trim(), newProjectDescription.trim())
-      const newProject: Project = {
-        id: projectId,
-        name: newProjectName.trim(),
-        description: newProjectDescription.trim(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-      setProjects([...projects, newProject])
-      setNewProjectName("")
-      setNewProjectDescription("")
-      setShowCreateForm(false)
+      const projectId = await createProject(user.uid)
+      // Navigate directly to the new project
+      router.push(`/projects/${projectId}`)
     } catch (error) {
       console.error("Failed to create project:", error)
-    } finally {
       setCreating(false)
     }
   }
@@ -99,7 +84,7 @@ export default function ProjectsPage() {
                 </p>
               </div>
 
-              {projects.length === 0 && !showCreateForm ? (
+              {projects.length === 0 ? (
                 <div className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-12 text-center">
                   <div className="max-w-md mx-auto">
                     <h2 className="text-[#2F3037] text-2xl font-medium leading-tight font-sans mb-4">
@@ -108,11 +93,12 @@ export default function ProjectsPage() {
                     <p className="text-[#37322F] text-base font-medium leading-6 font-sans opacity-70 mb-8">
                       Create your first project to get started with Reef. Projects help you organize your work and collaborate with others.
                     </p>
-                    <Button 
-                      onClick={() => setShowCreateForm(true)}
-                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all"
+                    <Button
+                      onClick={handleCreateProject}
+                      disabled={creating}
+                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                     >
-                      Create Your First Project
+                      {creating ? "Creating..." : "Create Your First Project"}
                     </Button>
                   </div>
                 </div>
@@ -123,77 +109,22 @@ export default function ProjectsPage() {
                       <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">
                         {projects.length} {projects.length === 1 ? 'project' : 'projects'}
                       </div>
-                      <Button 
-                        onClick={() => setShowCreateForm(true)}
-                        className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
+                      <Button
+                        onClick={handleCreateProject}
+                        disabled={creating}
+                        className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                       >
-                        New Project
+                        {creating ? "Creating..." : "New Project"}
                       </Button>
                     </div>
                   )}
 
-                  {showCreateForm && (
-                    <div className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-8">
-                      <h3 className="text-[#2F3037] text-xl font-medium leading-tight font-sans mb-6">
-                        Create New Project
-                      </h3>
-                      <form onSubmit={handleCreateProject} className="space-y-4">
-                        <div>
-                          <label htmlFor="projectName" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                            Project Name
-                          </label>
-                          <input
-                            type="text"
-                            id="projectName"
-                            value={newProjectName}
-                            onChange={(e) => setNewProjectName(e.target.value)}
-                            className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:border-[#37322F] focus:ring-[3px] focus:ring-[rgba(55,50,47,0.1)] transition-all"
-                            placeholder="Enter project name"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="projectDescription" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                            Description (Optional)
-                          </label>
-                          <textarea
-                            id="projectDescription"
-                            value={newProjectDescription}
-                            onChange={(e) => setNewProjectDescription(e.target.value)}
-                            rows={3}
-                            className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:border-[#37322F] focus:ring-[3px] focus:ring-[rgba(55,50,47,0.1)] transition-all resize-none"
-                            placeholder="Describe your project"
-                          />
-                        </div>
-                        <div className="flex gap-3">
-                          <Button 
-                            type="submit" 
-                            disabled={creating || !newProjectName.trim()}
-                            className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
-                          >
-                            {creating ? "Creating..." : "Create Project"}
-                          </Button>
-                          <Button 
-                            type="button"
-                            onClick={() => {
-                              setShowCreateForm(false)
-                              setNewProjectName("")
-                              setNewProjectDescription("")
-                            }}
-                            className="bg-[#F7F5F3] hover:bg-[#EEEDEB] text-[#37322F] border border-[rgba(55,50,47,0.12)] rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
-                    </div>
-                  )}
 
                   {projects.length > 0 && (
                     <div className="grid gap-6">
                       {projects.map((project) => (
-                        <div 
-                          key={project.id} 
+                        <div
+                          key={project.id}
                           className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-8 hover:shadow-[0px_0px_0px_4px_rgba(55,50,47,0.08)] transition-all cursor-pointer"
                         >
                           <div className="flex justify-between items-start">
@@ -201,17 +132,13 @@ export default function ProjectsPage() {
                               <h3 className="text-[#2F3037] text-xl font-medium leading-tight font-sans mb-2">
                                 {project.name}
                               </h3>
-                              {project.description && (
-                                <p className="text-[#37322F] text-base font-medium leading-6 font-sans opacity-70 mb-4">
-                                  {project.description}
-                                </p>
-                              )}
                               <div className="text-[#37322F] text-sm font-medium leading-5 font-sans opacity-50">
                                 Created {new Date(project.createdAt?.toDate?.() || project.createdAt).toLocaleDateString()}
                               </div>
                             </div>
                             <div className="flex gap-2">
-                              <Button 
+                              <Button
+                                onClick={() => router.push(`/projects/${project.id}`)}
                                 className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
                               >
                                 Open
