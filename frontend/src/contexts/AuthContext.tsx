@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
   updateProfile
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore'
 import { auth, firestore } from '../lib/firebase'
 
 interface UserData {
@@ -23,6 +23,14 @@ interface UserData {
   createdAt: any
 }
 
+interface Project {
+  id: string
+  name: string
+  description: string
+  createdAt: any
+  updatedAt: any
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -30,6 +38,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   getUserData: (uid: string) => Promise<UserData | null>
+  getUserProjects: (uid: string) => Promise<Project[]>
+  createProject: (uid: string, name: string, description: string) => Promise<string>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -116,13 +126,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const getUserProjects = async (uid: string): Promise<Project[]> => {
+    try {
+      const projectsRef = collection(firestore, 'users', uid, 'projects')
+      const snapshot = await getDocs(projectsRef)
+      
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Project[]
+    } catch (error) {
+      console.error('Failed to get user projects:', error)
+      return []
+    }
+  }
+
+  const createProject = async (uid: string, name: string, description: string): Promise<string> => {
+    try {
+      const projectsRef = collection(firestore, 'users', uid, 'projects')
+      const docRef = await addDoc(projectsRef, {
+        name,
+        description,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      })
+      return docRef.id
+    } catch (error) {
+      console.error('Failed to create project:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
     signUp,
     signIn,
     logout,
-    getUserData
+    getUserData,
+    getUserProjects,
+    createProject
   }
 
   return (
