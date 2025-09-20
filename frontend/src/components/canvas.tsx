@@ -8,18 +8,14 @@ export function Canvas({ projectId }: CanvasProps) {
   return (
     <div className="flex-1 flex flex-col bg-gray-50">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-gray-900">Project Canvas</h1>
-            <p className="text-sm text-gray-500">Project ID: {projectId}</p>
-          </div>
+      <div className="border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-end">
           <div className="flex items-center gap-2">
             <button className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500">
               Export
             </button>
             <button className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
-              Share
+              Publish
             </button>
           </div>
         </div>
@@ -53,22 +49,6 @@ export function Canvas({ projectId }: CanvasProps) {
               <li>• Interactive workflows</li>
               <li>• Real-time collaboration features</li>
             </ul>
-            <div className="mt-6">
-              <button
-                type="button"
-                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
-              >
-                <svg
-                  className="-ml-0.5 mr-1.5 h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-                </svg>
-                Create First Element
-              </button>
-            </div>
           </div>
         </div>
       </div>

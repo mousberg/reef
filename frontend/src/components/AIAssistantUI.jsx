@@ -8,33 +8,37 @@ import ChatPane from "./ChatPane"
 import GhostIconButton from "./GhostIconButton"
 import ThemeToggle from "./ThemeToggle"
 import { INITIAL_CONVERSATIONS, INITIAL_TEMPLATES, INITIAL_FOLDERS } from "./mockData"
+import { makeId, useLocalStorage } from "./utils"
 
 export default function AIAssistantUI() {
-  const [theme, setTheme] = useState(() => {
-    const saved = typeof window !== "undefined" && localStorage.getItem("theme")
-    if (saved) return saved
+  // Theme state with localStorage persistence and system preference fallback
+  const getDefaultTheme = () => {
     if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
       return "dark"
     return "light"
-  })
+  }
+  const [theme, setTheme] = useLocalStorage("theme", getDefaultTheme(), false)
 
+  // Apply theme changes to document and persist to localStorage
   useEffect(() => {
     try {
       if (theme === "dark") document.documentElement.classList.add("dark")
       else document.documentElement.classList.remove("dark")
       document.documentElement.setAttribute("data-theme", theme)
       document.documentElement.style.colorScheme = theme
-      localStorage.setItem("theme", theme)
     } catch {}
   }, [theme])
 
+  // Listen for system theme changes and update if no user preference is saved
   useEffect(() => {
     try {
       const media = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)")
       if (!media) return
       const listener = (e) => {
-        const saved = localStorage.getItem("theme")
-        if (!saved) setTheme(e.matches ? "dark" : "light")
+        // Only update theme if user hasn't explicitly set a preference
+        if (typeof window !== "undefined" && !localStorage.getItem("theme")) {
+          setTheme(e.matches ? "dark" : "light")
+        }
       }
       media.addEventListener("change", listener)
       return () => media.removeEventListener("change", listener)
@@ -42,34 +46,16 @@ export default function AIAssistantUI() {
   }, [])
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [collapsed, setCollapsed] = useState(() => {
-    try {
-      const raw = localStorage.getItem("sidebar-collapsed")
-      return raw ? JSON.parse(raw) : { pinned: true, recent: false, folders: true, templates: true }
-    } catch {
-      return { pinned: true, recent: false, folders: true, templates: true }
-    }
-  })
-  useEffect(() => {
-    try {
-      localStorage.setItem("sidebar-collapsed", JSON.stringify(collapsed))
-    } catch {}
-  }, [collapsed])
-
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    try {
-      const saved = localStorage.getItem("sidebar-collapsed-state")
-      return saved ? JSON.parse(saved) : false
-    } catch {
-      return false
-    }
+  // Sidebar section collapse states with localStorage persistence
+  const [collapsed, setCollapsed] = useLocalStorage("sidebar-collapsed", {
+    pinned: true,
+    recent: false, 
+    folders: true,
+    templates: true
   })
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("sidebar-collapsed-state", JSON.stringify(sidebarCollapsed))
-    } catch {}
-  }, [sidebarCollapsed])
+  // Sidebar collapsed state with localStorage persistence
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage("sidebar-collapsed-state", false)
 
   const [conversations, setConversations] = useState(INITIAL_CONVERSATIONS)
   const [selectedId, setSelectedId] = useState(null)
@@ -82,12 +68,15 @@ export default function AIAssistantUI() {
   const [isThinking, setIsThinking] = useState(false)
   const [thinkingConvId, setThinkingConvId] = useState(null)
 
+  // Global keyboard shortcuts
   useEffect(() => {
     const onKey = (e) => {
+      // Cmd/Ctrl + N: Create new chat
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "n") {
         e.preventDefault()
         createNewChat()
       }
+      // "/" key: Focus search (when not in input field)
       if (!e.metaKey && !e.ctrlKey && e.key === "/") {
         const tag = document.activeElement?.tagName?.toLowerCase()
         if (tag !== "input" && tag !== "textarea") {
@@ -95,6 +84,7 @@ export default function AIAssistantUI() {
           searchRef.current?.focus()
         }
       }
+      // Escape: Close sidebar on mobile
       if (e.key === "Escape" && sidebarOpen) setSidebarOpen(false)
     }
     window.addEventListener("keydown", onKey)
@@ -113,13 +103,15 @@ export default function AIAssistantUI() {
     return conversations.filter((c) => c.title.toLowerCase().includes(q) || c.preview.toLowerCase().includes(q))
   }, [conversations, query])
 
+  // Filter and sort conversations for sidebar display
   const pinned = filtered.filter((c) => c.pinned).sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))
 
   const recent = filtered
     .filter((c) => !c.pinned)
     .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))
-    .slice(0, 10)
+    .slice(0, 10) // Limit to 10 most recent
 
+  // Calculate conversation count per folder for display
   const folderCounts = React.useMemo(() => {
     const map = Object.fromEntries(folders.map((f) => [f.name, 0]))
     for (const c of conversations) if (map[c.folder] != null) map[c.folder] += 1
@@ -131,7 +123,8 @@ export default function AIAssistantUI() {
   }
 
   function createNewChat() {
-    const id = Math.random().toString(36).slice(2)
+    // Generate unique conversation ID
+    const id = makeId("conv")
     const item = {
       id,
       title: "New Chat",
@@ -151,13 +144,16 @@ export default function AIAssistantUI() {
     const name = prompt("Folder name")
     if (!name) return
     if (folders.some((f) => f.name.toLowerCase() === name.toLowerCase())) return alert("Folder already exists.")
-    setFolders((prev) => [...prev, { id: Math.random().toString(36).slice(2), name }])
+    // Create new folder with unique ID
+    setFolders((prev) => [...prev, { id: makeId("folder"), name }])
   }
 
+  // Send a message and simulate AI response
   function sendMessage(convId, content) {
     if (!content.trim()) return
     const now = new Date().toISOString()
-    const userMsg = { id: Math.random().toString(36).slice(2), role: "user", content, createdAt: now }
+    // Create user message with unique ID
+    const userMsg = { id: makeId("msg"), role: "user", content, createdAt: now }
 
     setConversations((prev) =>
       prev.map((c) => {
@@ -173,20 +169,23 @@ export default function AIAssistantUI() {
       }),
     )
 
+    // Show thinking indicator for this conversation
     setIsThinking(true)
     setThinkingConvId(convId)
 
+    // Simulate AI response with delay
     const currentConvId = convId
     setTimeout(() => {
-      // Always clear thinking state and generate response for this specific conversation
+      // Clear thinking state and generate mock response
       setIsThinking(false)
       setThinkingConvId(null)
       setConversations((prev) =>
         prev.map((c) => {
           if (c.id !== currentConvId) return c
           const ack = `Got it — I'll help with that.`
+          // Create assistant response message with unique ID
           const asstMsg = {
-            id: Math.random().toString(36).slice(2),
+            id: makeId("msg"),
             role: "assistant",
             content: ack,
             createdAt: new Date().toISOString(),

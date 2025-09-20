@@ -21,7 +21,7 @@ import CreateFolderModal from "./CreateFolderModal"
 import CreateTemplateModal from "./CreateTemplateModal"
 import SearchModal from "./SearchModal"
 import SettingsPopover from "./SettingsPopover"
-import { cls } from "./utils"
+import { cls, makeId } from "./utils"
 import { useState } from "react"
 
 export default function Sidebar({
@@ -85,9 +85,10 @@ export default function Sidebar({
       setTemplates(updatedTemplates)
       setEditingTemplate(null)
     } else {
+      // Create new template with unique ID
       const newTemplate = {
         ...templateData,
-        id: Date.now().toString(),
+        id: makeId("template"),
       }
       setTemplates([...templates, newTemplate])
     }

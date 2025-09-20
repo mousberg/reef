@@ -15,7 +15,7 @@ export default function ProjectPage() {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left side - Chat Interface */}
-      <div className="w-80 border-r border-gray-200 bg-white">
+      <div className="w-[480px] border-r border-gray-200 bg-white">
         <ChatInterface projectId={projectId} />
       </div>
       

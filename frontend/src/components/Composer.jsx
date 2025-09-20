@@ -12,6 +12,7 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
   const [lineCount, setLineCount] = useState(1)
   const inputRef = useRef(null)
 
+  // Auto-resize textarea based on content with max height limit
   useEffect(() => {
     if (inputRef.current) {
       const textarea = inputRef.current
@@ -37,12 +38,15 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
     }
   }, [value])
 
+  // Expose methods to parent component via ref
   useImperativeHandle(
     ref,
     () => ({
+      // Insert template content into composer, maintaining existing text
       insertTemplate: (templateContent) => {
         setValue((prev) => {
           const newValue = prev ? `${prev}\n\n${templateContent}` : templateContent
+          // Focus and position cursor at end after state update
           setTimeout(() => {
             inputRef.current?.focus()
             const length = newValue.length
@@ -51,6 +55,7 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
           return newValue
         })
       },
+      // Focus the input field
       focus: () => {
         inputRef.current?.focus()
       },
@@ -58,13 +63,14 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
     [],
   )
 
+  // Handle sending message with validation and cleanup
   async function handleSend() {
     if (!value.trim() || sending) return
     setSending(true)
     try {
       await onSend?.(value)
-      setValue("")
-      inputRef.current?.focus()
+      setValue("") // Clear input after sending
+      inputRef.current?.focus() // Keep focus for continuous typing
     } finally {
       setSending(false)
     }
@@ -87,7 +93,7 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
             onChange={(e) => setValue(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="How can I help you today?"
+            placeholder="Ask Reef..."
             rows={1}
             className={cls(
               "w-full resize-none bg-transparent text-sm outline-none placeholder:text-zinc-400 transition-all duration-200",
@@ -117,12 +123,6 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
           </ComposerActionsPopover>
 
           <div className="flex items-center gap-1 shrink-0">
-            <button
-              className="inline-flex items-center justify-center rounded-full p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 transition-colors"
-              title="Voice input"
-            >
-              <Mic className="h-4 w-4" />
-            </button>
             <button
               onClick={handleSend}
               disabled={sending || busy || !value.trim()}

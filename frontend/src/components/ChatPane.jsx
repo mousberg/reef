@@ -48,7 +48,7 @@ const ChatPane = forwardRef(function ChatPane(
 
   if (!conversation) return null
 
-  const tags = ["Certified", "Personalized", "Experienced", "Helpful"]
+  const tags = []
   const messages = Array.isArray(conversation.messages) ? conversation.messages : []
   const count = messages.length || conversation.messageCount || 0
 
@@ -75,11 +75,11 @@ const ChatPane = forwardRef(function ChatPane(
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
       <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8">
-        <div className="mb-2 text-3xl font-serif tracking-tight sm:text-4xl md:text-5xl">
-          <span className="block leading-[1.05] font-sans text-2xl">{conversation.title}</span>
+        <div className="mb-2 text-3xl tracking-tight sm:text-4xl md:text-5xl">
+          <span className="block leading-[1.05] font-title text-2xl">{conversation.title}</span>
         </div>
         <div className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
-          Updated {timeAgo(conversation.updatedAt)} · {count} messages
+          Updated {timeAgo(conversation.updatedAt)}
         </div>
 
         <div className="mb-6 flex flex-wrap gap-2 border-b border-zinc-200 pb-5 dark:border-zinc-800">
