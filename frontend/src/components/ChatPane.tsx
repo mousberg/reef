@@ -11,6 +11,7 @@ interface ChatMessage {
   role: "user" | "assistant"
   content: string
   createdAt: Date | any
+  parts?: Array<{ type: 'text' | 'reasoning' | string; text: string; state?: 'streaming' | 'done' }>
 }
 
 interface Conversation {
@@ -112,10 +113,42 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
           <>
             {messages.map((m) => (
               <Message key={m.id} role={m.role}>
-                <div className="whitespace-pre-wrap">{m.content}</div>
+                <div className="space-y-2">
+                  {/* Render reasoning parts if they exist */}
+                  {(m as any).parts?.filter((part: any) => part.type === 'reasoning').map((reasoningPart: any, index: number) => (
+                    <div key={`reasoning-${index}`} className="text-sm text-zinc-600 dark:text-zinc-400 italic border-l-2 border-zinc-300 dark:border-zinc-600 pl-3 mb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-1">
+                          {reasoningPart.state === 'streaming' ? (
+                            <>
+                              <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400"></div>
+                              <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400 [animation-delay:0.2s]"></div>
+                              <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400 [animation-delay:0.4s]"></div>
+                            </>
+                          ) : (
+                            <div className="h-1.5 w-1.5 rounded-full bg-zinc-400"></div>
+                          )}
+                        </div>
+                        <span className="text-xs font-medium">
+                          {reasoningPart.state === 'streaming' ? 'Thinking...' : 'Reasoning'}
+                        </span>
+                      </div>
+                      <div className="whitespace-pre-wrap text-xs leading-relaxed">{reasoningPart.text}</div>
+                    </div>
+                  ))}
+
+                  {/* Render text parts */}
+                  {(m as any).parts?.filter((part: any) => part.type === 'text').map((textPart: any, index: number) => (
+                    <div key={`text-${index}`} className="whitespace-pre-wrap">{textPart.text}</div>
+                  )) || <div className="whitespace-pre-wrap">{m.content}</div>}
+                </div>
               </Message>
             ))}
-            {isThinking && <ThinkingMessage onPause={onPauseThinking} />}
+            {isThinking && messages.length > 0 && !messages[messages.length - 1]?.parts?.some((part: any) => part.type === 'reasoning') && (
+              <div key="thinking-wrapper">
+                <ThinkingMessage onPause={onPauseThinking} />
+              </div>
+            )}
           </>
         )}
       </div>
@@ -125,10 +158,13 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
         onSend={async (text) => {
           if (!text.trim()) return
           setBusy(true)
-          await onSend?.(text)
-          setBusy(false)
+          try {
+            await onSend?.(text)
+          } finally {
+            setBusy(false)
+          }
         }}
-        busy={busy}
+        busy={busy || isThinking}
       />
     </div>
   )
