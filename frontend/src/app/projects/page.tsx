@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import { Navigation } from "../../components/navigation"
 import { Footer } from "../../components/Footer"
+import { ConfirmationDialog } from "../../components/ConfirmationDialog"
+import { toast } from "sonner"
 
 interface Project {
   id: string
@@ -15,10 +17,17 @@ interface Project {
 }
 
 export default function ProjectsPage() {
-  const { user, getUserProjects, createProject } = useAuth()
+  const { user, getUserProjects, createProject, deleteProject } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean
+    projectId: string | null
+    projectName: string
+  }>({ isOpen: false, projectId: null, projectName: "" })
   const router = useRouter()
 
   useEffect(() => {
@@ -54,6 +63,62 @@ export default function ProjectsPage() {
       setCreating(false)
     }
   }
+
+  const handleDeleteProject = async () => {
+    console.log("handleDeleteProject called")
+    console.log("user:", user)
+    console.log("confirmDialog:", confirmDialog)
+    
+    if (!user || !confirmDialog.projectId) {
+      console.log("Early return: missing user or projectId")
+      return
+    }
+
+    console.log("Starting delete process for:", confirmDialog.projectId)
+    setDeleting(confirmDialog.projectId)
+    
+    try {
+      console.log("Calling deleteProject...")
+      await deleteProject(user.uid, confirmDialog.projectId)
+      console.log("Delete successful, updating UI...")
+      
+      setProjects(projects.filter(p => p.id !== confirmDialog.projectId))
+      console.log("Showing success toast...")
+      toast.success("Project deleted successfully")
+    } catch (error) {
+      console.error("Failed to delete project:", error)
+      toast.error("Failed to delete project")
+    } finally {
+      setDeleting(null)
+      setConfirmDialog({ isOpen: false, projectId: null, projectName: "" })
+    }
+  }
+
+  const openDeleteConfirmation = (projectId: string, projectName: string) => {
+    console.log("openDeleteConfirmation called with:", { projectId, projectName })
+    setConfirmDialog({ isOpen: true, projectId, projectName })
+    setActiveDropdown(null)
+  }
+
+  const closeDeleteConfirmation = () => {
+    setConfirmDialog({ isOpen: false, projectId: null, projectName: "" })
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close dropdown if clicking outside
+      const target = event.target as Element
+      if (!target.closest('[data-dropdown-container]')) {
+        setActiveDropdown(null)
+      }
+    }
+
+    if (activeDropdown) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [activeDropdown])
 
   if (loading) {
     return (
@@ -142,7 +207,6 @@ export default function ProjectsPage() {
                     </div>
                   )}
 
-
                   {projects.length > 0 && (
                     <div className="grid gap-6">
                       {projects.map((project) => (
@@ -159,13 +223,58 @@ export default function ProjectsPage() {
                                 Created {new Date(project.createdAt?.toDate?.() || project.createdAt).toLocaleDateString()}
                               </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 items-center">
                               <Button
                                 onClick={() => router.push(`/projects/${project.id}`)}
                                 className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
                               >
                                 Open
                               </Button>
+                              
+                              {/* Three dots menu */}
+                              <div className="relative" data-dropdown-container>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    console.log("Three dots clicked, current activeDropdown:", activeDropdown)
+                                    setActiveDropdown(activeDropdown === project.id ? null : project.id)
+                                    console.log("Setting activeDropdown to:", activeDropdown === project.id ? null : project.id)
+                                  }}
+                                  className="p-2 hover:bg-[#F7F5F3] rounded-[8px] transition-colors"
+                                >
+                                  <svg 
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 16 16" 
+                                    fill="none" 
+                                    className="text-[#37322F] opacity-60 hover:opacity-100"
+                                    aria-label="More options"
+                                  >
+                                    <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                                    <circle cx="8" cy="13" r="1.5" fill="currentColor" />
+                                  </svg>
+                                </button>
+                                
+                                {/* Dropdown menu */}
+                                {activeDropdown === project.id && (
+                                  <div className="absolute right-0 top-full mt-2 bg-white border border-[rgba(55,50,47,0.12)] rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.1)] py-1 min-w-[120px] z-50">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        console.log("Delete button clicked for project:", project.id)
+                                        openDeleteConfirmation(project.id, project.name)
+                                      }}
+                                      disabled={deleting === project.id}
+                                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {deleting === project.id ? "Deleting..." : "Delete"}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -180,6 +289,19 @@ export default function ProjectsPage() {
           <Footer />
         </div>
       </div>
+      
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={closeDeleteConfirmation}
+        onConfirm={handleDeleteProject}
+        title="Delete Project"
+        description={`Are you sure you want to delete "${confirmDialog.projectName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmVariant="destructive"
+        loading={deleting !== null}
+      />
     </div>
   )
 }

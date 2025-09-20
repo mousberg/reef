@@ -10,7 +10,7 @@ import {
   updateProfile,
   signInWithPopup
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, deleteDoc } from 'firebase/firestore'
 import { auth, firestore, googleProvider } from '../lib/firebase'
 
 interface UserData {
@@ -70,6 +70,7 @@ interface AuthContextType {
   getProjectById: (uid: string, projectId: string) => Promise<Project | null>
   updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
   updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
+  deleteProject: (uid: string, projectId: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -264,6 +265,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const deleteProject = async (uid: string, projectId: string): Promise<void> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      await deleteDoc(projectRef)
+    } catch (error) {
+      console.error('Failed to delete project:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -276,7 +287,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     createProject,
     getProjectById,
     updateProjectMessages,
-    updateProjectName
+    updateProjectName,
+    deleteProject
   }
 
   return (
