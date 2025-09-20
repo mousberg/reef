@@ -23,7 +23,7 @@ export default function AuthPage() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full max-w-[400px] px-6 sm:px-8">
+      <div className="px-6 w-[60%] sm:px-8 mt-16">
         <div className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-8 sm:p-10">
           <div className="text-center mb-8">
             <h1 className="text-[#2F3037] text-2xl sm:text-3xl font-medium leading-tight font-sans mb-2">
