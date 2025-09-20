@@ -1,0 +1,6 @@
+services:
+  hello:
+    build: .
+    volumes:
+      - ./shared:/app/shared
+    command: python -c "print('Hello, World')"

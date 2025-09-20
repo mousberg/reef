@@ -1,0 +1,5 @@
+[[local-agent]]
+path = "research/agents/weather"
+
+[[local-agent]]
+path = "research/agents/interface"
