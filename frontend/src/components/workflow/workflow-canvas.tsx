@@ -16,14 +16,13 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { AgentNode } from './agent-node';
-import { StartEndNode } from './start-end-node';
+import { ToolNode } from './tool-node';
 import { parseWorkflowJson, convertToReactFlowElements } from '@/lib/workflow-parser';
 import { WorkflowConfig } from '@/types/workflow';
 
 const nodeTypes = {
   agent: AgentNode,
-  start: StartEndNode,
-  end: StartEndNode,
+  tool: ToolNode,
 };
 
 interface WorkflowCanvasProps {
@@ -99,6 +98,8 @@ function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
+        nodesDraggable={false}
+        nodesConnectable={false}
         fitView
         className="bg-gray-50"
       >

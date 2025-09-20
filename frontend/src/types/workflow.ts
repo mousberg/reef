@@ -18,12 +18,16 @@ export interface WorkflowConfig {
 
 export interface WorkflowNode {
   id: string;
-  type: 'agent' | 'start' | 'end';
+  type: 'agent' | 'start' | 'end' | 'tool';
   position: { x: number; y: number };
   data: {
     agent?: WorkflowAgent;
     agentName?: string;
     label?: string;
+    isFirst?: boolean;
+    isLast?: boolean;
+    tool?: string;
+    parentAgent?: string;
   };
 }
 
