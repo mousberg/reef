@@ -8,7 +8,7 @@ import ChatPane from "./ChatPane"
 import GhostIconButton from "./GhostIconButton"
 import ThemeToggle from "./ThemeToggle"
 import { INITIAL_CONVERSATIONS, INITIAL_TEMPLATES, INITIAL_FOLDERS } from "./mockData"
-import { makeId, useLocalStorage } from "./utils"
+import { makeId, useLocalStorage } from "../lib/utils"
 
 export default function AIAssistantUI() {
   // Theme state with localStorage persistence and system preference fallback
@@ -49,7 +49,7 @@ export default function AIAssistantUI() {
   // Sidebar section collapse states with localStorage persistence
   const [collapsed, setCollapsed] = useLocalStorage("sidebar-collapsed", {
     pinned: true,
-    recent: false, 
+    recent: false,
     folders: true,
     templates: true
   })

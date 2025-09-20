@@ -1,13 +1,24 @@
 "use client"
-import { useState } from "react"
-import { Paperclip, Bot, Search, Palette, BookOpen, MoreHorizontal, Globe, ChevronRight } from "lucide-react"
+import { useState, ReactNode } from "react"
+import { Paperclip, Bot, Search, Palette, BookOpen, MoreHorizontal, Globe, ChevronRight, LucideIcon } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
-export default function ComposerActionsPopover({ children }) {
+interface ComposerActionsPopoverProps {
+  children: ReactNode
+}
+
+interface Action {
+  icon: LucideIcon | (() => JSX.Element)
+  label: string
+  badge?: string
+  action: () => void
+}
+
+export default function ComposerActionsPopover({ children }: ComposerActionsPopoverProps) {
   const [open, setOpen] = useState(false)
   const [showMore, setShowMore] = useState(false)
 
-  const mainActions = [
+  const mainActions: Action[] = [
     {
       icon: Paperclip,
       label: "Add photos & files",
@@ -36,7 +47,7 @@ export default function ComposerActionsPopover({ children }) {
     },
   ]
 
-  const moreActions = [
+  const moreActions: Action[] = [
     {
       icon: Globe,
       label: "Web search",
@@ -76,7 +87,7 @@ export default function ComposerActionsPopover({ children }) {
     },
   ]
 
-  const handleAction = (action) => {
+  const handleAction = (action: () => void) => {
     action()
     setOpen(false)
     setShowMore(false)
@@ -86,7 +97,7 @@ export default function ComposerActionsPopover({ children }) {
     setShowMore(true)
   }
 
-  const handleOpenChange = (newOpen) => {
+  const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
     if (!newOpen) {
       setShowMore(false)
@@ -172,7 +183,7 @@ export default function ComposerActionsPopover({ children }) {
                       onClick={() => handleAction(action.action)}
                       className="flex items-center gap-3 w-full p-2 text-sm text-left hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
                     >
-                      {typeof IconComponent === "function" ? <IconComponent /> : <IconComponent className="h-4 w-4" />}
+                      <IconComponent className="h-4 w-4" />
                       <span>{action.label}</span>
                     </button>
                   )
