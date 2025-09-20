@@ -5,8 +5,30 @@ import { Pencil, RefreshCw, Check, X, Square } from "lucide-react"
 import Message from "./Message"
 import Composer from "./Composer"
 import { cls, timeAgo } from "./utils"
+import { ChatMessage, Conversation } from "@/types/chat"
 
-function ThinkingMessage({ onPause }) {
+interface ThinkingMessageProps {
+  onPause: () => void
+}
+
+interface ChatPaneProps {
+  conversation: Conversation | null
+  onSend?: (text: string) => Promise<void> | void
+  onEditMessage?: (messageId: string, newContent: string) => void
+  onResendMessage?: (messageId: string) => void
+  isThinking?: boolean
+  onPauseThinking?: () => void
+}
+
+export interface ChatPaneRef {
+  insertTemplate: (templateContent: string) => void
+}
+
+interface ComposerRef {
+  insertTemplate: (templateContent: string) => void
+}
+
+const ThinkingMessage: React.FC<ThinkingMessageProps> = ({ onPause }) => {
   return (
     <Message role="assistant">
       <div className="flex items-center gap-3">
@@ -27,19 +49,19 @@ function ThinkingMessage({ onPause }) {
   )
 }
 
-const ChatPane = forwardRef(function ChatPane(
+const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
   { conversation, onSend, onEditMessage, onResendMessage, isThinking, onPauseThinking },
   ref,
 ) {
-  const [editingId, setEditingId] = useState(null)
-  const [draft, setDraft] = useState("")
-  const [busy, setBusy] = useState(false)
-  const composerRef = useRef(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draft, setDraft] = useState<string>("")
+  const [busy, setBusy] = useState<boolean>(false)
+  const composerRef = useRef<ComposerRef>(null)
 
   useImperativeHandle(
     ref,
     () => ({
-      insertTemplate: (templateContent) => {
+      insertTemplate: (templateContent: string) => {
         composerRef.current?.insertTemplate(templateContent)
       },
     }),
@@ -48,28 +70,38 @@ const ChatPane = forwardRef(function ChatPane(
 
   if (!conversation) return null
 
-  const tags = []
+  const tags = conversation.tags || []
   const messages = Array.isArray(conversation.messages) ? conversation.messages : []
   const count = messages.length || conversation.messageCount || 0
 
-  function startEdit(m) {
+  function startEdit(m: ChatMessage): void {
     setEditingId(m.id)
     setDraft(m.content)
   }
-  function cancelEdit() {
+
+  function cancelEdit(): void {
     setEditingId(null)
     setDraft("")
   }
-  function saveEdit() {
+
+  function saveEdit(): void {
     if (!editingId) return
     onEditMessage?.(editingId, draft)
     cancelEdit()
   }
-  function saveAndResend() {
+
+  function saveAndResend(): void {
     if (!editingId) return
     onEditMessage?.(editingId, draft)
     onResendMessage?.(editingId)
     cancelEdit()
+  }
+
+  const handleSend = async (text: string): Promise<void> => {
+    if (!text.trim()) return
+    setBusy(true)
+    await onSend?.(text)
+    setBusy(false)
   }
 
   return (
@@ -82,16 +114,18 @@ const ChatPane = forwardRef(function ChatPane(
           Updated {timeAgo(conversation.updatedAt)}
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-zinc-200 pb-5 dark:border-zinc-800">
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="inline-flex items-center rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:text-zinc-200"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
+        {tags.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-2 border-b border-zinc-200 pb-5 dark:border-zinc-800">
+            {tags.map((t) => (
+              <span
+                key={t}
+                className="inline-flex items-center rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:text-zinc-200"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
 
         {messages.length === 0 ? (
           <div className="rounded-xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
@@ -150,19 +184,14 @@ const ChatPane = forwardRef(function ChatPane(
                 )}
               </div>
             ))}
-            {isThinking && <ThinkingMessage onPause={onPauseThinking} />}
+            {isThinking && onPauseThinking && <ThinkingMessage onPause={onPauseThinking} />}
           </>
         )}
       </div>
 
       <Composer
         ref={composerRef}
-        onSend={async (text) => {
-          if (!text.trim()) return
-          setBusy(true)
-          await onSend?.(text)
-          setBusy(false)
-        }}
+        onSend={handleSend}
         busy={busy}
       />
     </div>

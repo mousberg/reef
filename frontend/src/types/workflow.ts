@@ -11,20 +11,19 @@ export interface WorkflowAgent {
 }
 
 export interface WorkflowConfig {
-  workflow: {
-    main_task: string;
-    relations: string;
-    agents: Record<string, WorkflowAgent>;
-  };
+  main_task: string;
+  relations: string;
+  agents: Record<string, WorkflowAgent>;
 }
 
 export interface WorkflowNode {
   id: string;
-  type: 'agent';
+  type: 'agent' | 'start' | 'end';
   position: { x: number; y: number };
   data: {
-    agent: WorkflowAgent;
-    agentName: string;
+    agent?: WorkflowAgent;
+    agentName?: string;
+    label?: string;
   };
 }
 

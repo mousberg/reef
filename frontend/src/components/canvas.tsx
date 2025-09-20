@@ -7,58 +7,60 @@ interface CanvasProps {
   projectId: string
 }
 
-const exampleWorkflow = `workflow:
-  main_task: "Process customer support ticket and generate response"
-  relations: "Interface agent receives user input, routes to analysis agent, then to response agent, and back to interface for user delivery"
-  agents:
-    interface_agent:
-      name: "Interface Agent"
-      task: "Handle user interactions and route requests"
-      instructions: "Receive user input, validate format, route to appropriate agent"
-      connected_agents:
-        - analysis_agent
-      expected_input: "Customer support ticket text"
-      expected_output: "Processed ticket with metadata"
-      receives_from_user: true
-      sends_to_user: false
-      tools:
-        - input_validator
-        - router
-        - formatter
-    
-    analysis_agent:
-      name: "Analysis Agent"
-      task: "Analyze ticket content and classify issues"
-      instructions: "Parse ticket content, extract key information, classify issue type"
-      connected_agents:
-        - response_agent
-      expected_input: "Raw ticket data with metadata"
-      expected_output: "Analyzed ticket with classification"
-      receives_from_user: false
-      sends_to_user: false
-      tools:
-        - text_analyzer
-        - classifier
-        - entity_extractor
-    
-    response_agent:
-      name: "Response Agent"
-      task: "Generate appropriate response based on analysis"
-      instructions: "Create response using analysis results and knowledge base"
-      connected_agents:
-        - interface_agent
-      expected_input: "Classified ticket with extracted entities"
-      expected_output: "Generated response text"
-      receives_from_user: false
-      sends_to_user: true
-      tools:
-        - knowledge_base
-        - response_generator
-        - quality_checker`;
+const exampleWorkflow = `{
+  "main_task": "Draft and publish a 1-page product update.",
+  "relations": "Intake collects brief → Writer drafts → Reviewer checks → Publisher posts.",
+  "agents": {
+    "Intake": {
+      "name": "Intake",
+      "task": "Collect brief and requirements.",
+      "instructions": "Collect information via email and organize in Notion",
+      "connected_agents": ["Writer"],
+      "expected_input": "User's short brief.",
+      "expected_output": "Structured brief JSON.",
+      "receives_from_user": true,
+      "sends_to_user": false,
+      "tools": ["email", "notion"]
+    },
+    "Writer": {
+      "name": "Writer",
+      "task": "Create a concise draft.",
+      "instructions": "Use Notion for drafting and GitHub for version control",
+      "connected_agents": ["Reviewer"],
+      "expected_input": "Structured brief JSON.",
+      "expected_output": "300–500 word draft.",
+      "receives_from_user": false,
+      "sends_to_user": false,
+      "tools": ["notion", "github"]
+    },
+    "Reviewer": {
+      "name": "Reviewer",
+      "task": "Light fact/clarity check.",
+      "instructions": "Track review tasks in Jira and collaborate via Slack",
+      "connected_agents": ["Publisher"],
+      "expected_input": "Draft from Writer.",
+      "expected_output": "Approved draft with minor edits.",
+      "receives_from_user": false,
+      "sends_to_user": false,
+      "tools": ["jira", "slack"]
+    },
+    "Publisher": {
+      "name": "Publisher",
+      "task": "Post to site and return link.",
+      "instructions": "Schedule via calendar and notify team through Slack",
+      "connected_agents": [],
+      "expected_input": "Approved draft and title.",
+      "expected_output": "Live URL and timestamp.",
+      "receives_from_user": false,
+      "sends_to_user": true,
+      "tools": ["calendar", "slack"]
+    }
+  }
+}`;
 
 export function Canvas({ projectId }: CanvasProps) {
-  const [yamlInput, setYamlInput] = useState(exampleWorkflow);
-  const [showYamlEditor, setShowYamlEditor] = useState(false);
+  const [jsonInput, setJsonInput] = useState(exampleWorkflow);
+  const [showJsonEditor, setShowJsonEditor] = useState(false);
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 h-screen">
@@ -68,10 +70,10 @@ export function Canvas({ projectId }: CanvasProps) {
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-gray-900">Workflow Canvas</h2>
             <button
-              onClick={() => setShowYamlEditor(!showYamlEditor)}
+              onClick={() => setShowJsonEditor(!showJsonEditor)}
               className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50"
             >
-              {showYamlEditor ? 'Hide YAML' : 'Edit YAML'}
+              {showJsonEditor ? 'Hide JSON' : 'Edit JSON'}
             </button>
           </div>
           <div className="flex items-center gap-2">
@@ -85,16 +87,16 @@ export function Canvas({ projectId }: CanvasProps) {
         </div>
       </div>
 
-      {/* YAML Editor */}
-      {showYamlEditor && (
+      {/* JSON Editor */}
+      {showJsonEditor && (
         <div className="border-b border-gray-200 p-4 flex-shrink-0">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Workflow YAML:</label>
+            <label className="text-sm font-medium text-gray-700">Workflow JSON:</label>
             <textarea
-              value={yamlInput}
-              onChange={(e) => setYamlInput(e.target.value)}
+              value={jsonInput}
+              onChange={(e) => setJsonInput(e.target.value)}
               className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm resize-none"
-              placeholder="Enter your workflow YAML here..."
+              placeholder="Enter your workflow JSON here..."
             />
           </div>
         </div>
@@ -102,7 +104,7 @@ export function Canvas({ projectId }: CanvasProps) {
 
       {/* Canvas Area */}
       <div className="flex-1 overflow-hidden">
-        <WorkflowCanvas yamlContent={yamlInput} />
+        <WorkflowCanvas jsonContent={jsonInput} />
       </div>
     </div>
   )

@@ -16,27 +16,30 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { AgentNode } from './agent-node';
-import { parseWorkflowYaml, convertToReactFlowElements } from '@/lib/workflow-parser';
+import { StartEndNode } from './start-end-node';
+import { parseWorkflowJson, convertToReactFlowElements } from '@/lib/workflow-parser';
 import { WorkflowConfig } from '@/types/workflow';
 
 const nodeTypes = {
   agent: AgentNode,
+  start: StartEndNode,
+  end: StartEndNode,
 };
 
 interface WorkflowCanvasProps {
-  yamlContent?: string;
+  jsonContent?: string;
 }
 
-function WorkflowCanvasInner({ yamlContent }: WorkflowCanvasProps) {
+function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [config, setConfig] = useState<WorkflowConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Parse YAML and update flow elements
-  const updateWorkflow = useCallback((yaml: string) => {
+  // Parse JSON and update flow elements
+  const updateWorkflow = useCallback((json: string) => {
     try {
-      const parsedConfig = parseWorkflowYaml(yaml);
+      const parsedConfig = parseWorkflowJson(json);
       const { nodes: newNodes, edges: newEdges } = convertToReactFlowElements(parsedConfig);
       
       setNodes(newNodes);
@@ -51,12 +54,12 @@ function WorkflowCanvasInner({ yamlContent }: WorkflowCanvasProps) {
     }
   }, [setNodes, setEdges]);
 
-  // Update workflow when yamlContent changes
+  // Update workflow when jsonContent changes
   useEffect(() => {
-    if (yamlContent) {
-      updateWorkflow(yamlContent);
+    if (jsonContent) {
+      updateWorkflow(jsonContent);
     }
-  }, [yamlContent, updateWorkflow]);
+  }, [jsonContent, updateWorkflow]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -80,7 +83,7 @@ function WorkflowCanvasInner({ yamlContent }: WorkflowCanvasProps) {
         <div className="text-center p-8">
           <div className="text-gray-500 text-sm">No workflow loaded</div>
           <div className="text-gray-400 text-xs mt-1">
-            Provide YAML content to visualize workflow
+            Provide JSON content to visualize workflow
           </div>
         </div>
       </div>
