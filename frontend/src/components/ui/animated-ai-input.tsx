@@ -7,8 +7,8 @@ import { Button } from "./button"
 export function AnimatedAIInput() {
   const [value, setValue] = useState("")
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
-    minHeight: 72,
-    maxHeight: 300,
+    minHeight: 120,
+    maxHeight: 400,
   })
   const [selectedModel, setSelectedModel] = useState("GPT-4-1 Mini")
 
@@ -29,14 +29,14 @@ export function AnimatedAIInput() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-4 px-4 min-w-0">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-1.5 border border-white/20 shadow-lg min-w-0">
-        <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/30 dark:border-gray-700/30 min-w-0">
+    <div className="w-full max-w-[700px] lg:w-[700px] mx-auto py-6 px-4 sm:px-6 md:px-8 lg:px-0 min-w-0">
+      <div className="bg-white/15 backdrop-blur-lg rounded-3xl p-2 border border-white/25 shadow-2xl min-w-0">
+        <div className="bg-white/45 dark:bg-gray-900/45 backdrop-blur-md rounded-2xl border border-white/35 dark:border-gray-700/35 min-w-0">
           <textarea
             ref={textareaRef}
             value={value}
-            placeholder="What can I do for you?"
-            className="w-full p-4 bg-transparent border-none outline-none resize-none text-gray-900 dark:text-gray-100 placeholder-gray-500 min-w-0"
+            placeholder="Build a personal Uber booking agent"
+            className="w-full p-6 text-lg bg-transparent border-none outline-none resize-none text-gray-900 dark:text-gray-100 placeholder-gray-500 min-w-0"
             onKeyDown={handleKeyDown}
             onChange={(e) => {
               setValue(e.target.value)
@@ -44,13 +44,13 @@ export function AnimatedAIInput() {
             }}
           />
           
-          <div className="flex items-center justify-between p-3 pt-0 min-w-0">
+          <div className="flex items-center justify-between p-4 pt-0 min-w-0">
             <div className="flex items-center gap-2">
               {/* Model selector */}
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300"
+                className="px-4 py-2 text-base bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300"
               >
                 {AI_MODELS.map((model) => (
                   <option key={model} value={model}>
@@ -60,8 +60,8 @@ export function AnimatedAIInput() {
               </select>
               
               {/* File attachment button */}
-              <Button variant="ghost" size="sm" className="p-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <Button variant="ghost" size="sm" className="p-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                 </svg>
               </Button>
@@ -70,7 +70,7 @@ export function AnimatedAIInput() {
             {/* Send button */}
             <Button 
               size="sm"
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2"
               disabled={!value.trim()}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
