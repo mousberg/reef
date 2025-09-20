@@ -9,7 +9,6 @@ import { Navigation } from "../../components/navigation"
 interface Project {
   id: string
   name: string
-  description: string
   createdAt: any
   updatedAt: any
 }
@@ -20,7 +19,6 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newProjectName, setNewProjectName] = useState("")
-  const [newProjectDescription, setNewProjectDescription] = useState("")
   const [creating, setCreating] = useState(false)
   const router = useRouter()
 
@@ -50,17 +48,15 @@ export default function ProjectsPage() {
 
     setCreating(true)
     try {
-      const projectId = await createProject(user.uid, newProjectName.trim(), newProjectDescription.trim())
+      const projectId = await createProject(user.uid, newProjectName.trim())
       const newProject: Project = {
         id: projectId,
         name: newProjectName.trim(),
-        description: newProjectDescription.trim(),
         createdAt: new Date(),
         updatedAt: new Date()
       }
       setProjects([...projects, newProject])
       setNewProjectName("")
-      setNewProjectDescription("")
       setShowCreateForm(false)
     } catch (error) {
       console.error("Failed to create project:", error)
@@ -108,7 +104,7 @@ export default function ProjectsPage() {
                     <p className="text-[#37322F] text-base font-medium leading-6 font-sans opacity-70 mb-8">
                       Create your first project to get started with Reef. Projects help you organize your work and collaborate with others.
                     </p>
-                    <Button 
+                    <Button
                       onClick={() => setShowCreateForm(true)}
                       className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all"
                     >
@@ -123,7 +119,7 @@ export default function ProjectsPage() {
                       <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">
                         {projects.length} {projects.length === 1 ? 'project' : 'projects'}
                       </div>
-                      <Button 
+                      <Button
                         onClick={() => setShowCreateForm(true)}
                         className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
                       >
@@ -152,33 +148,19 @@ export default function ProjectsPage() {
                             required
                           />
                         </div>
-                        <div>
-                          <label htmlFor="projectDescription" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                            Description (Optional)
-                          </label>
-                          <textarea
-                            id="projectDescription"
-                            value={newProjectDescription}
-                            onChange={(e) => setNewProjectDescription(e.target.value)}
-                            rows={3}
-                            className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:border-[#37322F] focus:ring-[3px] focus:ring-[rgba(55,50,47,0.1)] transition-all resize-none"
-                            placeholder="Describe your project"
-                          />
-                        </div>
                         <div className="flex gap-3">
-                          <Button 
-                            type="submit" 
+                          <Button
+                            type="submit"
                             disabled={creating || !newProjectName.trim()}
                             className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                           >
                             {creating ? "Creating..." : "Create Project"}
                           </Button>
-                          <Button 
+                          <Button
                             type="button"
                             onClick={() => {
                               setShowCreateForm(false)
                               setNewProjectName("")
-                              setNewProjectDescription("")
                             }}
                             className="bg-[#F7F5F3] hover:bg-[#EEEDEB] text-[#37322F] border border-[rgba(55,50,47,0.12)] rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all"
                           >
@@ -192,8 +174,8 @@ export default function ProjectsPage() {
                   {projects.length > 0 && (
                     <div className="grid gap-6">
                       {projects.map((project) => (
-                        <div 
-                          key={project.id} 
+                        <div
+                          key={project.id}
                           className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-8 hover:shadow-[0px_0px_0px_4px_rgba(55,50,47,0.08)] transition-all cursor-pointer"
                         >
                           <div className="flex justify-between items-start">
@@ -201,17 +183,13 @@ export default function ProjectsPage() {
                               <h3 className="text-[#2F3037] text-xl font-medium leading-tight font-sans mb-2">
                                 {project.name}
                               </h3>
-                              {project.description && (
-                                <p className="text-[#37322F] text-base font-medium leading-6 font-sans opacity-70 mb-4">
-                                  {project.description}
-                                </p>
-                              )}
                               <div className="text-[#37322F] text-sm font-medium leading-5 font-sans opacity-50">
                                 Created {new Date(project.createdAt?.toDate?.() || project.createdAt).toLocaleDateString()}
                               </div>
                             </div>
                             <div className="flex gap-2">
-                              <Button 
+                              <Button
+                                onClick={() => router.push(`/projects/${project.id}`)}
                                 className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
                               >
                                 Open
