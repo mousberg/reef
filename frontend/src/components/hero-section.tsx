@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 
 export function HeroSection() {
   return (
-    <section className="relative pt-[216px] pb-16">
+    <section className="relative pt-32 pb-16">
       <div className="max-w-[1060px] mx-auto px-4">
         <div className="flex flex-col items-center gap-12">
           {/* Hero Content */}

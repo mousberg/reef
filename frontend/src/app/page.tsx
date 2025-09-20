@@ -13,7 +13,7 @@ import FAQSection from "../components/faq-section"
 import PricingSection from "../components/pricing-section"
 import CTASection from "../components/cta-section"
 import FooterSection from "../components/footer-section"
-import { AnimatedAIInput } from "../components/ui/animated-ai-input"
+import { AIInputSection } from "../components/ai-input-section"
 
 // Reusable Badge Component
 function Badge({ icon, text }: { icon: React.ReactNode; text: string }) {
@@ -65,31 +65,18 @@ export default function LandingPage() {
     setProgress(0)
   }
 
-  const getDashboardContent = () => {
-    switch (activeCard) {
-      case 0:
-        return <div className="text-[#828387] text-sm">Customer Subscription Status and Details</div>
-      case 1:
-        return <div className="text-[#828387] text-sm">Analytics Dashboard - Real-time Insights</div>
-      case 2:
-        return <div className="text-[#828387] text-sm">Data Visualization - Charts and Metrics</div>
-      default:
-        return <div className="text-[#828387] text-sm">Customer Subscription Status and Details</div>
-    }
-  }
-
   return (
-    <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-start items-center">
-      <div className="relative flex flex-col justify-start items-center w-full">
+    <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-start items-center max-w-[100vw]">
+      <div className="relative flex flex-col justify-start items-center w-full max-w-[100vw] overflow-x-hidden">
         {/* Main container with proper margins */}
-        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] relative flex flex-col justify-start items-start min-h-screen">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] relative flex flex-col justify-start items-start min-h-screen overflow-x-hidden">
           {/* Left vertical line */}
           <div className="w-[1px] h-full absolute left-4 sm:left-6 md:left-8 lg:left-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0"></div>
 
           {/* Right vertical line */}
           <div className="w-[1px] h-full absolute right-4 sm:right-6 md:right-8 lg:right-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0"></div>
 
-          <div className="self-stretch pt-[9px] overflow-hidden border-b border-[rgba(55,50,47,0.06)] flex flex-col justify-center items-center gap-0 relative z-10">
+          <div className="self-stretch pt-[9px] overflow-hidden border-b border-[rgba(55,50,47,0.06)] flex flex-col justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[66px] relative z-10">
             {/* Navigation */}
             <div className="w-full h-12 sm:h-14 md:h-16 lg:h-[84px] absolute left-0 top-0 flex justify-center items-center z-20 px-6 sm:px-8 md:px-12 lg:px-0">
               <div className="w-full h-0 absolute left-0 top-6 sm:top-7 md:top-8 lg:top-[42px] border-t border-[rgba(55,50,47,0.12)] shadow-[0px_1px_0px_white]"></div>
@@ -113,7 +100,7 @@ export default function LandingPage() {
             </div>
 
             {/* Hero Section */}
-            <div className="pt-8 sm:pt-12 md:pt-16 lg:pt-[140px] pb-8 sm:pb-12 md:pb-16 flex flex-col justify-start items-center px-2 sm:px-4 md:px-8 lg:px-0 w-full sm:pl-0 sm:pr-0 pl-0 pr-0">
+            <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-8 sm:pb-12 md:pb-16 flex flex-col justify-start items-center px-2 sm:px-4 md:px-8 lg:px-0 w-full sm:pl-0 sm:pr-0 pl-0 pr-0">
               <div className="w-full max-w-[937px] lg:w-[937px] flex flex-col justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 <div className="self-stretch rounded-[3px] flex flex-col justify-center items-center gap-4 sm:gap-5 md:gap-6 lg:gap-8">
                   <div className="font-title w-full max-w-[748.71px] lg:w-[748.71px] text-center flex justify-center flex-col text-[#37322F] text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-normal leading-[1.1] sm:leading-[1.15] md:leading-[1.2] lg:leading-24 font-serif px-2 sm:px-4 md:px-0">
@@ -126,38 +113,18 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-        </div>
-        
-        {/* Animated AI Input Section - Outside constrained container */}
-        <div className="w-full py-4 sm:py-6 md:py-8 lg:py-10 flex flex-col justify-center items-stretch relative">
-          {/* Background light image */}
-          <div className="absolute inset-4 sm:inset-6 md:inset-8 lg:inset-12 flex items-center justify-center rounded-xl overflow-hidden">
-            <img
-              src="/bgLight.webp"
-              alt=""
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="relative z-10">
-            <AnimatedAIInput />
-          </div>
-        </div>
-        
-        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] relative flex flex-col justify-start items-start">
-          {/* Left vertical line */}
-          <div className="w-[1px] h-full absolute left-4 sm:left-6 md:left-8 lg:left-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0"></div>
 
-          {/* Right vertical line */}
-          <div className="w-[1px] h-full absolute right-4 sm:right-6 md:right-8 lg:right-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0"></div>
+              {/* AI Input Section - Inside constrained container */}
+              <div className="w-full max-w-[960px] lg:w-[960px] flex flex-col justify-center items-center relative z-10 mt-10 sm:mt-14 md:mt-18 lg:mt-24">
+                <AIInputSection />
+              </div>
 
-          <div className="self-stretch pt-[9px] overflow-hidden border-b border-[rgba(55,50,47,0.06)] flex flex-col justify-center items-center gap-0 relative z-10">
-
-
-              <div className="absolute top-[232px] sm:top-[248px] md:top-[264px] lg:top-[320px] left-1/2 transform -translate-x-1/2 z-0 pointer-events-none">
+              {/* Dashboard Section */}
+              <div className="absolute top-[232px] sm:top-[248px] md:top-[264px] lg:top-[320px] left-1/2 transform -translate-x-1/2 z-0 pointer-events-none overflow-hidden max-w-[100vw]">
                 <img
                   src="/mask-group-pattern.svg"
                   alt=""
-                  className="w-[936px] sm:w-[1404px] md:w-[2106px] lg:w-[2808px] h-auto opacity-30 sm:opacity-40 md:opacity-50 mix-blend-multiply"
+                  className="w-[100vw] max-w-[936px] sm:max-w-[1200px] md:max-w-[1400px] lg:max-w-[1600px] h-auto opacity-30 sm:opacity-40 md:opacity-50 mix-blend-multiply"
                   style={{
                     filter: "hue-rotate(15deg) saturate(0.7) brightness(1.2)",
                   }}
@@ -206,7 +173,7 @@ export default function LandingPage() {
                           <img
                             src="/data-visualization-dashboard-with-interactive-char.jpg"
                             alt="Data Visualization Dashboard"
-                            className="w-full h-full object-contain" // Changed from object-cover to object-contain to preserve landscape aspect ratio
+                            className="w-full h-full object-contain"
                           />
                         </div>
                       </div>
@@ -218,7 +185,7 @@ export default function LandingPage() {
               <div className="self-stretch border-t border-[#E0DEDB] border-b border-[#E0DEDB] flex justify-center items-start">
                 <div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
                   {/* Left decorative pattern */}
-                  <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
+                  <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start overflow-hidden">
                     {Array.from({ length: 50 }).map((_, i) => (
                       <div
                         key={i}
@@ -255,7 +222,7 @@ export default function LandingPage() {
 
                 <div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
                   {/* Right decorative pattern */}
-                  <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
+                  <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start overflow-hidden">
                     {Array.from({ length: 50 }).map((_, i) => (
                       <div
                         key={i}
@@ -266,9 +233,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-
-              {/* Social Proof Section */}
-              <div className="w-full border-b border-[rgba(55,50,47,0.12)] flex flex-col justify-center items-center">
+              {/* Social Proof Section - HIDDEN */}
+              {/* <div className="w-full border-b border-[rgba(55,50,47,0.12)] flex flex-col justify-center items-center">
                 <div className="self-stretch px-4 sm:px-6 md:px-24 py-8 sm:py-12 md:py-16 border-b border-[rgba(55,50,47,0.12)] flex justify-center items-center gap-6">
                   <div className="w-full max-w-[586px] px-4 sm:px-6 py-4 sm:py-5 shadow-[0px_2px_4px_rgba(50,45,43,0.06)] overflow-hidden rounded-lg flex flex-col justify-start items-center gap-3 sm:gap-4 shadow-none">
                     <Badge
@@ -301,11 +267,9 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Logo Grid */}
                 <div className="self-stretch border-[rgba(55,50,47,0.12)] flex justify-center items-start border-t border-b-0">
                   <div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
-                    {/* Left decorative pattern */}
-                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
+                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start overflow-hidden">
                       {Array.from({ length: 50 }).map((_, i) => (
                         <div
                           key={i}
@@ -316,7 +280,6 @@ export default function LandingPage() {
                   </div>
 
                   <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-0 border-l border-r border-[rgba(55,50,47,0.12)]">
-                    {/* Logo Grid - Responsive grid */}
                     {Array.from({ length: 8 }).map((_, index) => {
                       const isMobileFirstColumn = index % 2 === 0
                       const isMobileLastColumn = index % 2 === 1
@@ -355,8 +318,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
-                    {/* Right decorative pattern */}
-                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
+                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start overflow-hidden">
                       {Array.from({ length: 50 }).map((_, i) => (
                         <div
                           key={i}
@@ -366,11 +328,10 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              {/* Bento Grid Section */}
-              <div className="w-full border-b border-[rgba(55,50,47,0.12)] flex flex-col justify-center items-center">
-                {/* Header Section */}
+              {/* Platform Features Section (Bento Grid) - HIDDEN */}
+              {/* <div className="w-full border-b border-[rgba(55,50,47,0.12)] flex flex-col justify-center items-center">
                 <div className="self-stretch px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] py-8 sm:py-12 md:py-16 border-b border-[rgba(55,50,47,0.12)] flex justify-center items-center gap-6">
                   <div className="w-full max-w-[616px] lg:w-[616px] px-4 sm:px-6 py-4 sm:py-5 shadow-[0px_2px_4px_rgba(50,45,43,0.06)] overflow-hidden rounded-lg flex flex-col justify-start items-center gap-3 sm:gap-4 shadow-none">
                     <Badge
@@ -395,11 +356,9 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Bento Grid Content */}
                 <div className="self-stretch flex justify-center items-start">
                   <div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
-                    {/* Left decorative pattern */}
-                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
+                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start overflow-hidden">
                       {Array.from({ length: 200 }).map((_, i) => (
                         <div
                           key={i}
@@ -410,7 +369,6 @@ export default function LandingPage() {
                   </div>
 
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-0 border-l border-r border-[rgba(55,50,47,0.12)]">
-                    {/* Top Left - Smart. Simple. Brilliant. */}
                     <div className="border-b border-r-0 md:border-r border-[rgba(55,50,47,0.12)] p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6">
                       <div className="flex flex-col gap-2">
                         <h3 className="font-title text-[#37322F] text-lg sm:text-xl font-semibold leading-tight font-sans">
@@ -430,7 +388,6 @@ export default function LandingPage() {
                       </div>
                     </div>
 
-                    {/* Top Right - Your work, in sync */}
                     <div className="border-b border-[rgba(55,50,47,0.12)] p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6">
                       <div className="flex flex-col gap-2">
                         <h3 className="font-title text-[#37322F] font-semibold leading-tight font-sans text-lg sm:text-xl">
@@ -450,7 +407,6 @@ export default function LandingPage() {
                       </div>
                     </div>
 
-                    {/* Bottom Left - Effortless integration */}
                     <div className="border-r-0 md:border-r border-[rgba(55,50,47,0.12)] p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6 bg-transparent">
                       <div className="flex flex-col gap-2">
                         <h3 className="font-title text-[#37322F] text-lg sm:text-xl font-semibold leading-tight font-sans">
@@ -464,12 +420,10 @@ export default function LandingPage() {
                         <div className="w-full h-full flex items-center justify-center bg-transparent">
                           <EffortlessIntegration width={400} height={250} className="max-w-full max-h-full" />
                         </div>
-                        {/* Gradient mask for soft bottom edge */}
                         <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#F7F5F3] to-transparent pointer-events-none"></div>
                       </div>
                     </div>
 
-                    {/* Bottom Right - Numbers that speak */}
                     <div className="p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6">
                       <div className="flex flex-col gap-2">
                         <h3 className="font-title text-[#37322F] text-lg sm:text-xl font-semibold leading-tight font-sans">
@@ -488,9 +442,7 @@ export default function LandingPage() {
                             className="w-full h-full object-contain"
                           />
                         </div>
-                        {/* Gradient mask for soft bottom edge */}
                         <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#F7F5F3] to-transparent pointer-events-none"></div>
-                        {/* Fallback content if component doesn't render */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-20 hidden">
                           <div className="flex flex-col items-center gap-2 p-4">
                             <div className="w-3/4 h-full bg-green-500 rounded-full"></div>
@@ -502,8 +454,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className="w-4 sm:w-6 md:w-8 lg:w-12 self-stretch relative overflow-hidden">
-                    {/* Right decorative pattern */}
-                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start">
+                    <div className="w-[120px] sm:w-[140px] md:w-[162px] left-[-40px] sm:left-[-50px] md:left-[-58px] top-[-120px] absolute flex flex-col justify-start items-start overflow-hidden">
                       {Array.from({ length: 200 }).map((_, i) => (
                         <div
                           key={i}
@@ -513,16 +464,16 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              {/* Documentation Section */}
-              <DocumentationSection />
+              {/* Documentation Section - HIDDEN */}
+              {/* <DocumentationSection /> */}
 
               {/* Testimonials Section */}
               <TestimonialsSection />
 
-              {/* Pricing Section */}
-              <PricingSection />
+              {/* Pricing Section - HIDDEN */}
+              {/* <PricingSection /> */}
 
               {/* FAQ Section */}
               <FAQSection />
@@ -530,11 +481,10 @@ export default function LandingPage() {
               {/* CTA Section */}
               <CTASection />
 
-              {/* Footer Section */}
+              {/* Footer Section - HIDDEN */}
               {/* <FooterSection /> */}
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
