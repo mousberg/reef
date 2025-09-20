@@ -4,6 +4,7 @@ import { Inter, Instrument_Serif } from "next/font/google"
 import localFont from "next/font/local"
 import "./globals.css"
 import { AuthProvider } from "../contexts/AuthContext"
+import { Toaster } from "sonner"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <AuthProvider>
           {children}
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
