@@ -17,8 +17,6 @@ export default function ProjectsPage() {
   const { user, getUserProjects, createProject } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [newProjectName, setNewProjectName] = useState("")
   const [creating, setCreating] = useState(false)
   const router = useRouter()
 
@@ -42,25 +40,16 @@ export default function ProjectsPage() {
     fetchProjects()
   }, [user, getUserProjects, router])
 
-  const handleCreateProject = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!user || !newProjectName.trim()) return
+  const handleCreateProject = async () => {
+    if (!user) return
 
     setCreating(true)
     try {
-      const projectId = await createProject(user.uid, newProjectName.trim())
-      const newProject: Project = {
-        id: projectId,
-        name: newProjectName.trim(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-      setProjects([...projects, newProject])
-      setNewProjectName("")
-      setShowCreateForm(false)
+      const projectId = await createProject(user.uid)
+      // Navigate directly to the new project
+      router.push(`/projects/${projectId}`)
     } catch (error) {
       console.error("Failed to create project:", error)
-    } finally {
       setCreating(false)
     }
   }
@@ -95,7 +84,7 @@ export default function ProjectsPage() {
                 </p>
               </div>
 
-              {projects.length === 0 && !showCreateForm ? (
+              {projects.length === 0 ? (
                 <div className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-12 text-center">
                   <div className="max-w-md mx-auto">
                     <h2 className="text-[#2F3037] text-2xl font-medium leading-tight font-sans mb-4">
@@ -105,10 +94,11 @@ export default function ProjectsPage() {
                       Create your first project to get started with Reef. Projects help you organize your work and collaborate with others.
                     </p>
                     <Button
-                      onClick={() => setShowCreateForm(true)}
-                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all"
+                      onClick={handleCreateProject}
+                      disabled={creating}
+                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                     >
-                      Create Your First Project
+                      {creating ? "Creating..." : "Create Your First Project"}
                     </Button>
                   </div>
                 </div>

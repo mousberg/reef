@@ -3,14 +3,24 @@
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react"
 import { Send, Loader2, Plus, Mic } from "lucide-react"
 import ComposerActionsPopover from "./ComposerActionsPopover"
-import { cls } from "./utils"
+import { cls } from "../lib/utils"
 
-const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
+interface ComposerProps {
+  onSend?: (message: string) => Promise<void> | void
+  busy?: boolean
+}
+
+export interface ComposerRef {
+  insertTemplate: (templateContent: string) => void
+  focus: () => void
+}
+
+const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSend, busy }, ref) {
   const [value, setValue] = useState("")
   const [sending, setSending] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [lineCount, setLineCount] = useState(1)
-  const inputRef = useRef(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   // Auto-resize textarea based on content with max height limit
   useEffect(() => {
@@ -43,7 +53,7 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
     ref,
     () => ({
       // Insert template content into composer, maintaining existing text
-      insertTemplate: (templateContent) => {
+      insertTemplate: (templateContent: string) => {
         setValue((prev) => {
           const newValue = prev ? `${prev}\n\n${templateContent}` : templateContent
           // Focus and position cursor at end after state update

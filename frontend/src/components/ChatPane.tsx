@@ -3,10 +3,43 @@
 import { useState, forwardRef, useImperativeHandle, useRef } from "react"
 import { Square } from "lucide-react"
 import Message from "./Message"
-import Composer from "./Composer"
-import { cls, timeAgo } from "./utils"
+import Composer, { ComposerRef } from "./Composer"
+import { cls, timeAgo } from "../lib/utils"
 
-function ThinkingMessage({ onPause }) {
+interface ChatMessage {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  createdAt: Date | any
+}
+
+interface Conversation {
+  id: string
+  title: string
+  updatedAt: Date | any
+  messageCount?: number
+  preview?: string
+  pinned?: boolean
+  folder?: string
+  messages: ChatMessage[]
+}
+
+interface ChatPaneProps {
+  conversation: Conversation
+  onSend?: (message: string) => Promise<void> | void
+  isThinking?: boolean
+  onPauseThinking?: () => void
+}
+
+export interface ChatPaneRef {
+  insertTemplate: (templateContent: string) => void
+}
+
+interface ThinkingMessageProps {
+  onPause?: () => void
+}
+
+function ThinkingMessage({ onPause }: ThinkingMessageProps) {
   return (
     <Message role="assistant">
       <div className="flex items-center gap-3">
@@ -27,17 +60,17 @@ function ThinkingMessage({ onPause }) {
   )
 }
 
-const ChatPane = forwardRef(function ChatPane(
+const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
   { conversation, onSend, isThinking, onPauseThinking },
   ref,
 ) {
   const [busy, setBusy] = useState(false)
-  const composerRef = useRef(null)
+  const composerRef = useRef<ComposerRef>(null)
 
   useImperativeHandle(
     ref,
     () => ({
-      insertTemplate: (templateContent) => {
+      insertTemplate: (templateContent: string) => {
         composerRef.current?.insertTemplate(templateContent)
       },
     }),
@@ -46,7 +79,7 @@ const ChatPane = forwardRef(function ChatPane(
 
   if (!conversation) return null
 
-  const tags = []
+  const tags: string[] = []
   const messages = Array.isArray(conversation.messages) ? conversation.messages : []
   const count = messages.length || conversation.messageCount || 0
 

@@ -49,9 +49,10 @@ interface AuthContextType {
   logout: () => Promise<void>
   getUserData: (uid: string) => Promise<UserData | null>
   getUserProjects: (uid: string) => Promise<Project[]>
-  createProject: (uid: string, name: string) => Promise<string>
+  createProject: (uid: string, name?: string) => Promise<string>
   getProjectById: (uid: string, projectId: string) => Promise<Project | null>
   updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
+  updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -185,11 +186,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const createProject = async (uid: string, name: string): Promise<string> => {
+  const createProject = async (uid: string, name?: string): Promise<string> => {
     try {
       const projectsRef = collection(firestore, 'users', uid, 'projects')
+      const defaultName = name || `New Project ${new Date().toLocaleDateString()}`
       const docRef = await addDoc(projectsRef, {
-        name,
+        name: defaultName,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         messages: []
@@ -232,6 +234,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updateProjectName = async (uid: string, projectId: string, name: string): Promise<void> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      await updateDoc(projectRef, {
+        name,
+        updatedAt: serverTimestamp()
+      })
+    } catch (error) {
+      console.error('Failed to update project name:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -243,7 +258,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getUserProjects,
     createProject,
     getProjectById,
-    updateProjectMessages
+    updateProjectMessages,
+    updateProjectName
   }
 
   return (
