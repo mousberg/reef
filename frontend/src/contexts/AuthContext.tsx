@@ -7,10 +7,11 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  signInWithPopup
 } from 'firebase/auth'
 import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore'
-import { auth, firestore } from '../lib/firebase'
+import { auth, firestore, googleProvider } from '../lib/firebase'
 
 interface UserData {
   firstName: string
@@ -36,6 +37,7 @@ interface AuthContextType {
   loading: boolean
   signUp: (email: string, password: string, firstName?: string, lastName?: string, termsAccepted?: boolean, marketingAccepted?: boolean) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
+  signInWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   getUserData: (uid: string) => Promise<UserData | null>
   getUserProjects: (uid: string) => Promise<Project[]>
@@ -107,6 +109,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const signInWithGoogle = async () => {
+    const result = await signInWithPopup(auth, googleProvider)
+    
+    if (result.user) {
+      const userDocRef = doc(firestore, 'users', result.user.uid)
+      const userDoc = await getDoc(userDocRef)
+      
+      if (!userDoc.exists()) {
+        const displayName = result.user.displayName || ''
+        const nameParts = displayName.split(' ')
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || ''
+        
+        await setDoc(userDocRef, {
+          firstName,
+          lastName,
+          email: result.user.email,
+          lastLoggedIn: serverTimestamp(),
+          lastLoggedInIp: await getUserIP(),
+          termsAccepted: false,
+          marketingAccepted: false,
+          createdAt: serverTimestamp()
+        })
+      } else {
+        await updateDoc(userDocRef, {
+          lastLoggedIn: serverTimestamp(),
+          lastLoggedInIp: await getUserIP()
+        })
+      }
+    }
+  }
+
   const logout = async () => {
     await signOut(auth)
   }
@@ -162,6 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
     logout,
     getUserData,
     getUserProjects,
