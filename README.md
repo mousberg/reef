@@ -25,8 +25,8 @@ The frontend is built with:
 
 ```bash
 cd frontend
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 The frontend will be available at [http://localhost:3000](http://localhost:3000).
