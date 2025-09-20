@@ -15,6 +15,15 @@ export interface Message {
   content: string
   createdAt: any
   editedAt?: any
+  parts?: Array<{
+    type: string
+    text?: string
+    input?: any
+    output?: any
+    state?: string
+    toolCallId?: string
+    errorText?: string
+  }>
 }
 
 export interface Agent {

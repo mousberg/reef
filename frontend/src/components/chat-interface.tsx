@@ -5,6 +5,7 @@ import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { useSearchParams } from "next/navigation"
 import { useAuth, Message } from "../contexts/AuthContext"
+import { WorkflowState } from "../lib/types"
 import ChatPane from "./ChatPane"
 
 interface ChatInterfaceProps {
@@ -16,13 +17,13 @@ interface ChatInterfaceProps {
 export function ChatInterface({ projectId, initialMessages = [], projectName }: ChatInterfaceProps) {
   const searchParams = useSearchParams()
   const initialPrompt = searchParams.get("prompt")
-  const { user, updateProjectMessages, updateProjectName } = useAuth()
+  const { user, updateProjectMessages, updateProjectName, updateProjectWorkflowState } = useAuth()
 
   // Convert Firebase messages to AI SDK v5 UI message format
   const convertedMessages = initialMessages.map(msg => ({
     id: msg.id,
     role: msg.role,
-    parts: [{ type: 'text' as const, text: msg.content }],
+    parts: msg.parts || [{ type: 'text' as const, text: msg.content }], // Use parts if available, fallback to content
     createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date()
   }))
 
@@ -30,7 +31,8 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     messages,
     sendMessage,
     status,
-    setMessages
+    setMessages,
+    addToolResult
   } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
@@ -39,6 +41,41 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       }
     }),
     messages: convertedMessages,
+    async onToolCall({ toolCall }) {
+      // Check if it's a dynamic tool first for proper type narrowing
+      if (toolCall.dynamic) {
+        return;
+      }
+
+      if (toolCall.toolName === 'updateWorkflowState') {
+        try {
+          if (user) {
+            await updateProjectWorkflowState(user.uid, projectId, toolCall.input as WorkflowState)
+            console.log('Workflow state updated:', toolCall.input)
+
+            // Add tool result to indicate success
+            addToolResult({
+              tool: 'updateWorkflowState',
+              toolCallId: toolCall.toolCallId,
+              output: 'Workflow state updated successfully'
+            })
+          } else {
+            addToolResult({
+              tool: 'updateWorkflowState',
+              toolCallId: toolCall.toolCallId,
+              output: 'Error: User not authenticated'
+            })
+          }
+        } catch (error) {
+          console.error('Failed to update workflow state:', error)
+          addToolResult({
+            tool: 'updateWorkflowState',
+            toolCallId: toolCall.toolCallId,
+            output: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+          })
+        }
+      }
+    },
     onFinish: async ({ messages: finishedMessages }) => {
       // Save complete conversation to Firebase after AI response is complete
       if (user) {
@@ -48,7 +85,8 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
             id: msg.id || crypto.randomUUID(),
             role: msg.role,
             content: msg.parts?.find(part => part.type === 'text')?.text || '',
-            createdAt: new Date()
+            createdAt: new Date(),
+            parts: msg.parts as any // Preserve parts structure for tool calls
           }))
 
           await updateProjectMessages(user.uid, projectId, allFirebaseMessages)
@@ -79,15 +117,6 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     console.log('Chat status changed:', status)
   }, [status])
 
-  useEffect(() => {
-    console.log('Messages updated:', messages.map(msg => ({
-      id: msg.id,
-      role: msg.role,
-      parts: msg.parts,
-      partsCount: msg.parts?.length,
-      partsTypes: msg.parts?.map(p => p.type)
-    })))
-  }, [messages])
 
   // Create conversation object for ChatPane
   const conversation = {
@@ -125,14 +154,16 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
           id: msg.id || crypto.randomUUID(),
           role: msg.role,
           content: msg.parts?.find(part => part.type === 'text')?.text || '',
-          createdAt: new Date()
+          createdAt: new Date(),
+          parts: msg.parts as any // Preserve parts structure
         }))
 
         const newFirebaseMessage: Message = {
           id: userMessage.id,
           role: userMessage.role,
           content: content,
-          createdAt: new Date()
+          createdAt: new Date(),
+          parts: userMessage.parts as any // Preserve parts structure
         }
 
         const updatedMessages = [...currentFirebaseMessages, newFirebaseMessage]

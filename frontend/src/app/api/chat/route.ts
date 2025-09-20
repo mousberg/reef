@@ -1,8 +1,28 @@
 import { streamText, convertToCoreMessages } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { NextRequest } from 'next/server'
+import { z } from 'zod'
 
 export const runtime = 'edge'
+
+// Zod schemas for WorkflowState
+const AgentSchema = z.object({
+  name: z.string(),
+  task: z.string(),
+  instructions: z.string(),
+  connected_agents: z.array(z.string()),
+  expected_input: z.string(),
+  expected_output: z.string(),
+  receives_from_user: z.boolean(),
+  sends_to_user: z.boolean(),
+  tools: z.array(z.string())
+})
+
+const WorkflowStateSchema = z.object({
+  main_task: z.string(),
+  relations: z.string(),
+  agents: z.record(z.string(), AgentSchema)
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,7 +59,13 @@ export async function POST(req: NextRequest) {
       model: openai('gpt-5-nano'),
       messages: coreMessages,
       maxOutputTokens: 4000,
-      system: 'You are a helpful AI assistant for building projects. Help users with their development tasks, provide code examples, and guide them through implementation steps.',
+      system: 'You are a helpful AI assistant for building projects. Help users with their development tasks, provide code examples, and guide them through implementation steps. When users ask you to create or modify workflows, agents, or project structure, use the updateWorkflowState tool to make those changes.',
+      tools: {
+        updateWorkflowState: {
+          description: 'Update the complete workflow state for a project, including all agents, tasks, and relationships',
+          inputSchema: WorkflowStateSchema,
+        }
+      }
     })
 
     console.log('API Route - OpenAI stream created successfully')

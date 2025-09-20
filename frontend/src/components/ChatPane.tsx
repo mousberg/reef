@@ -137,6 +137,42 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
                     </div>
                   ))}
 
+                  {/* Render tool parts if they exist */}
+                  {(m as any).parts?.filter((part: any) => part.type === 'tool-updateWorkflowState').map((toolPart: any, index: number) => (
+                    <div key={`tool-${index}`} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                          Workflow State Update
+                        </span>
+                      </div>
+                      {toolPart.state === 'input-streaming' && (
+                        <div className="text-sm text-blue-600 dark:text-blue-400">
+                          Preparing workflow update...
+                        </div>
+                      )}
+                      {toolPart.state === 'input-available' && (
+                        <div className="text-sm text-blue-600 dark:text-blue-400">
+                          <div className="mb-2">Task: {toolPart.input.main_task}</div>
+                          <div className="mb-2">Relations: {toolPart.input.relations}</div>
+                          <div className="text-xs">
+                            Agents: {Object.keys(toolPart.input.agents || {}).join(', ')}
+                          </div>
+                        </div>
+                      )}
+                      {toolPart.state === 'output-available' && (
+                        <div className="text-sm text-green-600 dark:text-green-400">
+                          ✅ Workflow state updated successfully
+                        </div>
+                      )}
+                      {toolPart.state === 'output-error' && (
+                        <div className="text-sm text-red-600 dark:text-red-400">
+                          ❌ Error updating workflow: {toolPart.errorText}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
                   {/* Render text parts */}
                   {(m as any).parts?.filter((part: any) => part.type === 'text').map((textPart: any, index: number) => (
                     <div key={`text-${index}`} className="whitespace-pre-wrap">{textPart.text}</div>

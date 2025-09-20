@@ -28,6 +28,7 @@ interface AuthContextType {
   getProjectById: (uid: string, projectId: string) => Promise<Project | null>
   updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
   updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
+  updateProjectWorkflowState: (uid: string, projectId: string, workflowState: WorkflowState) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -222,6 +223,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updateProjectWorkflowState = async (uid: string, projectId: string, workflowState: WorkflowState): Promise<void> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      await updateDoc(projectRef, {
+        workflowState,
+        updatedAt: serverTimestamp()
+      })
+    } catch (error) {
+      console.error('Failed to update project workflow state:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -234,7 +248,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     createProject,
     getProjectById,
     updateProjectMessages,
-    updateProjectName
+    updateProjectName,
+    updateProjectWorkflowState
   }
 
   return (
