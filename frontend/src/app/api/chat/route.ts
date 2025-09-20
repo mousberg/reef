@@ -36,10 +36,9 @@ export async function POST(req: NextRequest) {
     // Stream the chat completion
     console.log('API Route - Starting OpenAI stream...')
     const result = await streamText({
-      model: openai('gpt-4o-mini'),
+      model: openai('gpt-5-nano'),
       messages: coreMessages,
-      temperature: 0.7,
-      maxOutputTokens: 2000,
+      maxOutputTokens: 4000,
       system: 'You are a helpful AI assistant for building projects. Help users with their development tasks, provide code examples, and guide them through implementation steps.',
     })
 
