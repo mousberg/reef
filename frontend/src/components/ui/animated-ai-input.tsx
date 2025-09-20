@@ -2,12 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "../../contexts/AuthContext"
 
 export function AnimatedAIInput() {
   const [value, setValue] = useState("")
   const [selectedModel, setSelectedModel] = useState("GPT-4-1 Mini")
+  const [isCreating, setIsCreating] = useState(false)
   const router = useRouter()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const { user, createProject } = useAuth()
 
   const AI_MODELS = [
     "o3-mini",
@@ -17,14 +20,26 @@ export function AnimatedAIInput() {
     "GPT-4-1",
   ]
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!value.trim()) return
 
-    // Generate unique project ID
-    const projectId = crypto.randomUUID()
+    // Check if user is authenticated
+    if (!user) {
+      router.push("/auth")
+      return
+    }
 
-    // Navigate to project page with initial prompt
-    router.push(`/projects/${projectId}?prompt=${encodeURIComponent(value)}`)
+    setIsCreating(true)
+    try {
+      // Create project in Firebase
+      const projectId = await createProject(user.uid)
+      
+      // Navigate to project page with initial prompt
+      router.push(`/projects/${projectId}?prompt=${encodeURIComponent(value)}`)
+    } catch (error) {
+      console.error("Failed to create project:", error)
+      setIsCreating(false)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -149,13 +164,20 @@ export function AnimatedAIInput() {
 
                 <button
                   onClick={handleSubmit}
-                  disabled={!hasContent}
-                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-black text-white hover:bg-gray-800 transition-colors"
+                  disabled={!hasContent || isCreating}
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-black text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
                   type="button"
                 >
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="text-white">
-                    <path d="M8.99992 16V6.41407L5.70696 9.70704C5.31643 10.0976 4.68342 10.0976 4.29289 9.70704C3.90237 9.31652 3.90237 8.6835 4.29289 8.29298L9.29289 3.29298L9.36907 3.22462C9.76184 2.90427 10.3408 2.92686 10.707 3.29298L15.707 8.29298L15.7753 8.36915C16.0957 8.76192 16.0731 9.34092 15.707 9.70704C15.3408 10.0732 14.7618 10.0958 14.3691 9.7754L14.2929 9.70704L10.9999 6.41407V16C10.9999 16.5523 10.5522 17 9.99992 17C9.44764 17 8.99992 16.5523 8.99992 16Z"></path>
-                  </svg>
+                  {isCreating ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="animate-spin text-white">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                      <path fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" className="opacity-75" />
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                      <path d="M8.99992 16V6.41407L5.70696 9.70704C5.31643 10.0976 4.68342 10.0976 4.29289 9.70704C3.90237 9.31652 3.90237 8.6835 4.29289 8.29298L9.29289 3.29298L9.36907 3.22462C9.76184 2.90427 10.3408 2.92686 10.707 3.29298L15.707 8.29298L15.7753 8.36915C16.0957 8.76192 16.0731 9.34092 15.707 9.70704C15.3408 10.0732 14.7618 10.0958 14.3691 9.7754L14.2929 9.70704L10.9999 6.41407V16C10.9999 16.5523 10.5522 17 9.99992 17C9.44764 17 8.99992 16.5523 8.99992 16Z"></path>
+                    </svg>
+                  )}
                 </button>
               </div>
             </div>
