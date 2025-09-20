@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { ChatInterface } from "@/components/chat-interface"
 import { Canvas } from "@/components/canvas"
+import { Navigation } from "@/components/navigation"
 
 
 export default function ProjectPage() {
@@ -47,44 +48,71 @@ export default function ProjectPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-gray-50 items-center justify-center">
-        <div className="text-gray-600">Loading project...</div>
+      <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-center items-center max-w-[100vw]">
+        <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading project...</div>
       </div>
     )
   }
 
   if (error || !project) {
     return (
-      <div className="flex h-screen bg-gray-50 items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-xl font-semibold text-gray-900 mb-2">
-            {error || "Project not found"}
-          </h1>
-          <button
-            onClick={() => router.push("/projects")}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            ← Back to Projects
-          </button>
+      <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-start items-center max-w-[100vw]">
+        <div className="relative flex flex-col justify-start items-center w-full max-w-[100vw] overflow-x-hidden">
+          <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] relative flex flex-col justify-start items-start min-h-screen overflow-x-hidden">
+            {/* Vertical lines */}
+            <div className="w-[1px] h-full absolute left-4 sm:left-6 md:left-8 lg:left-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0" />
+            <div className="w-[1px] h-full absolute right-4 sm:right-6 md:right-8 lg:right-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0" />
+
+            <Navigation />
+
+            <div className="w-full flex-1 flex flex-col justify-center items-center px-6 sm:px-8 md:px-12 lg:px-0 py-8 relative z-10 mt-16">
+              <div className="text-center">
+                <h1 className="text-[#2F3037] text-3xl sm:text-4xl font-medium leading-tight font-sans mb-4">
+                  {error || "Project not found"}
+                </h1>
+                <button
+                  onClick={() => router.push("/projects")}
+                  className="text-[#37322F] hover:opacity-70 text-lg font-medium leading-6 font-sans transition-all"
+                >
+                  ← Back to Projects
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Left side - Chat Interface */}
-      <div className="w-[480px] border-r border-gray-200 bg-white">
-        <ChatInterface
-          projectId={projectId}
-          initialMessages={project.messages || []}
-          projectName={project.name}
-        />
-      </div>
+    <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-start items-center max-w-[100vw]">
+      <div className="relative flex flex-col justify-start items-center w-full max-w-[100vw] overflow-x-hidden">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] relative flex flex-col justify-start items-start min-h-screen overflow-x-hidden">
+          {/* Vertical lines */}
+          <div className="w-[1px] h-full absolute left-4 sm:left-6 md:left-8 lg:left-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0" />
+          <div className="w-[1px] h-full absolute right-4 sm:right-6 md:right-8 lg:right-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0" />
 
-      {/* Right side - Canvas */}
-      <div className="flex-1">
-        <Canvas projectId={projectId} />
+          <Navigation />
+
+          {/* Main Content Area with Chat and Canvas */}
+          <div className="w-full flex-1 relative z-10 mt-16">
+            <div className="flex h-[calc(100vh-64px)] bg-gray-50">
+              {/* Left side - Chat Interface */}
+              <div className="w-[480px] border-r border-gray-200 bg-white">
+                <ChatInterface
+                  projectId={projectId}
+                  initialMessages={project.messages || []}
+                  projectName={project.name}
+                />
+              </div>
+
+              {/* Right side - Canvas */}
+              <div className="flex-1">
+                <Canvas projectId={projectId} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

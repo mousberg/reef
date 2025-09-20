@@ -74,6 +74,21 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     }
   }, [initialPrompt, messages.length, setMessages])
 
+  // Debug status changes and message updates
+  useEffect(() => {
+    console.log('Chat status changed:', status)
+  }, [status])
+
+  useEffect(() => {
+    console.log('Messages updated:', messages.map(msg => ({
+      id: msg.id,
+      role: msg.role,
+      parts: msg.parts,
+      partsCount: msg.parts?.length,
+      partsTypes: msg.parts?.map(p => p.type)
+    })))
+  }, [messages])
+
   // Create conversation object for ChatPane
   const conversation = {
     id: projectId,
@@ -87,7 +102,8 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       id: msg.id,
       role: msg.role,
       content: msg.parts?.find(part => part.type === 'text')?.text || '',
-      createdAt: msg.createdAt
+      createdAt: msg.createdAt,
+      parts: msg.parts // Pass through the parts for reasoning content
     }))
   }
 
@@ -142,7 +158,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     <ChatPane
       conversation={conversation}
       onSend={handleSendMessage}
-      isThinking={status === 'streaming'}
+      isThinking={status === 'submitted' || status === 'streaming'}
       onPauseThinking={() => {}}
     />
   )

@@ -44,7 +44,9 @@ export async function POST(req: NextRequest) {
 
     console.log('API Route - OpenAI stream created successfully')
 
-    return result.toUIMessageStreamResponse()
+    return result.toUIMessageStreamResponse({
+      sendReasoning: true,
+    })
   } catch (error) {
     console.error('Chat API error:', error)
     return new Response('Internal server error', { status: 500 })

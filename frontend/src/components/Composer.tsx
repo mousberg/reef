@@ -20,6 +20,7 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
   const [sending, setSending] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [lineCount, setLineCount] = useState(1)
+  const [pendingMessage, setPendingMessage] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   // Auto-resize textarea based on content with max height limit
@@ -47,6 +48,14 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
       }
     }
   }, [value])
+
+  // Handle busy state changes - restore message when no longer busy
+  useEffect(() => {
+    if (!busy && !sending && pendingMessage && !value) {
+      setValue(pendingMessage)
+      setPendingMessage("")
+    }
+  }, [busy, sending, pendingMessage, value])
 
   // Expose methods to parent component via ref
   useImperativeHandle(
@@ -77,9 +86,15 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
   async function handleSend() {
     if (!value.trim() || sending) return
     setSending(true)
+    const messageToSend = value.trim()
+
+    // Store message and clear input immediately when sending
+    setPendingMessage(messageToSend)
+    setValue("")
+
     try {
-      await onSend?.(value)
-      setValue("") // Clear input after sending
+      await onSend?.(messageToSend)
+      setPendingMessage("") // Clear pending message after successful send
       inputRef.current?.focus() // Keep focus for continuous typing
     } finally {
       setSending(false)
@@ -103,11 +118,13 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
             onChange={(e) => setValue(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Ask Reef..."
+            placeholder={busy ? "AI is thinking..." : "Ask Reef..."}
             rows={1}
+            disabled={busy}
             className={cls(
               "w-full resize-none bg-transparent text-sm outline-none placeholder:text-zinc-400 transition-all duration-200",
               "px-0 py-2 min-h-[40px] text-left",
+              busy && "cursor-not-allowed opacity-60",
             )}
             style={{
               height: "auto",
