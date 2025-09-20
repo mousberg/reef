@@ -1,3 +1,5 @@
+import { useState, useCallback } from "react";
+
 export const cls = (...c) => c.filter(Boolean).join(" ");
 
 export function timeAgo(date) {
@@ -28,3 +30,48 @@ export function timeAgo(date) {
 }
 
 export const makeId = (p) => `${p}${Math.random().toString(36).slice(2, 10)}`;
+
+/**
+ * Custom hook for localStorage with automatic JSON handling and error handling
+ * @param {string} key - localStorage key
+ * @param {any} defaultValue - default value if key doesn't exist
+ * @param {boolean} isJSON - whether to parse/stringify as JSON (default: true for objects/arrays)
+ * @returns {[any, function]} - [value, setValue] tuple similar to useState
+ */
+export function useLocalStorage(key, defaultValue, isJSON = null) {
+  // Auto-detect if we should use JSON based on the default value type
+  const shouldUseJSON = isJSON !== null ? isJSON : (typeof defaultValue === 'object' && defaultValue !== null);
+  
+  // Initialize state with value from localStorage or default
+  const [value, setValue] = useState(() => {
+    try {
+      if (typeof window === "undefined") return defaultValue;
+      
+      const item = localStorage.getItem(key);
+      if (!item) return defaultValue;
+      
+      return shouldUseJSON ? JSON.parse(item) : item;
+    } catch (error) {
+      console.warn(`Error reading localStorage key "${key}":`, error);
+      return defaultValue;
+    }
+  });
+
+  // Update localStorage when value changes
+  const setStoredValue = useCallback((newValue) => {
+    try {
+      // Allow value to be a function so we have the same API as useState
+      const valueToStore = newValue instanceof Function ? newValue(value) : newValue;
+      setValue(valueToStore);
+      
+      if (typeof window !== "undefined") {
+        const itemToStore = shouldUseJSON ? JSON.stringify(valueToStore) : valueToStore;
+        localStorage.setItem(key, itemToStore);
+      }
+    } catch (error) {
+      console.warn(`Error setting localStorage key "${key}":`, error);
+    }
+  }, [key, value, shouldUseJSON]);
+
+  return [value, setStoredValue];
+}
