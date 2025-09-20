@@ -8,6 +8,25 @@ import { useAuth, Message } from "../contexts/AuthContext"
 import { WorkflowState } from "../lib/types"
 import ChatPane from "./ChatPane"
 
+// Utility function to recursively remove undefined values from objects
+function removeUndefined(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj === undefined ? null : obj
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(removeUndefined).filter(item => item !== null)
+  }
+
+  const cleaned: any = {}
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      cleaned[key] = removeUndefined(value)
+    }
+  }
+  return cleaned
+}
+
 interface ChatInterfaceProps {
   projectId: string
   initialMessages?: Message[]
@@ -86,7 +105,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
             role: msg.role,
             content: msg.parts?.find(part => part.type === 'text')?.text || '',
             createdAt: new Date(),
-            parts: msg.parts as any // Preserve parts structure for tool calls
+            parts: removeUndefined(msg.parts) // Clean undefined values before saving
           }))
 
           await updateProjectMessages(user.uid, projectId, allFirebaseMessages)
@@ -155,7 +174,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
           role: msg.role,
           content: msg.parts?.find(part => part.type === 'text')?.text || '',
           createdAt: new Date(),
-          parts: msg.parts as any // Preserve parts structure
+          parts: removeUndefined(msg.parts) // Clean undefined values
         }))
 
         const newFirebaseMessage: Message = {
@@ -163,7 +182,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
           role: userMessage.role,
           content: content,
           createdAt: new Date(),
-          parts: userMessage.parts as any // Preserve parts structure
+          parts: removeUndefined(userMessage.parts) // Clean undefined values
         }
 
         const updatedMessages = [...currentFirebaseMessages, newFirebaseMessage]

@@ -21,7 +21,7 @@ const AgentSchema = z.object({
 const WorkflowStateSchema = z.object({
   main_task: z.string(),
   relations: z.string(),
-  agents: z.record(z.string(), AgentSchema)
+  agents: z.record(z.string(), AgentSchema).default({})
 })
 
 export async function POST(req: NextRequest) {
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       system: 'You are a helpful AI assistant for building projects. Help users with their development tasks, provide code examples, and guide them through implementation steps. When users ask you to create or modify workflows, agents, or project structure, use the updateWorkflowState tool to make those changes.',
       tools: {
         updateWorkflowState: {
-          description: 'Update the complete workflow state for a project, including all agents, tasks, and relationships',
+          description: 'Update the complete workflow state for a project. Include agents as key-value pairs where each agent represents a distinct role or task in the workflow. Agents should have unique names as keys and define their specific responsibilities, inputs, outputs, and connections. If no specific agents are needed for the task, agents can be empty.',
           inputSchema: WorkflowStateSchema,
         }
       }
