@@ -1,6 +1,12 @@
-import { cls } from "./utils"
+import { cls } from "../lib/utils"
+import { ReactNode } from "react"
 
-export default function Message({ role, children }) {
+interface MessageProps {
+  role: "user" | "assistant"
+  children: ReactNode
+}
+
+export default function Message({ role, children }: MessageProps) {
   const isUser = role === "user"
   return (
     <div className={cls("flex gap-3", isUser ? "justify-end" : "justify-start")}>
