@@ -38,7 +38,6 @@ interface Project {
   createdAt: any
   updatedAt: any
   messages?: Message[]
-  lastMessageAt?: any
 }
 
 interface AuthContextType {
@@ -193,8 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        messages: [],
-        lastMessageAt: null
+        messages: []
       })
       return docRef.id
     } catch (error) {
@@ -226,7 +224,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
       await updateDoc(projectRef, {
         messages,
-        lastMessageAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       })
     } catch (error) {
