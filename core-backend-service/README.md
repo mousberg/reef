@@ -25,7 +25,7 @@ uv install
 ### Running the Service
 
 ```bash
-uv run python main.py
+uv run uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 The service will be available at [http://localhost:8000](http://localhost:8000).
