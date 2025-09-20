@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, forwardRef, useImperativeHandle, useRef } from "react"
-import { Pencil, RefreshCw, Check, X, Square } from "lucide-react"
+import { Square } from "lucide-react"
 import Message from "./Message"
 import Composer from "./Composer"
 import { cls, timeAgo } from "./utils"
@@ -28,11 +28,9 @@ function ThinkingMessage({ onPause }) {
 }
 
 const ChatPane = forwardRef(function ChatPane(
-  { conversation, onSend, onEditMessage, onResendMessage, isThinking, onPauseThinking },
+  { conversation, onSend, isThinking, onPauseThinking },
   ref,
 ) {
-  const [editingId, setEditingId] = useState(null)
-  const [draft, setDraft] = useState("")
   const [busy, setBusy] = useState(false)
   const composerRef = useRef(null)
 
@@ -51,26 +49,6 @@ const ChatPane = forwardRef(function ChatPane(
   const tags = []
   const messages = Array.isArray(conversation.messages) ? conversation.messages : []
   const count = messages.length || conversation.messageCount || 0
-
-  function startEdit(m) {
-    setEditingId(m.id)
-    setDraft(m.content)
-  }
-  function cancelEdit() {
-    setEditingId(null)
-    setDraft("")
-  }
-  function saveEdit() {
-    if (!editingId) return
-    onEditMessage?.(editingId, draft)
-    cancelEdit()
-  }
-  function saveAndResend() {
-    if (!editingId) return
-    onEditMessage?.(editingId, draft)
-    onResendMessage?.(editingId)
-    cancelEdit()
-  }
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
@@ -100,55 +78,9 @@ const ChatPane = forwardRef(function ChatPane(
         ) : (
           <>
             {messages.map((m) => (
-              <div key={m.id} className="space-y-2">
-                {editingId === m.id ? (
-                  <div className={cls("rounded-2xl border p-2", "border-zinc-200 dark:border-zinc-800")}>
-                    <textarea
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      className="w-full resize-y rounded-xl bg-transparent p-2 text-sm outline-none"
-                      rows={3}
-                    />
-                    <div className="mt-2 flex items-center gap-2">
-                      <button
-                        onClick={saveEdit}
-                        className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-3 py-1.5 text-xs text-white dark:bg-white dark:text-zinc-900"
-                      >
-                        <Check className="h-3.5 w-3.5" /> Save
-                      </button>
-                      <button
-                        onClick={saveAndResend}
-                        className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs"
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" /> Save & Resend
-                      </button>
-                      <button
-                        onClick={cancelEdit}
-                        className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs"
-                      >
-                        <X className="h-3.5 w-3.5" /> Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <Message role={m.role}>
-                    <div className="whitespace-pre-wrap">{m.content}</div>
-                    {m.role === "user" && (
-                      <div className="mt-1 flex gap-2 text-[11px] text-zinc-500">
-                        <button className="inline-flex items-center gap-1 hover:underline" onClick={() => startEdit(m)}>
-                          <Pencil className="h-3.5 w-3.5" /> Edit
-                        </button>
-                        <button
-                          className="inline-flex items-center gap-1 hover:underline"
-                          onClick={() => onResendMessage?.(m.id)}
-                        >
-                          <RefreshCw className="h-3.5 w-3.5" /> Resend
-                        </button>
-                      </div>
-                    )}
-                  </Message>
-                )}
-              </div>
+              <Message key={m.id} role={m.role}>
+                <div className="whitespace-pre-wrap">{m.content}</div>
+              </Message>
             ))}
             {isThinking && <ThinkingMessage onPause={onPauseThinking} />}
           </>

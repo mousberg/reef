@@ -3,7 +3,19 @@ import { useState, useCallback } from "react";
 export const cls = (...c) => c.filter(Boolean).join(" ");
 
 export function timeAgo(date) {
-  const d = typeof date === "string" ? new Date(date) : date;
+  let d;
+  if (date?.toDate) {
+    d = date.toDate(); // Firebase Timestamp
+  } else if (typeof date === "string") {
+    d = new Date(date);
+  } else {
+    d = date;
+  }
+
+  if (!d || isNaN(d.getTime())) {
+    return "Unknown"; // Fallback for invalid dates
+  }
+
   const now = new Date();
   const sec = Math.max(1, Math.floor((now - d) / 1000));
   const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
@@ -26,6 +38,11 @@ export function timeAgo(date) {
       break;
     }
   }
+  // Ensure value is finite before formatting
+  if (!isFinite(value)) {
+    return "Unknown";
+  }
+
   return rtf.format(value, /** @type {Intl.RelativeTimeFormatUnit} */ (unit));
 }
 
