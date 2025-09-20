@@ -1,16 +1,17 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { 
-  User, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
+import {
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  signInWithPopup
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, getDoc, serverTimestamp } from 'firebase/firestore'
-import { auth, firestore } from '../lib/firebase'
+import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore'
+import { auth, firestore, googleProvider } from '../lib/firebase'
 
 interface UserData {
   firstName: string
@@ -23,13 +24,52 @@ interface UserData {
   createdAt: any
 }
 
+export interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  createdAt: any
+  editedAt?: any
+}
+
+interface Agent {
+  name: string
+  task: string
+  instructions: string
+  connected_agents: string[]
+  expected_input: string
+  expected_output: string
+  tools: string[]
+}
+
+interface WorkflowState {
+  main_task: string
+  relations: string
+  agents: Record<string, Agent>
+}
+
+interface Project {
+  id: string
+  name: string
+  createdAt: any
+  updatedAt: any
+  messages?: Message[]
+  workflowState?: WorkflowState
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
   signUp: (email: string, password: string, firstName?: string, lastName?: string, termsAccepted?: boolean, marketingAccepted?: boolean) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
+  signInWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   getUserData: (uid: string) => Promise<UserData | null>
+  getUserProjects: (uid: string) => Promise<Project[]>
+  createProject: (uid: string, name?: string) => Promise<string>
+  getProjectById: (uid: string, projectId: string) => Promise<Project | null>
+  updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
+  updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -64,13 +104,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string, termsAccepted = false, marketingAccepted = false) => {
     const result = await createUserWithEmailAndPassword(auth, email, password)
-    
+
     if (result.user) {
       const displayName = firstName && lastName ? `${firstName} ${lastName}` : firstName || ''
       if (displayName) {
         await updateProfile(result.user, { displayName })
       }
-      
+
       const userDocRef = doc(firestore, 'users', result.user.uid)
       await setDoc(userDocRef, {
         firstName: firstName || '',
@@ -87,13 +127,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const result = await signInWithEmailAndPassword(auth, email, password)
-    
+
     if (result.user) {
       const userDocRef = doc(firestore, 'users', result.user.uid)
       await updateDoc(userDocRef, {
         lastLoggedIn: serverTimestamp(),
         lastLoggedInIp: await getUserIP()
       })
+    }
+  }
+
+  const signInWithGoogle = async () => {
+    const result = await signInWithPopup(auth, googleProvider)
+
+    if (result.user) {
+      const userDocRef = doc(firestore, 'users', result.user.uid)
+      const userDoc = await getDoc(userDocRef)
+
+      if (!userDoc.exists()) {
+        const displayName = result.user.displayName || ''
+        const nameParts = displayName.split(' ')
+        const firstName = nameParts[0] || ''
+        const lastName = nameParts.slice(1).join(' ') || ''
+
+        await setDoc(userDocRef, {
+          firstName,
+          lastName,
+          email: result.user.email,
+          lastLoggedIn: serverTimestamp(),
+          lastLoggedInIp: await getUserIP(),
+          termsAccepted: false,
+          marketingAccepted: false,
+          createdAt: serverTimestamp()
+        })
+      } else {
+        await updateDoc(userDocRef, {
+          lastLoggedIn: serverTimestamp(),
+          lastLoggedInIp: await getUserIP()
+        })
+      }
     }
   }
 
@@ -105,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const userDocRef = doc(firestore, 'users', uid)
       const userDoc = await getDoc(userDocRef)
-      
+
       if (userDoc.exists()) {
         return userDoc.data() as UserData
       }
@@ -116,13 +188,95 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const getUserProjects = async (uid: string): Promise<Project[]> => {
+    try {
+      const projectsRef = collection(firestore, 'users', uid, 'projects')
+      const snapshot = await getDocs(projectsRef)
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Project[]
+    } catch (error) {
+      console.error('Failed to get user projects:', error)
+      return []
+    }
+  }
+
+  const createProject = async (uid: string, name?: string): Promise<string> => {
+    try {
+      const projectsRef = collection(firestore, 'users', uid, 'projects')
+      const defaultName = name || `New Project ${new Date().toLocaleDateString()}`
+      const docRef = await addDoc(projectsRef, {
+        name: defaultName,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        messages: []
+      })
+      return docRef.id
+    } catch (error) {
+      console.error('Failed to create project:', error)
+      throw error
+    }
+  }
+
+  const getProjectById = async (uid: string, projectId: string): Promise<Project | null> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      const projectDoc = await getDoc(projectRef)
+
+      if (projectDoc.exists()) {
+        return {
+          id: projectDoc.id,
+          ...projectDoc.data()
+        } as Project
+      }
+      return null
+    } catch (error) {
+      console.error('Failed to get project:', error)
+      return null
+    }
+  }
+
+  const updateProjectMessages = async (uid: string, projectId: string, messages: Message[]): Promise<void> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      await updateDoc(projectRef, {
+        messages,
+        updatedAt: serverTimestamp()
+      })
+    } catch (error) {
+      console.error('Failed to update project messages:', error)
+      throw error
+    }
+  }
+
+  const updateProjectName = async (uid: string, projectId: string, name: string): Promise<void> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      await updateDoc(projectRef, {
+        name,
+        updatedAt: serverTimestamp()
+      })
+    } catch (error) {
+      console.error('Failed to update project name:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
     logout,
-    getUserData
+    getUserData,
+    getUserProjects,
+    createProject,
+    getProjectById,
+    updateProjectMessages,
+    updateProjectName
   }
 
   return (
