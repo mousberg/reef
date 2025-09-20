@@ -5,6 +5,9 @@ import { useAuth } from "../../contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { Navigation } from "../../components/navigation"
 import { Button } from "../../components/ui/button"
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore"
+import { firestore } from "../../lib/firebase"
+import { toast } from "sonner"
 
 interface UserData {
   firstName: string
@@ -22,6 +25,12 @@ export default function SettingsPage() {
   const [userData, setUserData] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editableData, setEditableData] = useState({
+    firstName: "",
+    lastName: "",
+    marketingAccepted: false
+  })
   const router = useRouter()
 
   useEffect(() => {
@@ -34,6 +43,13 @@ export default function SettingsPage() {
       try {
         const data = await getUserData(user.uid)
         setUserData(data)
+        if (data) {
+          setEditableData({
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            marketingAccepted: data.marketingAccepted || false
+          })
+        }
       } catch (error) {
         console.error("Failed to fetch user data:", error)
       } finally {
@@ -43,6 +59,36 @@ export default function SettingsPage() {
 
     fetchUserData()
   }, [user, getUserData, router])
+
+  const handleSave = async () => {
+    if (!user || !userData) return
+    
+    setSaving(true)
+    try {
+      const userDocRef = doc(firestore, 'users', user.uid)
+      await updateDoc(userDocRef, {
+        firstName: editableData.firstName,
+        lastName: editableData.lastName,
+        marketingAccepted: editableData.marketingAccepted,
+        lastUpdated: serverTimestamp()
+      })
+      
+      // Update local state
+      setUserData({
+        ...userData,
+        firstName: editableData.firstName,
+        lastName: editableData.lastName,
+        marketingAccepted: editableData.marketingAccepted
+      })
+      
+      toast.success("Settings saved successfully!")
+    } catch (error) {
+      console.error("Failed to save user data:", error)
+      toast.error("Failed to save settings. Please try again.")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const handleLogout = async () => {
     setLoggingOut(true)
@@ -98,62 +144,73 @@ export default function SettingsPage() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
+                      <label htmlFor="firstName" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
                         First Name
                       </label>
-                      <div className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
-                        {userData.firstName}
-                      </div>
+                      <input
+                        id="firstName"
+                        type="text"
+                        value={editableData.firstName}
+                        onChange={(e) => setEditableData({ ...editableData, firstName: e.target.value })}
+                        className="w-full px-4 py-3 bg-white border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter first name"
+                      />
                     </div>
                     <div>
-                      <label className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
+                      <label htmlFor="lastName" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
                         Last Name
                       </label>
-                      <div className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
-                        {userData.lastName}
-                      </div>
+                      <input
+                        id="lastName"
+                        type="text"
+                        value={editableData.lastName}
+                        onChange={(e) => setEditableData({ ...editableData, lastName: e.target.value })}
+                        className="w-full px-4 py-3 bg-white border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter last name"
+                      />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
+                    <label htmlFor="email" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
                       Email
                     </label>
-                    <div className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
+                    <div id="email" className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
                       {userData.email}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                        Terms Accepted
+                  <div>
+                    <label htmlFor="marketing" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
+                      Marketing Communications
+                    </label>
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id="marketing"
+                        checked={editableData.marketingAccepted}
+                        onChange={(e) => setEditableData({ ...editableData, marketingAccepted: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                      />
+                      <label htmlFor="marketing" className="text-[#37322F] text-sm font-medium leading-5 font-sans">
+                        I agree to receive marketing communications and updates
                       </label>
-                      <div className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
-                        {userData.termsAccepted ? "Yes" : "No"}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                        Marketing Accepted
-                      </label>
-                      <div className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
-                        {userData.marketingAccepted ? "Yes" : "No"}
-                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                      Last Login IP
-                    </label>
-                    <div className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans">
-                      {userData.lastLoggedInIp}
-                    </div>
-                  </div>
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-[rgba(55,50,47,0.12)]">
+                  <div className="flex justify-between items-center mb-6">
+                    <Button 
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="bg-blue-600 hover:bg-blue-700 text-white rounded-[12px] px-8 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </div>
+                  
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="text-[#2F3037] text-lg font-medium leading-6 font-sans mb-1">
