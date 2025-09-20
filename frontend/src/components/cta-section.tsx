@@ -16,7 +16,7 @@ export default function CTASection() {
             <div className="flex flex-col justify-center items-center gap-4">
               <img src="/stamp.webp" alt="Made by Reef" className="h-48 w-auto" />
               <div className="text-[rgba(73,66,61,0.90)] text-sm font-medium leading-[18px] font-sans flex items-center gap-1">
-                Made with love <img src="/heart.svg" alt="heart" className="w-4 h-4 inline" /> in New York
+                Made with <img src="/heart.svg" alt="heart" className="w-4 h-4 inline" /> in New York
               </div>
             </div>
           </div>
