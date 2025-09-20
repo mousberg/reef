@@ -8,6 +8,7 @@ import { FeatureCardsSection } from "../components/feature-cards-section"
 import TestimonialsSection from "../components/testimonials-section"
 import FAQSection from "../components/faq-section"
 import CTASection from "../components/cta-section"
+import { Footer } from "../components/Footer"
 
 export default function LandingPage() {
   const [activeCard, setActiveCard] = useState(0)
@@ -68,6 +69,8 @@ export default function LandingPage() {
             <FAQSection />
             <CTASection />
           </div>
+          
+          <Footer />
         </div>
       </div>
     </div>
