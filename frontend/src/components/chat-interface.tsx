@@ -16,7 +16,7 @@ interface ChatInterfaceProps {
 export function ChatInterface({ projectId, initialMessages = [], projectName }: ChatInterfaceProps) {
   const searchParams = useSearchParams()
   const initialPrompt = searchParams.get("prompt")
-  const { user, updateProjectMessages } = useAuth()
+  const { user, updateProjectMessages, updateProjectName } = useAuth()
 
   // Convert Firebase messages to AI SDK v5 UI message format
   const convertedMessages = initialMessages.map(msg => ({
@@ -122,6 +122,12 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
         const updatedMessages = [...currentFirebaseMessages, newFirebaseMessage]
         await updateProjectMessages(user.uid, projectId, updatedMessages)
         console.log('User message saved to Firebase:', newFirebaseMessage)
+
+        // If this is the first message and project has a default name, update it with message content
+        if (currentFirebaseMessages.length === 0 && projectName?.startsWith('New Project')) {
+          const newName = content.length > 50 ? content.substring(0, 50) + '...' : content
+          await updateProjectName(user.uid, projectId, newName)
+        }
       } catch (error) {
         console.error('Failed to save user message to Firebase:', error)
       }

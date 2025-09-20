@@ -110,56 +110,15 @@ export default function ProjectsPage() {
                         {projects.length} {projects.length === 1 ? 'project' : 'projects'}
                       </div>
                       <Button
-                        onClick={() => setShowCreateForm(true)}
-                        className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
+                        onClick={handleCreateProject}
+                        disabled={creating}
+                        className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                       >
-                        New Project
+                        {creating ? "Creating..." : "New Project"}
                       </Button>
                     </div>
                   )}
 
-                  {showCreateForm && (
-                    <div className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-8">
-                      <h3 className="text-[#2F3037] text-xl font-medium leading-tight font-sans mb-6">
-                        Create New Project
-                      </h3>
-                      <form onSubmit={handleCreateProject} className="space-y-4">
-                        <div>
-                          <label htmlFor="projectName" className="block text-[#37322F] text-sm font-medium leading-5 font-sans mb-2">
-                            Project Name
-                          </label>
-                          <input
-                            type="text"
-                            id="projectName"
-                            value={newProjectName}
-                            onChange={(e) => setNewProjectName(e.target.value)}
-                            className="w-full px-4 py-3 bg-[#F7F5F3] border border-[rgba(55,50,47,0.12)] rounded-[12px] text-[#37322F] text-sm font-medium leading-5 font-sans focus:outline-none focus:border-[#37322F] focus:ring-[3px] focus:ring-[rgba(55,50,47,0.1)] transition-all"
-                            placeholder="Enter project name"
-                            required
-                          />
-                        </div>
-                        <div className="flex gap-3">
-                          <Button
-                            type="submit"
-                            disabled={creating || !newProjectName.trim()}
-                            className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
-                          >
-                            {creating ? "Creating..." : "Create Project"}
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={() => {
-                              setShowCreateForm(false)
-                              setNewProjectName("")
-                            }}
-                            className="bg-[#F7F5F3] hover:bg-[#EEEDEB] text-[#37322F] border border-[rgba(55,50,47,0.12)] rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
-                    </div>
-                  )}
 
                   {projects.length > 0 && (
                     <div className="grid gap-6">
