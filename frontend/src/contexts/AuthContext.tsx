@@ -12,50 +12,8 @@ import {
 } from 'firebase/auth'
 import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore'
 import { auth, firestore, googleProvider } from '../lib/firebase'
+import { UserData, Message, Agent, WorkflowState, Project } from '../lib/types'
 
-interface UserData {
-  firstName: string
-  lastName: string
-  email: string
-  lastLoggedIn: any
-  lastLoggedInIp: string
-  termsAccepted: boolean
-  marketingAccepted: boolean
-  createdAt: any
-}
-
-export interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  createdAt: any
-  editedAt?: any
-}
-
-interface Agent {
-  name: string
-  task: string
-  instructions: string
-  connected_agents: string[]
-  expected_input: string
-  expected_output: string
-  tools: string[]
-}
-
-interface WorkflowState {
-  main_task: string
-  relations: string
-  agents: Record<string, Agent>
-}
-
-interface Project {
-  id: string
-  name: string
-  createdAt: any
-  updatedAt: any
-  messages?: Message[]
-  workflowState?: WorkflowState
-}
 
 interface AuthContextType {
   user: User | null
