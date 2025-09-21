@@ -4,17 +4,30 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import type { AgentTrace, AgentSpan, TraceLogEntry } from '@/types/traces'
 import { formatDistanceToNow } from 'date-fns'
+import { JsonViewer } from './TraceViewer/JsonViewer'
+import { MessageViewer } from './TraceViewer/MessageViewer'
+import { ToolCallViewer } from './TraceViewer/ToolCallViewer'
+import { TraceTimeline } from './TraceViewer/TraceTimeline'
 
 interface TracesPanelProps {
   isOpen: boolean
   onClose: () => void
 }
 
+type ViewMode = 'timeline' | 'list' | 'conversation'
+type FilterStatus = 'all' | 'completed' | 'failed' | 'pending' | 'running'
+
 export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
-  const { user, getAgentTraces, getAgentSpans } = useAuth()
+  const { user, subscribeToAgentTraces, subscribeToAgentSpans } = useAuth()
   const [loading, setLoading] = useState(false)
   const [selectedTrace, setSelectedTrace] = useState<string | null>(null)
+  const [selectedSpan, setSelectedSpan] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('timeline')
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
+  const [traces, setTraces] = useState<AgentTrace[]>([])
+  const [spans, setSpans] = useState<AgentSpan[]>([])
   const [logEntries, setLogEntries] = useState<TraceLogEntry[]>([])
+  const [isLiveUpdating, setIsLiveUpdating] = useState(true)
 
   // Helper function to safely convert timestamps to Date objects
   const toDate = useCallback((timestamp: Date | { toDate?: () => Date }): Date => {
@@ -27,65 +40,88 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
     return new Date(timestamp as any)
   }, [])
 
-  const fetchTracesData = useCallback(async () => {
-    if (!user) return
-    
-    setLoading(true)
-    try {
-      const [tracesData, spansData] = await Promise.all([
-        getAgentTraces(user.uid),
-        getAgentSpans(user.uid)
-      ])
-      
-      // Create combined log entries
-      const entries: TraceLogEntry[] = []
-      
-      // Add traces
-      tracesData.forEach(trace => {
-        entries.push({
-          id: trace.id,
-          timestamp: toDate(trace.start_time),
-          type: 'trace',
-          level: trace.status === 'failed' ? 'error' : 'info',
-          message: `${trace.metadata.agent_type}: ${trace.metadata.name}`,
-          data: trace,
-          duration: trace.end_time && trace.start_time 
-            ? toDate(trace.end_time).getTime() - toDate(trace.start_time).getTime()
-            : undefined
-        })
+  const updateLogEntries = useCallback((tracesData: AgentTrace[], spansData: AgentSpan[]) => {
+    const entries: TraceLogEntry[] = []
+
+    // Add traces
+    tracesData.forEach(trace => {
+      entries.push({
+        id: trace.id,
+        timestamp: toDate(trace.start_time),
+        type: 'trace',
+        level: trace.status === 'failed' ? 'error' : 'info',
+        message: `${trace.metadata?.agent_type || 'Unknown'}: ${trace.metadata?.name || 'Unnamed Trace'}`,
+        data: trace,
+        duration: trace.end_time && trace.start_time
+          ? toDate(trace.end_time).getTime() - toDate(trace.start_time).getTime()
+          : undefined
       })
-      
-      // Add spans
-      spansData.forEach(span => {
-        entries.push({
-          id: span.id,
-          timestamp: toDate(span.start_time),
-          type: 'span',
-          level: span.status === 'failed' ? 'error' : span.error ? 'warning' : 'info',
-          message: span.metadata.name,
-          data: span,
-          duration: span.end_time && span.start_time 
-            ? toDate(span.end_time).getTime() - toDate(span.start_time).getTime()
-            : undefined
-        })
+    })
+
+    // Add spans
+    spansData.forEach(span => {
+      entries.push({
+        id: span.id,
+        timestamp: toDate(span.start_time),
+        type: 'span',
+        level: span.status === 'failed' ? 'error' : span.error ? 'warning' : 'info',
+        message: span.metadata?.name || 'Unnamed Span',
+        data: span,
+        duration: span.end_time && span.start_time
+          ? toDate(span.end_time).getTime() - toDate(span.start_time).getTime()
+          : undefined
       })
-      
-      // Sort by timestamp descending (newest first)
-      entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      setLogEntries(entries)
-      
-    } catch (error) {
-      console.error('Failed to fetch traces data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [user, getAgentTraces, getAgentSpans, toDate])
+    })
+
+    // Sort by timestamp descending (newest first)
+    entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    setLogEntries(entries)
+  }, [toDate])
 
   useEffect(() => {
-    if (isOpen && user) {
-      fetchTracesData()
+    if (!isOpen || !isLiveUpdating) return
+
+    setLoading(true)
+
+    // Hardcode the user email for demo purposes
+    const hardcodedUserEmail = 'florisfok5@gmail.com'
+
+    const unsubscribeTraces = subscribeToAgentTraces(hardcodedUserEmail, (newTraces) => {
+      setTraces(newTraces)
+      setLoading(false)
+    })
+
+    const unsubscribeSpans = subscribeToAgentSpans(hardcodedUserEmail, (newSpans) => {
+      setSpans(newSpans)
+    })
+
+    return () => {
+      unsubscribeTraces()
+      unsubscribeSpans()
     }
-  }, [isOpen, user, fetchTracesData])
+  }, [isOpen, isLiveUpdating, subscribeToAgentTraces, subscribeToAgentSpans])
+
+  // Update log entries when traces or spans change
+  useEffect(() => {
+    updateLogEntries(traces, spans)
+  }, [traces, spans, updateLogEntries])
+
+  // Filter logic
+  const filteredLogEntries = logEntries.filter(entry => {
+    if (filterStatus === 'all') return true
+    const data = entry.data as AgentTrace | AgentSpan
+    return data.status === filterStatus
+  })
+
+  const filteredTraces = traces.filter(trace => {
+    if (filterStatus === 'all') return true
+    return trace.status === filterStatus
+  })
+
+  const filteredSpans = spans.filter(span => {
+    if (filterStatus === 'all') return true
+    return span.status === filterStatus
+  })
 
   const formatDuration = (ms: number) => {
     if (ms < 1000) return `${ms}ms`
@@ -116,7 +152,7 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
       <div className="grid grid-cols-1 gap-3 text-sm">
         <div className="flex justify-between items-center">
           <span className="text-[#556B5D] font-medium">Agent Type</span>
-          <span className="text-[#2F3037] font-mono text-xs bg-[#F7F5F3] px-2 py-1 rounded">{trace.metadata.agent_type}</span>
+          <span className="text-[#2F3037] font-mono text-xs bg-[#F7F5F3] px-2 py-1 rounded">{trace.metadata?.agent_type || 'Unknown'}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-[#556B5D] font-medium">Status</span>
@@ -127,30 +163,34 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
         <div className="flex justify-between items-center">
           <span className="text-[#556B5D] font-medium">Duration</span>
           <span className="text-[#2F3037] font-mono text-xs">
-            {trace.end_time && trace.start_time 
+            {trace.end_time && trace.start_time
               ? formatDuration(toDate(trace.end_time).getTime() - toDate(trace.start_time).getTime())
               : 'N/A'}
           </span>
         </div>
+        <div className="flex justify-between items-center">
+          <span className="text-[#556B5D] font-medium">Trace ID</span>
+          <span className="text-[#2F3037] font-mono text-xs bg-[#F7F5F3] px-2 py-1 rounded">{trace.trace_id}</span>
+        </div>
       </div>
-      
-      {trace.inputs && Object.keys(trace.inputs).length > 0 && (
-        <div>
-          <h4 className="text-[#2F3037] font-medium mb-2 text-sm">Inputs</h4>
-          <pre className="bg-[#F7F5F3] p-3 rounded-lg text-xs overflow-auto max-h-32 text-[#37322F] border border-[rgba(55,50,47,0.12)]">
-            {JSON.stringify(trace.inputs, null, 2)}
-          </pre>
-        </div>
-      )}
-      
-      {trace.outputs && Object.keys(trace.outputs).length > 0 && (
-        <div>
-          <h4 className="text-[#2F3037] font-medium mb-2 text-sm">Outputs</h4>
-          <pre className="bg-[#F7F5F3] p-3 rounded-lg text-xs overflow-auto max-h-32 text-[#37322F] border border-[rgba(55,50,47,0.12)]">
-            {JSON.stringify(trace.outputs, null, 2)}
-          </pre>
-        </div>
-      )}
+
+      {(() => {
+        if (trace.inputs && trace.inputs.input && Array.isArray(trace.inputs.input)) {
+          return <MessageViewer messages={trace.inputs.input as any[]} />
+        }
+        return null
+      })()}
+
+      {(() => {
+        if (trace.outputs && trace.outputs.output && Array.isArray(trace.outputs.output)) {
+          return <MessageViewer messages={trace.outputs.output as any[]} />
+        }
+        return null
+      })()}
+
+      <JsonViewer data={trace.inputs} title="Raw Inputs" />
+      <JsonViewer data={trace.outputs} title="Raw Outputs" />
+      <JsonViewer data={trace.metadata} title="Metadata" />
     </div>
   )
 
@@ -193,23 +233,24 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
         </div>
       ) : null}
       
-      {span.inputs && Object.keys(span.inputs).length > 0 && (
-        <div>
-          <h4 className="text-[#2F3037] font-medium mb-2 text-sm">Inputs</h4>
-          <pre className="bg-[#F7F5F3] p-3 rounded-lg text-xs overflow-auto max-h-32 text-[#37322F] border border-[rgba(55,50,47,0.12)]">
-            {JSON.stringify(span.inputs, null, 2)}
-          </pre>
-        </div>
+      {span.inputs && span.inputs.input && Array.isArray(span.inputs.input) && (
+        <MessageViewer messages={span.inputs.input as any[]} />
       )}
-      
-      {span.outputs && Object.keys(span.outputs).length > 0 && (
-        <div>
-          <h4 className="text-[#2F3037] font-medium mb-2 text-sm">Outputs</h4>
-          <pre className="bg-[#F7F5F3] p-3 rounded-lg text-xs overflow-auto max-h-32 text-[#37322F] border border-[rgba(55,50,47,0.12)]">
-            {JSON.stringify(span.outputs, null, 2)}
-          </pre>
-        </div>
+
+      {span.outputs && span.outputs.output && Array.isArray(span.outputs.output) && (
+        <MessageViewer messages={span.outputs.output as any[]} />
       )}
+
+      {span.outputs && span.outputs.output && Array.isArray(span.outputs.output) &&
+        span.outputs.output.some((msg: any) => msg.tool_calls) && (
+        <ToolCallViewer
+          toolCalls={span.outputs.output.flatMap((msg: any) => msg.tool_calls || [])}
+        />
+      )}
+
+      <JsonViewer data={span.inputs} title="Raw Inputs" />
+      <JsonViewer data={span.outputs} title="Raw Outputs" />
+      <JsonViewer data={span.metadata} title="Metadata" />
     </div>
   )
 
@@ -218,37 +259,78 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
   return (
     <div className="absolute inset-y-0 right-0 w-full bg-[#F7F5F3] backdrop-blur-sm shadow-[0px_0px_0px_2px_white] border-l border-[rgba(55,50,47,0.12)] z-50 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-[rgba(55,50,47,0.12)] bg-white/50">
-        <h2 className="text-[#2F3037] text-lg font-medium font-sans">Agent Traces</h2>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={fetchTracesData}
-            disabled={loading}
-            className="px-3 py-[6px] bg-white shadow-[0px_1px_2px_rgba(55,50,47,0.12)] hover:shadow-[0px_2px_4px_rgba(55,50,47,0.16)] overflow-hidden rounded-full flex justify-center items-center transition-all disabled:opacity-50"
+      <div className="flex flex-col gap-3 p-4 border-b border-[rgba(55,50,47,0.12)] bg-white/50">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[#2F3037] text-lg font-medium font-sans">Agent Traces</h2>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsLiveUpdating(!isLiveUpdating)}
+              className={`px-3 py-[6px] rounded-full flex justify-center items-center transition-all ${
+                isLiveUpdating
+                  ? 'bg-emerald-100 text-emerald-700 shadow-[0px_1px_2px_rgba(16,185,129,0.12)]'
+                  : 'bg-white shadow-[0px_1px_2px_rgba(55,50,47,0.12)] text-[#37322F] hover:shadow-[0px_2px_4px_rgba(55,50,47,0.16)]'
+              }`}
+            >
+              <span className="text-[13px] font-medium leading-5 font-sans">
+                {isLiveUpdating ? '🔴 Live' : '⏸️ Paused'}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 hover:bg-white/70 rounded-full transition-colors"
+            >
+              <svg className="w-4 h-4 text-[#556B5D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex items-center justify-between gap-3">
+          {/* View Mode Selector */}
+          <div className="flex bg-white rounded-lg p-1 shadow-[0px_1px_2px_rgba(55,50,47,0.12)]">
+            {(['timeline', 'list', 'conversation'] as ViewMode[]).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-all capitalize ${
+                  viewMode === mode
+                    ? 'bg-[#2F3037] text-white'
+                    : 'text-[#556B5D] hover:text-[#2F3037]'
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+
+          {/* Status Filter */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
+            className="text-xs bg-white border border-[rgba(55,50,47,0.12)] rounded-md px-2 py-1 text-[#2F3037] focus:outline-none focus:ring-1 focus:ring-[#2F3037]"
           >
-            <span className="text-[#37322F] text-[13px] font-medium leading-5 font-sans">
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 hover:bg-white/70 rounded-full transition-colors"
-          >
-            <svg className="w-4 h-4 text-[#556B5D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+            <option value="all">All Status</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="pending">Pending</option>
+            <option value="running">Running</option>
+          </select>
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full">
+          <div className="flex flex-col items-center justify-center h-full animate-in fade-in-0 duration-500">
             <div className="w-8 h-8 border-2 border-[#37322F] border-t-transparent rounded-full animate-spin mb-3"></div>
             <div className="text-[#556B5D] text-sm font-medium">Loading traces...</div>
+            <div className="text-[#556B5D] text-xs mt-2">
+              {isLiveUpdating ? '🔴 Live updates enabled' : '⏸️ Updates paused'}
+            </div>
           </div>
         ) : logEntries.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-8 text-center">
@@ -266,60 +348,145 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
           <div className="h-full overflow-y-auto">
             <div className="p-4">
               <div className="text-[#556B5D] text-sm font-medium mb-4 flex items-center justify-between">
-                <span>{logEntries.length} entries</span>
-                {selectedTrace && (
+                <span>
+                  {viewMode === 'timeline'
+                    ? `${filteredTraces.length + filteredSpans.length} items`
+                    : `${filteredLogEntries.length} entries`}
+                </span>
+                {(selectedTrace || selectedSpan) && (
                   <button
                     type="button"
-                    onClick={() => setSelectedTrace(null)}
+                    onClick={() => {
+                      setSelectedTrace(null)
+                      setSelectedSpan(null)
+                    }}
                     className="text-[13px] text-[#37322F] hover:text-[#2F3037] font-medium transition-colors"
                   >
-                    ← Back to list
+                    ← Back to {viewMode}
                   </button>
                 )}
               </div>
               
-              {selectedTrace ? (
+              {selectedTrace || selectedSpan ? (
                 // Details View
                 <div>
                   {(() => {
-                    const entry = logEntries.find(e => e.id === selectedTrace)
-                    if (!entry) return <div className="text-[#556B5D]">Entry not found</div>
-                    
+                    let entry = null
+                    let data = null
+                    let type = null
+
+                    if (selectedTrace) {
+                      entry = filteredLogEntries.find(e => e.id === selectedTrace)
+                      data = traces.find(t => t.id === selectedTrace)
+                      type = 'trace'
+                    } else if (selectedSpan) {
+                      entry = filteredLogEntries.find(e => e.id === selectedSpan)
+                      data = spans.find(s => s.id === selectedSpan)
+                      type = 'span'
+                    }
+
+                    if (!data) return <div className="text-[#556B5D]">Item not found</div>
+
                     return (
                       <div>
                         <div className="mb-6">
                           <h3 className="text-[#2F3037] text-base font-medium font-sans mb-2">
-                            {entry.message}
+                            {entry?.message || (data as any).metadata?.name || 'Unnamed Item'}
                           </h3>
                           <div className="text-[#556B5D] text-xs font-mono">
-                            {entry.timestamp.toLocaleString()}
+                            {entry?.timestamp.toLocaleString() || 'Unknown time'}
                           </div>
                         </div>
-                        
-                        {entry.type === 'trace' 
-                          ? renderTraceDetails(entry.data as AgentTrace)
-                          : renderSpanDetails(entry.data as AgentSpan)
+
+                        {type === 'trace'
+                          ? renderTraceDetails(data as AgentTrace)
+                          : renderSpanDetails(data as AgentSpan)
                         }
                       </div>
                     )
                   })()}
                 </div>
+              ) : viewMode === 'timeline' ? (
+                // Timeline View
+                <TraceTimeline
+                  traces={filteredTraces}
+                  spans={filteredSpans}
+                  onTraceSelect={setSelectedTrace}
+                  onSpanSelect={setSelectedSpan}
+                />
+              ) : viewMode === 'conversation' ? (
+                // Conversation View
+                <div className="space-y-6">
+                  {filteredLogEntries.map((entry) => (
+                    <div key={entry.id} className="border border-[rgba(55,50,47,0.12)] rounded-lg p-4 bg-white/50 animate-in fade-in-0 slide-in-from-left-4 duration-300">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getLevelStyles(entry.level)}`}>
+                            {entry.type.toUpperCase()}
+                          </span>
+                          <span className="text-[#2F3037] font-medium text-sm">
+                            {entry.message}
+                          </span>
+                        </div>
+                        <span className="text-[#556B5D] text-xs font-mono ml-auto">
+                          {formatDistanceToNow(entry.timestamp, { addSuffix: true })}
+                        </span>
+                      </div>
+
+                      {/* Show conversation data directly in this view */}
+                      {(() => {
+                        if (entry.type === 'trace' && (entry.data as AgentTrace).inputs?.input && Array.isArray((entry.data as AgentTrace).inputs.input)) {
+                          return <MessageViewer messages={(entry.data as AgentTrace).inputs.input as any[]} />
+                        }
+                        return null
+                      })()}
+                      {(() => {
+                        if (entry.type === 'trace' && (entry.data as AgentTrace).outputs?.output && Array.isArray((entry.data as AgentTrace).outputs.output)) {
+                          return <MessageViewer messages={(entry.data as AgentTrace).outputs.output as any[]} />
+                        }
+                        return null
+                      })()}
+                      {(() => {
+                        if (entry.type === 'span' && (entry.data as AgentSpan).inputs?.input && Array.isArray((entry.data as AgentSpan).inputs.input)) {
+                          return <MessageViewer messages={(entry.data as AgentSpan).inputs.input as any[]} />
+                        }
+                        return null
+                      })()}
+                      {(() => {
+                        if (entry.type === 'span' && (entry.data as AgentSpan).outputs?.output && Array.isArray((entry.data as AgentSpan).outputs.output)) {
+                          return <MessageViewer messages={(entry.data as AgentSpan).outputs.output as any[]} />
+                        }
+                        return null
+                      })()}
+                    </div>
+                  ))}
+                </div>
               ) : (
                 // List View
                 <div className="space-y-3">
-                  {logEntries.map((entry) => (
+                  {filteredLogEntries.map((entry) => (
                     <div
                       key={entry.id}
-                      onClick={() => setSelectedTrace(entry.id)}
+                      onClick={() => {
+                        if (entry.type === 'trace') {
+                          setSelectedTrace(entry.id)
+                        } else {
+                          setSelectedSpan(entry.id)
+                        }
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault()
-                          setSelectedTrace(entry.id)
+                          if (entry.type === 'trace') {
+                            setSelectedTrace(entry.id)
+                          } else {
+                            setSelectedSpan(entry.id)
+                          }
                         }
                       }}
                       role="button"
                       tabIndex={0}
-                      className="p-4 rounded-lg cursor-pointer hover:bg-white/70 bg-white/50 border border-[rgba(55,50,47,0.12)] hover:border-[rgba(55,50,47,0.2)] transition-all shadow-[0px_1px_2px_rgba(55,50,47,0.08)]"
+                      className="p-4 rounded-lg cursor-pointer hover:bg-white/70 bg-white/50 border border-[rgba(55,50,47,0.12)] hover:border-[rgba(55,50,47,0.2)] transition-all duration-200 shadow-[0px_1px_2px_rgba(55,50,47,0.08)] hover:shadow-[0px_4px_8px_rgba(55,50,47,0.12)] hover:scale-[1.02] animate-in fade-in-0 slide-in-from-bottom-4"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getLevelStyles(entry.level)}`}>
