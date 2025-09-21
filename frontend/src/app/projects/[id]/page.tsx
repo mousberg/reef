@@ -86,10 +86,10 @@ export default function ProjectPage() {
   }
 
   return (
-          <div className="w-full flex-1 relative z-10">
-            <div className="flex h-[calc(100vh-64px)] bg-gray-50">
+          <div className="w-full h-screen relative z-10">
+            <div className="flex h-full bg-gray-50">
               {/* Left side - Chat Interface */}
-              <div className="w-[480px] border-r border-gray-200 bg-white">
+              <div className="w-[480px] border-r border-gray-200 bg-white h-full overflow-hidden">
                 <ChatInterface
                   projectId={projectId}
                   initialMessages={project.messages || []}
@@ -98,7 +98,7 @@ export default function ProjectPage() {
               </div>
 
               {/* Right side - Canvas */}
-              <div className="flex-1">
+              <div className="flex-1 h-full overflow-hidden">
                 <Canvas project={project} />
               </div>
             </div>

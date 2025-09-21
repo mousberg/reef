@@ -84,8 +84,10 @@ interface AuthContextType {
   updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
   updateProjectWorkflow: (uid: string, projectId: string, workflowState: WorkflowState) => Promise<void>
   deleteProject: (uid: string, projectId: string) => Promise<void>
-  getAgentTraces: (uid: string, limitCount?: number) => Promise<AgentTrace[]>
-  getAgentSpans: (uid: string, limitCount?: number) => Promise<AgentSpan[]>
+  getAgentTraces: (uid: string, limitCount?: number, cutoffMinutes?: number) => Promise<AgentTrace[]>
+  getAgentSpans: (uid: string, limitCount?: number, cutoffMinutes?: number) => Promise<AgentSpan[]>
+  subscribeToAgentTraces: (uid: string, callback: (traces: AgentTrace[]) => void, cutoffMinutes?: number) => (() => void)
+  subscribeToAgentSpans: (uid: string, callback: (spans: AgentSpan[]) => void, cutoffMinutes?: number) => (() => void)
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -325,36 +327,148 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const getAgentTraces = async (uid: string, limitCount: number = 100): Promise<AgentTrace[]> => {
+  const getAgentTraces = async (uid: string, limitCount: number = 100, cutoffMinutes: number = 60): Promise<AgentTrace[]> => {
     try {
       const tracesRef = collection(firestore, 'users', uid, 'agent_traces')
-      const q = query(tracesRef, orderBy('created_at', 'desc'), limit(limitCount))
+      const q = query(tracesRef, orderBy('updated_at', 'desc'), limit(limitCount))
       const snapshot = await getDocs(q)
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as AgentTrace[]
+      const traces: AgentTrace[] = []
+      const cutoffTime = new Date(Date.now() - cutoffMinutes * 60 * 1000)
+
+      for (const doc of snapshot.docs) {
+        const data = doc.data()
+        const updatedAt = data.updated_at
+
+        if (!updatedAt) continue
+
+        // Convert Firestore timestamp to Date
+        const updatedAtDate = updatedAt instanceof Date ? updatedAt :
+                             (updatedAt.toDate ? updatedAt.toDate() : new Date(updatedAt))
+
+        // Apply cutoff filter (only include recent traces)
+        if (updatedAtDate >= cutoffTime) {
+          traces.push({
+            id: doc.id,
+            ...data
+          } as AgentTrace)
+        }
+      }
+
+      return traces
     } catch (error) {
       console.error('Failed to get agent traces:', error)
       return []
     }
   }
 
-  const getAgentSpans = async (uid: string, limitCount: number = 100): Promise<AgentSpan[]> => {
+  const getAgentSpans = async (uid: string, limitCount: number = 100, cutoffMinutes: number = 60): Promise<AgentSpan[]> => {
     try {
       const spansRef = collection(firestore, 'users', uid, 'agent_spans')
-      const q = query(spansRef, orderBy('created_at', 'desc'), limit(limitCount))
+      const q = query(spansRef, orderBy('updated_at', 'desc'), limit(limitCount))
       const snapshot = await getDocs(q)
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as AgentSpan[]
+      const spans: AgentSpan[] = []
+      const cutoffTime = new Date(Date.now() - cutoffMinutes * 60 * 1000)
+
+      for (const doc of snapshot.docs) {
+        const data = doc.data()
+        const updatedAt = data.updated_at
+
+        if (!updatedAt) continue
+
+        // Convert Firestore timestamp to Date
+        const updatedAtDate = updatedAt instanceof Date ? updatedAt :
+                             (updatedAt.toDate ? updatedAt.toDate() : new Date(updatedAt))
+
+        // Apply cutoff filter (only include recent spans)
+        if (updatedAtDate >= cutoffTime) {
+          spans.push({
+            id: doc.id,
+            ...data
+          } as AgentSpan)
+        }
+      }
+
+      return spans
     } catch (error) {
       console.error('Failed to get agent spans:', error)
       return []
     }
+  }
+
+  const subscribeToAgentTraces = (uid: string, callback: (traces: AgentTrace[]) => void, cutoffMinutes: number = 60): (() => void) => {
+    const tracesRef = collection(firestore, 'users', uid, 'agent_traces')
+    const q = query(tracesRef, orderBy('updated_at', 'desc'), limit(100))
+
+    return onSnapshot(q,
+      (snapshot) => {
+        const traces: AgentTrace[] = []
+        const cutoffTime = new Date(Date.now() - cutoffMinutes * 60 * 1000)
+
+        snapshot.docs.forEach(doc => {
+          const data = doc.data()
+          const updatedAt = data.updated_at
+
+          if (!updatedAt) return
+
+          // Convert Firestore timestamp to Date
+          const updatedAtDate = updatedAt instanceof Date ? updatedAt :
+                               (updatedAt.toDate ? updatedAt.toDate() : new Date(updatedAt))
+
+          // Apply cutoff filter
+          if (updatedAtDate >= cutoffTime) {
+            traces.push({
+              id: doc.id,
+              ...data
+            } as AgentTrace)
+          }
+        })
+
+        callback(traces)
+      },
+      (error) => {
+        console.error('Failed to subscribe to agent traces:', error)
+        callback([])
+      }
+    )
+  }
+
+  const subscribeToAgentSpans = (uid: string, callback: (spans: AgentSpan[]) => void, cutoffMinutes: number = 60): (() => void) => {
+    const spansRef = collection(firestore, 'users', uid, 'agent_spans')
+    const q = query(spansRef, orderBy('updated_at', 'desc'), limit(100))
+
+    return onSnapshot(q,
+      (snapshot) => {
+        const spans: AgentSpan[] = []
+        const cutoffTime = new Date(Date.now() - cutoffMinutes * 60 * 1000)
+
+        snapshot.docs.forEach(doc => {
+          const data = doc.data()
+          const updatedAt = data.updated_at
+
+          if (!updatedAt) return
+
+          // Convert Firestore timestamp to Date
+          const updatedAtDate = updatedAt instanceof Date ? updatedAt :
+                               (updatedAt.toDate ? updatedAt.toDate() : new Date(updatedAt))
+
+          // Apply cutoff filter
+          if (updatedAtDate >= cutoffTime) {
+            spans.push({
+              id: doc.id,
+              ...data
+            } as AgentSpan)
+          }
+        })
+
+        callback(spans)
+      },
+      (error) => {
+        console.error('Failed to subscribe to agent spans:', error)
+        callback([])
+      }
+    )
   }
 
   const value = {
@@ -374,7 +488,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateProjectWorkflow,
     deleteProject,
     getAgentTraces,
-    getAgentSpans
+    getAgentSpans,
+    subscribeToAgentTraces,
+    subscribeToAgentSpans
   }
 
   return (

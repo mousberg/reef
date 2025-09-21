@@ -46,10 +46,10 @@ services:
       - MODEL_TEMPERATURE=${MODEL_TEMPERATURE:-0.3}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - AGENTS_PATH=/app/agents/
-      - AGENT_QUERY='Send the stock summary of Google to florisfok5@gmail.com'
+      - AGENT_QUERY='Which Slack channels are there and mail me the list to florisfok5@gmail.comWhich Slack channels are there and mail me the list to florisfok5@gmail.com'
       - FIREBASE_PROJECT_ID=reefs-c1adb
       - FIREBASE_SERVICE_ACCOUNT_PATH=/app/service.json
-      - RESULTS_API_URL=${RESULTS_API_URL:-http://host.docker.internal:8000/results}
+      - RESULTS_API_URL=${RESULTS_API_URL:-http://host.docker.internal:8001/results}
       - ARCADE_API_KEY=${ARCADE_API_KEY:-}
       - USER_ID=florisfok5@gmail.com
     # Tool server only needs to be reachable inside the network

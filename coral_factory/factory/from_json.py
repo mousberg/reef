@@ -22,6 +22,8 @@ class WorkflowConfig(BaseModel):
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)) + "/..")
 
 def create_yaml(agent_name, agent_description, agent_instructions, agent_queries, agent_tools, user_id):
+
+    agent_tools = [i.split(".")[0] for i in agent_tools]
     yaml_dict = {
         "model": "gpt-4.1",
         "mcp": {

@@ -1,8 +1,8 @@
 [[local-agent]]
-path = "research/agents/StockInfoAgent"
+path = "research/agents/SlackReader"
 
 [[local-agent]]
-path = "research/agents/EmailSenderAgent"
+path = "research/agents/EmailSender"
 
 [[local-agent]]
 path = "research/agents/interface"

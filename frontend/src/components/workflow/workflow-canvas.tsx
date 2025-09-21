@@ -16,13 +16,11 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { AgentNode } from './agent-node';
-import { ToolNode } from './tool-node';
 import { parseWorkflowJson, convertToReactFlowElements } from '@/lib/workflow-parser';
 import { WorkflowConfig } from '@/types/workflow';
 
 const nodeTypes = {
   agent: AgentNode,
-  tool: ToolNode,
 };
 
 interface WorkflowCanvasProps {
@@ -90,10 +88,23 @@ function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
         nodesDraggable={false}
         nodesConnectable={false}
         fitView
-        className="bg-gray-50"
+        fitViewOptions={{
+          padding: 0.2,
+          includeHiddenNodes: false,
+        }}
+        className="bg-slate-50"
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
       >
-        <Controls className="bg-white border border-gray-200 rounded-lg shadow-sm" />
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+        <Controls
+          className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg"
+          showInteractive={false}
+        />
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1}
+          color="#cbd5e1"
+        />
       </ReactFlow>
     </div>
   );
