@@ -1,0 +1,41 @@
+FROM gradle:8.14.2-jdk21 AS build
+WORKDIR /home/gradle/src
+COPY /hosting/shared/coral-server /home/gradle/src
+
+# Build minimal JRE
+RUN jlink     --verbose     --add-modules java.base,jdk.unsupported,java.desktop,java.instrument,java.logging,java.management,java.sql,java.xml,java.naming,jdk.crypto.ec     --compress 2 --strip-debug --no-header-files --no-man-pages     --output /opt/minimal-java
+
+# Build server
+RUN gradle build --no-daemon -x test
+
+# Runtime stage with Python/uv for executing local agents
+FROM python:3.13-slim
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends     bash curl ca-certificates build-essential     && rm -rf /var/lib/apt/lists/*
+
+# Install uv for Python env and package management used by agents
+RUN pip install --no-cache-dir uv
+
+ENV JAVA_HOME=/opt/minimal-java
+ENV PATH="$JAVA_HOME/bin:$PATH"
+ENV CONFIG_PATH="/config"
+
+RUN mkdir -p /app
+
+# Copy minimal JRE and built jar
+COPY --from=build "$JAVA_HOME" "$JAVA_HOME"
+COPY --from=build /home/gradle/src/build/libs/ /app/
+
+# Link stable jar name
+RUN ln -s "$(ls -1 /app/coral-server-*.jar | grep -v '\-plain\.jar' | head -n 1)" /app/coral-server.jar
+
+# Default to reading registry from /data/registry.toml which we will mount
+ENV REGISTRY_FILE_PATH=/app/registry.toml
+
+RUN pip install --no-cache-dir openai-agents[litellm] agents-arcade arcadepy python-dotenv PyYAML
+RUN pip install --no-cache-dir langchain langchain-community langchain-experimental langchain-groq langchain-huggingface langchain-mcp-adapters langchain-openai
+RUN pip install --no-cache-dir pymongo
+COPY hosting/shared /app
+
+EXPOSE 5555
+ENTRYPOINT ["java", "-jar", "/app/coral-server.jar"]

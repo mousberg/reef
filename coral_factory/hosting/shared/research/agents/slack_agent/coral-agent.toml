@@ -1,0 +1,13 @@
+[agent]
+name = "slack_agent"
+version = "0.0.1"
+description = "Agent responsible for Slack channel management and monitoring"
+
+
+[options.TIMEOUT_MS]
+type = "string"
+description = "Connection/tool timeouts in ms"
+default = "60000"
+
+[runtimes.executable]
+command = ["bash", "-c", "./run_agent.sh main.py"]

@@ -1,0 +1,17 @@
+agent:
+  arcade:
+    toolkits:
+    - gmail
+  context:
+    user_id: florisfok5@gmail.com
+  description: Agent responsible for email communications
+  instructions: 'Your task is to Send email with the result.
+
+    You will be given Results of other agents and you need to output Email delivery
+    confirmations.'
+  name: mail_agent
+  queries: Results of other agents
+mcp:
+  cache_tools_list: true
+  timeout_seconds: 60
+model: gpt-4.1
