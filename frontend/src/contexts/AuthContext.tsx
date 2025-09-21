@@ -68,6 +68,12 @@ export interface Project {
   workflowState?: WorkflowState
 }
 
+export interface ToolAuthStatus {
+  toolName: string
+  isAuthenticated: boolean
+  authenticatedAt?: Date | { toDate?: () => Date }
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -88,6 +94,10 @@ interface AuthContextType {
   getAgentSpans: (uid: string, limitCount?: number, cutoffMinutes?: number) => Promise<AgentSpan[]>
   subscribeToAgentTraces: (uid: string, callback: (traces: AgentTrace[]) => void, cutoffMinutes?: number) => (() => void)
   subscribeToAgentSpans: (uid: string, callback: (spans: AgentSpan[]) => void, cutoffMinutes?: number) => (() => void)
+  getAvailableTools: (uid: string) => Promise<string[]>
+  authorizeTool: (uid: string, toolName: string) => Promise<boolean>
+  getUserToolAuthStatus: (uid: string) => Promise<ToolAuthStatus[]>
+  updateToolAuthStatus: (uid: string, toolName: string, isAuthenticated: boolean) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -471,6 +481,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
   }
 
+  const getAvailableTools = async (uid: string): Promise<string[]> => {
+    try {
+      const res = await fetch(`/api/tools?userId=${uid}`)
+      const data = await res.json()
+      
+      if (!res.ok) {
+        console.error('Failed to get available tools:', data.error)
+        return []
+      }
+      
+      return data.data?.tools || []
+    } catch (error) {
+      console.error('Failed to get available tools:', error)
+      return []
+    }
+  }
+
+  const authorizeTool = async (uid: string, toolName: string): Promise<{ success: boolean; authUrl?: string; authenticated?: boolean }> => {
+    try {
+      const res = await fetch('/api/authorize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid, toolName }),
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) {
+        console.error('Failed to authorize tool:', data.error)
+        return { success: false }
+      }
+      
+      if (data.authenticated === true) {
+        // Already authenticated - update Firestore
+        await updateToolAuthStatus(uid, toolName, true)
+        return { success: true, authenticated: true }
+      } else if (data.authenticated === false && data.authUrl) {
+        // Need to redirect to OAuth URL
+        return { success: true, authenticated: false, authUrl: data.authUrl }
+      }
+      
+      return { success: false }
+    } catch (error) {
+      console.error('Failed to authorize tool:', error)
+      return { success: false }
+    }
+  }
+
+  const getUserToolAuthStatus = async (uid: string): Promise<ToolAuthStatus[]> => {
+    try {
+      const toolAuthRef = collection(firestore, 'users', uid, 'tool_auth')
+      const snapshot = await getDocs(toolAuthRef)
+      
+      return snapshot.docs.map(doc => ({
+        toolName: doc.id,
+        ...doc.data()
+      })) as ToolAuthStatus[]
+    } catch (error) {
+      console.error('Failed to get tool auth status:', error)
+      return []
+    }
+  }
+
+  const updateToolAuthStatus = async (uid: string, toolName: string, isAuthenticated: boolean): Promise<void> => {
+    try {
+      const toolAuthRef = doc(firestore, 'users', uid, 'tool_auth', toolName)
+      await setDoc(toolAuthRef, {
+        isAuthenticated,
+        authenticatedAt: isAuthenticated ? serverTimestamp() : null,
+        updatedAt: serverTimestamp()
+      }, { merge: true })
+    } catch (error) {
+      console.error('Failed to update tool auth status:', error)
+      throw error
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -490,7 +577,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getAgentTraces,
     getAgentSpans,
     subscribeToAgentTraces,
-    subscribeToAgentSpans
+    subscribeToAgentSpans,
+    getAvailableTools,
+    authorizeTool,
+    getUserToolAuthStatus,
+    updateToolAuthStatus
   }
 
   return (
