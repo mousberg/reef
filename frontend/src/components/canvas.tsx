@@ -3,6 +3,7 @@
 import { WorkflowCanvas } from './workflow/workflow-canvas';
 import { useState } from 'react'
 import type { Project } from '@/contexts/AuthContext';
+import { WorkflowQueryDialog } from './ui/workflow-query-dialog';
 
 interface CanvasProps {
   project: Project
@@ -19,6 +20,7 @@ export function Canvas({ project }: CanvasProps) {
   const [running, setRunning] = useState(false)
   const [runError, setRunError] = useState<string | null>(null)
   const [runSuccess, setRunSuccess] = useState(false)
+  const [showQueryDialog, setShowQueryDialog] = useState(false)
 
   const handleExport = async () => {
     setExportError(null)
@@ -51,13 +53,13 @@ export function Canvas({ project }: CanvasProps) {
     }
   }
 
-  const handleRun = async () => {
+  const handleRun = () => {
     setRunError(null)
     setRunSuccess(false)
+    setShowQueryDialog(true)
+  }
 
-    const query = window.prompt('Enter a query to run with this workflow:')
-    if (!query) return
-
+  const handleQuerySubmit = async (query: string) => {
     try {
       setRunning(true)
       const res = await fetch('/api/deploy', {
@@ -121,6 +123,13 @@ export function Canvas({ project }: CanvasProps) {
       <div className="flex-1 overflow-hidden">
         <WorkflowCanvas jsonContent={workflowJson} />
       </div>
+
+      {/* Query Dialog */}
+      <WorkflowQueryDialog
+        open={showQueryDialog}
+        onOpenChange={setShowQueryDialog}
+        onSubmit={handleQuerySubmit}
+      />
     </div>
   )
 }
