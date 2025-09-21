@@ -36,7 +36,7 @@ app = FastAPI()
 class DeploySettings(BaseModel):
     workflow_name: str
     deploy_type: str = "local"
-    user_id: str = 'florisfok5@gmail.com'
+    user_id: str
     query: str
 
 class Results(BaseModel):
@@ -44,19 +44,20 @@ class Results(BaseModel):
     result: str
 
 
-@app.post("/create/workflow")
-async def create_workflow(workflow_config: WorkflowConfig):
+class CreateWorkflowRequest(BaseModel):
+    workflow_config: WorkflowConfig
+    user_id: str
 
-    # ONLY do me
-    user_id: str = 'florisfok5@gmail.com'
-    from_workflow_config(workflow_config, user_id)
+@app.post("/create/workflow")
+async def create_workflow(request: CreateWorkflowRequest):
+    from_workflow_config(request.workflow_config, request.user_id)
     return JSONResponse(content={"success": True})
 
 @app.post("/deploy/workflow")
 async def deploy_workflow_endpoint(deploy_settings: DeploySettings, background_tasks: BackgroundTasks):
 
     if deploy_settings.deploy_type == "local":
-        background_tasks.add_task(deploy_workflow_local, query=deploy_settings.query)
+        background_tasks.add_task(deploy_workflow_local, query=deploy_settings.query, user_id=deploy_settings.user_id)
     else:
         raise HTTPException(status_code=400, detail="Invalid deploy type")
     return JSONResponse(content={"success": True})

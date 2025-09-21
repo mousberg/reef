@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess
 
 
-def deploy_workflow(query: str) -> None:
+def deploy_workflow(query: str, user_id: str) -> None:
     root = Path(__file__).resolve().parent
     print(root)
     project_root = root.parent  # reef/coral_factory
@@ -52,7 +52,7 @@ ENV REGISTRY_FILE_PATH=/app/registry.toml
 
 RUN pip install --no-cache-dir openai-agents[litellm] agents-arcade arcadepy python-dotenv PyYAML
 RUN pip install --no-cache-dir langchain langchain-community langchain-experimental langchain-groq langchain-huggingface langchain-mcp-adapters langchain-openai
-RUN pip install --no-cache-dir pymongo
+RUN pip install --no-cache-dir firebase-admin
 COPY hosting/shared /app
 
 EXPOSE 5555
@@ -86,8 +86,9 @@ services:
       # - DOCKER_SOCKET=/var/run/docker.sock
       - ARCADE_API_KEY=${{ARCADE_API_KEY:-}}
       - OPENAI_API_KEY=${{OPENAI_API_KEY:-}}
-      - MONGO_URI=${{MONGO_URI:-}}
-      - USER_ID=${{USER_ID:-}}
+      - FIREBASE_PROJECT_ID=${{FIREBASE_PROJECT_ID:-}}
+      - FIREBASE_SERVICE_ACCOUNT_PATH=${{FIREBASE_SERVICE_ACCOUNT_PATH:-}}
+      - USER_ID={user_id}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS -o /dev/null http://0.0.0.0:5555/v1/docs || exit 1"]
       interval: 1s
@@ -122,10 +123,11 @@ services:
       - OPENAI_API_KEY=${{OPENAI_API_KEY:-}}
       - AGENTS_PATH=/app/agents/
       - AGENT_QUERY='{query}'
-      - MONGO_URI=${{MONGO_URI:-}}
+      - FIREBASE_PROJECT_ID=${{FIREBASE_PROJECT_ID:-}}
+      - FIREBASE_SERVICE_ACCOUNT_PATH=${{FIREBASE_SERVICE_ACCOUNT_PATH:-}}
       - RESULTS_API_URL=${{RESULTS_API_URL:-http://host.docker.internal:8000/results}}
       - ARCADE_API_KEY=${{ARCADE_API_KEY:-}}
-      - USER_ID=${{USER_ID:-}}
+      - USER_ID={user_id}
     # Tool server only needs to be reachable inside the network
     expose:
       - "38080"
