@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 
-
 from factory.from_json import from_workflow_config, WorkflowConfig
 from hosting.main import deploy_workflow as deploy_workflow_local
 from hosting.main import kill_docker_containers
@@ -120,20 +119,37 @@ async def authorize(user_id: str, tool_name: str, token: str = Depends(verify_to
     """Authorize a tool for a user"""
     client = Arcade()
     auth_response = client.tools.authorize(tool_name=tool_name, user_id=user_id)
+    if auth_response.status != "completed":
+        return JSONResponse(content={"authenticated": False, "message": "Valid token", "url": auth_response.url})
     return JSONResponse(content={"authenticated": True, "message": "Valid token"})
 
 
 @app.get("/auth/tools")
-async def tools(user_id: str, token: str = Depends(verify_token)):
+async def tools(token: str = Depends(verify_token)):
     """Authorize a tool for a user"""
     available_tools = [
-        "X",
-        "LinkedIn",
-        "GoogleSearch",
-        "Slack",
-        "GoogleCalendar",
-        "GoogleFinance",
-        "Gmail"
+        "X.LookupSingleUserByUsername",   # Look up a user on X (Twitter) by their username.
+        "X.PostTweet",                    # Post a tweet to X (Twitter).
+        "X.ReplyToTweet",                 # Reply to a tweet on X (Twitter).
+        "X.DeleteTweetById",              # Delete a tweet on X (Twitter).
+        "X.SearchRecentTweetsByUsername", # Search for recent tweets (last 7 days) on X (Twitter) by username.
+        "X.SearchRecentTweetsByKeywords", # Search for recent tweets (last 7 days) on X (Twitter) by required keywords and phrases.
+        "X.LookupTweetById",
+        "Linkedin.CreateTextPost",
+        "GoogleFinance.GetStockSummary",   # Retrieve current price and recent price movement of a stock.
+        "GoogleFinance.GetStockHistoricalData",
+        "Gmail.SendEmail",            # Send an email using the Gmail API.
+        "Gmail.SendDraftEmail",       # Send a draft email using the Gmail API.
+        "Gmail.WriteDraftEmail",      # Compose a new email draft using the Gmail API.
+        "Gmail.UpdateDraftEmail",     # Update an existing email draft.
+        "Gmail.DeleteDraftEmail",     # Delete a draft email using the Gmail API.
+        "Gmail.TrashEmail",           # Move an email to the trash folder.
+        "Gmail.ListDraftEmails",      # List draft emails in the user's mailbox.
+        "Gmail.ListEmailsByHeader",   # Search for emails by header using the Gmail API.
+        "Gmail.ListEmails",           # Read emails and extract plain text content.
+        "Gmail.SearchThreads",        # Search for threads in the user's mailbox.
+        "Gmail.ListThreads",          # List threads in the user's mailbox.
+        "Gmail.GetThread",            # Get the specified thread by ID.
     ]
     return JSONResponse(content={"tools": available_tools})
 
