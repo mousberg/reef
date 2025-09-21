@@ -1,6 +1,7 @@
 "use client"
 
 import { WorkflowCanvas } from './workflow/workflow-canvas';
+import { AnimatedCoral } from './animated-coral';
 import { useState } from 'react'
 import type { Project } from '@/contexts/AuthContext';
 
@@ -92,10 +93,10 @@ export function Canvas({ project }: CanvasProps) {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleRun} disabled={running} className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-60">
+            <button type="button" onClick={handleRun} disabled={running} className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-60">
               {running ? 'Running...' : 'RUN'}
             </button>
-            <button onClick={handleExport} disabled={exporting} className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
+            <button type="button" onClick={handleExport} disabled={exporting} className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
               {exporting ? 'Exporting...' : 'Export'}
             </button>
             <button type="button" className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
@@ -119,7 +120,11 @@ export function Canvas({ project }: CanvasProps) {
 
       {/* Canvas Area */}
       <div className="flex-1 overflow-hidden">
-        <WorkflowCanvas jsonContent={workflowJson} />
+        {project.workflowState ? (
+          <WorkflowCanvas jsonContent={workflowJson} />
+        ) : (
+          <AnimatedCoral />
+        )}
       </div>
     </div>
   )
