@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, forwardRef, useImperativeHandle, useRef } from "react"
+import { useState, forwardRef, useImperativeHandle, useRef, useEffect } from "react"
 import { Square, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Message from "./Message"
@@ -40,6 +40,8 @@ interface ChatPaneProps {
   onSend?: (message: string) => Promise<void> | void
   isThinking?: boolean
   onPauseThinking?: () => void
+  tracesOpen?: boolean
+  onToggleTraces?: () => void
 }
 
 export interface ChatPaneRef {
@@ -83,11 +85,12 @@ function ThinkingMessage({ onPause, hasActiveTool }: ThinkingMessageProps) {
 }
 
 const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
-  { conversation, onSend, isThinking, onPauseThinking },
+  { conversation, onSend, isThinking, onPauseThinking, tracesOpen, onToggleTraces },
   ref,
 ) {
   const [busy, setBusy] = useState(false)
   const composerRef = useRef<ComposerRef>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useImperativeHandle(
@@ -100,6 +103,13 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
     [],
   )
 
+  // Auto-scroll to bottom when messages change or when thinking
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+    }
+  }, [conversation.messages, isThinking])
+
   if (!conversation) return null
 
   const tags: string[] = []
@@ -108,7 +118,8 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 px-4 py-6 sm:px-8 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
         <div className="mb-2 flex items-center gap-3">
           <button
             type="button"
@@ -122,11 +133,27 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
             <span className="block leading-[1.05] font-title text-2xl">{conversation.title}</span>
           </div>
         </div>
-        <div className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
-          Updated {timeAgo(conversation.updatedAt)}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">
+            Updated {timeAgo(conversation.updatedAt)}
+          </div>
+          {onToggleTraces && (
+            <button
+              type="button"
+              onClick={onToggleTraces}
+              className="px-3 py-[6px] bg-white shadow-[0px_1px_2px_rgba(55,50,47,0.12)] hover:shadow-[0px_2px_4px_rgba(55,50,47,0.16)] overflow-hidden rounded-full flex justify-center items-center gap-2 transition-all"
+            >
+              <svg className="w-4 h-4 text-[#37322F]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-[#37322F] text-[13px] font-medium leading-5 font-sans">
+                Traces
+              </span>
+            </button>
+          )}
         </div>
-
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-zinc-200 pb-5 dark:border-zinc-800">
+        
+        <div className="mt-4 flex flex-wrap gap-2">
           {tags.map((t) => (
             <span
               key={t}
@@ -136,6 +163,13 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
             </span>
           ))}
         </div>
+      </div>
+
+      {/* Scrollable Messages Container */}
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8 scroll-smooth"
+      >
 
         {messages.length === 0 ? (
           <div className="rounded-xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
