@@ -1,0 +1,1 @@
+Use the github agent to explore github, use mail agent to send mail with the result
