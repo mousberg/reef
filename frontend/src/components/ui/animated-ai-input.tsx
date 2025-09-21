@@ -17,12 +17,8 @@ export function AnimatedAIInput() {
     "gpt-5-mini",
     "gpt-5-nano",
     "gpt-5-chat-latest",
-    "mistral-medium-2508", // Mistral Medium 3.1 (Aug 2025, multimodal, 128k)
     "magistral-medium-2509", // Magistral Medium 1.2 (Sep 2025, reasoning+vision, 128k)
     "codestral-2508", // Codestral 2508 (Jul 2025, coding, 256k)
-    "devstral-medium-2507", // Devstral Medium (Jul 2025, enterprise text, 128k)
-    "mistral-large-2411", // Mistral Large 2.1 (Nov 2024, large, 128k)
-    "pixtral-large-2411" // Pixtral Large (Nov 2024, multimodal, 128k)
   ]
 
   const handleSubmit = async () => {
