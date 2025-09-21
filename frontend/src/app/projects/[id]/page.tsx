@@ -99,7 +99,7 @@ export default function ProjectPage() {
 
               {/* Right side - Canvas */}
               <div className="flex-1 h-full overflow-hidden">
-                <Canvas project={project} />
+                <Canvas project={project} userId={user?.uid || ''} />
               </div>
             </div>
           </div>

@@ -1,12 +1,16 @@
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { query } = body || {}
+    const { query, userId } = body || {}
 
     if (!query || typeof query !== 'string') {
       return new Response(JSON.stringify({ error: 'query is required' }), { status: 400 })
+    }
+
+    if (!userId || typeof userId !== 'string') {
+      return new Response(JSON.stringify({ error: 'userId is required' }), { status: 400 })
     }
 
     const FACTORY_URL = process.env.FACTORY_URL || 'http://204.12.168.160:8001'
@@ -15,7 +19,7 @@ export async function POST(req: NextRequest) {
     const payload = {
       workflow_name: 'test_workflow',
       deploy_type: 'local',
-      user_id: 'florisfok5@gmail.com',
+      user_id: userId,
       query,
     }
 

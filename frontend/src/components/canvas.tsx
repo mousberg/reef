@@ -9,9 +9,10 @@ import { toast } from 'sonner';
 
 interface CanvasProps {
   project: Project
+  userId: string
 }
 
-export function Canvas({ project }: CanvasProps) {
+export function Canvas({ project, userId }: CanvasProps) {
   // Convert workflowState to JSON string for WorkflowCanvas component
   const workflowJson = project.workflowState ? JSON.stringify(project.workflowState, null, 2) : undefined;
 
@@ -57,7 +58,7 @@ export function Canvas({ project }: CanvasProps) {
       const res = await fetch('/api/deploy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, userId }),
       })
 
       const data = await res.json().catch(() => ({}))
