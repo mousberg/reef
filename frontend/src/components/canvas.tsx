@@ -91,7 +91,7 @@ export function Canvas({ project }: CanvasProps) {
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-gray-900">Workflow Canvas</h2>
             <span className="text-sm text-gray-500">
-              {project.workflowState ? 'AI-managed workflow' : 'No workflow created yet'}
+              {project.workflowState ? 'AI agents running on the Coral Protocol' : 'No workflow created yet'}
             </span>
           </div>
           <div className="flex items-center gap-2">

@@ -189,7 +189,8 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
 
   // Define handleSendMessage early so it can be used in useEffect
   const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return
+    // Prevent sending empty messages or messages with only whitespace
+    if (!content || !content.trim() || content.trim().length === 0) return
 
     const userMessage = {
       id: crypto.randomUUID(),
@@ -285,7 +286,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       // Send the initial prompt as a message to trigger AI response
       handleSendMessage(initialPrompt)
     }
-  }, [initialPrompt])
+  }, [initialPrompt, handleSendMessage, messages.length])
 
   // Debug status changes and message updates
   useEffect(() => {
@@ -340,6 +341,27 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     return null
   }
 
+  // Helper function to check if a message has meaningful content
+  const hasContent = (msg: any) => {
+    // Check if the main content is not empty/whitespace
+    const mainContent = msg.content?.trim()
+    if (mainContent && mainContent.length > 0) return true
+    
+    // Check if any text parts have meaningful content
+    const hasTextContent = msg.parts?.some((part: any) => 
+      part?.type === 'text' && part?.text?.trim() && part.text.trim().length > 0
+    )
+    if (hasTextContent) return true
+    
+    // Check if it has non-text parts (tool calls, reasoning, etc.)
+    const hasNonTextParts = msg.parts?.some((part: any) => 
+      part?.type && part.type !== 'text'
+    )
+    if (hasNonTextParts) return true
+    
+    return false
+  }
+
   // Create conversation object for ChatPane using normalized data
   const allMessages = [
     // Firebase messages (already have correct structure)
@@ -355,7 +377,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       createdAt: new Date(),
       parts: msg.parts?.map(normalizePart).filter((part): part is NonNullable<typeof part> => part !== null) || []
     }))
-  ]
+  ].filter(hasContent) // Filter out empty messages
 
   const conversation = {
     id: projectId,
@@ -374,7 +396,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       content: msg.content || msg.parts?.find(part => part.type === 'text')?.text || '',
       createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date(),
       parts: msg.parts || []
-    }))
+    })).filter(hasContent) // Filter out empty messages from conversation as well
   }
 
   return (
