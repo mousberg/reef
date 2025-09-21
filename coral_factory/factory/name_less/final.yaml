@@ -1,16 +1,17 @@
 agent:
   arcade:
-    toolkits:
-    - gmail
+    toolkits: []
   context:
     user_id: florisfok5@gmail.com
-  description: Agent responsible for email communications
-  instructions: 'Your task is to Send email with the result.
+  description: Coordinates data flow among input, stock fetch, and email send; handles
+    retries and logging.
+  instructions: 'Your task is to Route ticker_symbol through the workflow and enforce
+    flow control, error handling, and audit logging..
 
-    You will be given Results of other agents and you need to output Email delivery
-    confirmations.'
-  name: mail_agent
-  queries: Results of other agents
+    You will be given ticker_symbol (validated), stock_summary, recipient_email and
+    you need to output email_sent_status and stock_summary passed downstream.'
+  name: OrchestratorAgent
+  queries: ticker_symbol (validated), stock_summary, recipient_email
 mcp:
   cache_tools_list: true
   timeout_seconds: 60

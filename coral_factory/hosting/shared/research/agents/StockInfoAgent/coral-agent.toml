@@ -1,7 +1,7 @@
 [agent]
-name = "mail_agent"
+name = "StockInfoAgent"
 version = "0.0.1"
-description = "Agent responsible for email communications"
+description = "Fetches current stock price/summary for a ticker using Google Finance API."
 
 
 [options.TIMEOUT_MS]

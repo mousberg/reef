@@ -1,7 +1,7 @@
 [agent]
-name = "slack_agent"
+name = "EmailSenderAgent"
 version = "0.0.1"
-description = "Agent responsible for Slack channel management and monitoring"
+description = "Sends stock information via email using Gmail API to recipient_email."
 
 
 [options.TIMEOUT_MS]
