@@ -19,8 +19,7 @@ class WorkflowConfig(BaseModel):
     relations: str
     agents: List[AgentConfig]
 
-
-BASE_DIR = "/Users/floris.fok/Library/CloudStorage/OneDrive-Prosus-Naspers/Documents/agents/reef/coral_factory"
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)) + "/..")
 
 def create_yaml(agent_name, agent_description, agent_instructions, agent_queries, agent_tools, user_id):
     yaml_dict = {
@@ -116,16 +115,4 @@ def clear_old_agents():
 
 
 if __name__ == "__main__":
-    other_agents = ["gmail", "github"]
-
-    name = "github"
-    description = "Agent that can interact with github"
-    instructions = "Use Github tools to answer the questions."
-    queries = ["Hi!"]
-    context = {"user_id": "florisfok5@gmail.com"}
-
-    create_yaml(name, description, instructions, queries, context)
-    create_toml(name, description)
-    move_agent(name)
-
-    create_workflow(["interface"] + other_agents)
+    print(BASE_DIR)
