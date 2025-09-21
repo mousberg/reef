@@ -31,7 +31,7 @@ export function Canvas({ project, userId }: CanvasProps) {
       const res = await fetch('/api/export', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workflowState: project.workflowState }),
+        body: JSON.stringify({ workflowState: project.workflowState, userId }),
       })
 
       const data = await res.json().catch(() => ({}))

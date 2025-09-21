@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,6 +8,10 @@ export async function POST(req: NextRequest) {
 
     if (!workflowState || typeof workflowState !== 'object') {
       return new Response(JSON.stringify({ error: 'workflowState is required' }), { status: 400 })
+    }
+
+    if (!userId || typeof userId !== 'string') {
+      return new Response(JSON.stringify({ error: 'userId is required' }), { status: 400 })
     }
 
     const FACTORY_URL = process.env.FACTORY_URL || 'http://204.12.168.160:8001'
@@ -25,7 +29,7 @@ export async function POST(req: NextRequest) {
       agents: agentsArray,
     }
 
-    const res = await fetch(`${FACTORY_URL}/create/workflow`, {
+    const res = await fetch(`${FACTORY_URL}/create/workflow/${userId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${FACTORY_TOKEN}`,
