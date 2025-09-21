@@ -26,6 +26,7 @@ export default function ProjectsPage() {
   const [editingProject, setEditingProject] = useState<string | null>(null)
   const [editingName, setEditingName] = useState<string>("")
   const [renaming, setRenaming] = useState<string | null>(null)
+  const [opening, setOpening] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean
     projectId: string | null
@@ -173,7 +174,10 @@ export default function ProjectsPage() {
   if (loading) {
     return (
       <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-center items-center max-w-[100vw]">
-        <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading projects...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[#37322F] border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading projects...</div>
+        </div>
       </div>
     )
   }
@@ -311,10 +315,21 @@ export default function ProjectsPage() {
                             {editingProject !== project.id && (
                               <div className="flex gap-2 items-center">
                                 <Button
-                                  onClick={() => router.push(`/projects/${project.id}`)}
-                                  className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
+                                  onClick={() => {
+                                    setOpening(project.id)
+                                    router.push(`/projects/${project.id}`)
+                                  }}
+                                  disabled={opening === project.id}
+                                  className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                                 >
-                                  Open
+                                  {opening === project.id ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                      Opening...
+                                    </div>
+                                  ) : (
+                                    "Open"
+                                  )}
                                 </Button>
                                 
                                 {/* Three dots menu */}
@@ -401,6 +416,10 @@ export default function ProjectsPage() {
         confirmVariant="destructive"
         loading={deleting !== null}
       />
+      
+      {/* ElevenLabs AI Assistant Widget */}
+      <elevenlabs-convai agent-id="agent_3101k5p8y1r2e25bn1bb4rjpx932"></elevenlabs-convai>
+      <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
     </div>
   )
 }

@@ -6,13 +6,22 @@ import { useRouter } from "next/navigation"
 import Message from "./Message"
 import Composer, { ComposerRef } from "./Composer"
 import { cls, timeAgo } from "../lib/utils"
+import { ToolCallRenderer, ToolResultRenderer } from "./ToolRenderer"
 
 interface ChatMessage {
   id: string
   role: "user" | "assistant"
   content: string
   createdAt: Date | any
-  parts?: Array<{ type: 'text' | 'reasoning' | string; text: string; state?: 'streaming' | 'done' }>
+  parts?: Array<{
+    type: 'text' | 'reasoning' | 'tool-call' | 'tool-result'
+    text?: string
+    toolCallId?: string
+    toolName?: string
+    input?: any
+    output?: any
+    state?: 'streaming' | 'done'
+  }>
 }
 
 interface Conversation {
@@ -39,18 +48,29 @@ export interface ChatPaneRef {
 
 interface ThinkingMessageProps {
   onPause?: () => void
+  hasActiveTool?: boolean
 }
 
-function ThinkingMessage({ onPause }: ThinkingMessageProps) {
+function ThinkingMessage({ onPause, hasActiveTool }: ThinkingMessageProps) {
   return (
     <Message role="assistant">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">
-          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]"></div>
-          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]"></div>
-          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400"></div>
+          {hasActiveTool ? (
+            <>
+              <div className="h-2 w-2 animate-spin rounded-full border border-blue-400 border-t-transparent"></div>
+            </>
+          ) : (
+            <>
+              <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]"></div>
+              <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]"></div>
+              <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400"></div>
+            </>
+          )}
         </div>
-        <span className="text-sm text-zinc-500">AI is thinking...</span>
+        <span className="text-sm text-zinc-500">
+          {hasActiveTool ? "Working on your request..." : "AI is thinking..."}
+        </span>
         <button
           onClick={onPause}
           className="ml-auto inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
@@ -149,6 +169,24 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
                     </div>
                   ))}
 
+                  {/* Render tool call parts */}
+                  {(m as any).parts?.filter((part: any) => part.type === 'tool-call').map((toolCallPart: any, index: number) => (
+                    <ToolCallRenderer
+                      key={`tool-call-${index}`}
+                      toolName={toolCallPart.toolName}
+                      input={toolCallPart.input}
+                    />
+                  ))}
+
+                  {/* Render tool result parts */}
+                  {(m as any).parts?.filter((part: any) => part.type === 'tool-result').map((toolResultPart: any, index: number) => (
+                    <ToolResultRenderer
+                      key={`tool-result-${index}`}
+                      toolName={toolResultPart.toolName}
+                      output={toolResultPart.output}
+                    />
+                  ))}
+
                   {/* Render text parts */}
                   {(m as any).parts?.filter((part: any) => part.type === 'text').map((textPart: any, index: number) => (
                     <div key={`text-${index}`} className="whitespace-pre-wrap">{textPart.text}</div>
@@ -156,9 +194,24 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
                 </div>
               </Message>
             ))}
-            {isThinking && messages.length > 0 && !messages[messages.length - 1]?.parts?.some((part: any) => part.type === 'reasoning') && (
+            {isThinking && (
               <div key="thinking-wrapper">
-                <ThinkingMessage onPause={onPauseThinking} />
+                {(() => {
+                  // Check if the last message has an unfinished tool call (tool-call without matching tool-result)
+                  const lastMessage = messages[messages.length - 1]
+                  const hasActiveTool = lastMessage?.parts?.some((part: any) => {
+                    if (part.type === 'tool-call') {
+                      // Check if there's a corresponding tool-result for this tool call
+                      const hasResult = lastMessage.parts?.some((resultPart: any) =>
+                        resultPart.type === 'tool-result' && resultPart.toolCallId === part.toolCallId
+                      )
+                      return !hasResult // Tool call without result means it's active
+                    }
+                    return false
+                  }) || false
+
+                  return <ThinkingMessage onPause={onPauseThinking} hasActiveTool={hasActiveTool} />
+                })()}
               </div>
             )}
           </>

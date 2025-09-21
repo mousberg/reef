@@ -1,8 +1,10 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from 'react'
+import type {
+  User
+} from 'firebase/auth'
 import {
-  User,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -10,50 +12,59 @@ import {
   updateProfile,
   signInWithPopup
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, deleteDoc } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, deleteDoc, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
 import { auth, firestore, googleProvider } from '../lib/firebase'
+import type { AgentTrace, AgentSpan } from '../types/traces'
 
 interface UserData {
   firstName: string
   lastName: string
   email: string
-  lastLoggedIn: any
+  lastLoggedIn: Date | { toDate?: () => Date }
   lastLoggedInIp: string
   termsAccepted: boolean
   marketingAccepted: boolean
-  createdAt: any
+  createdAt: Date | { toDate?: () => Date }
 }
 
 export interface Message {
   id: string
-  role: 'user' | 'assistant'
-  content: string
+  role: 'user' | 'assistant' | 'tool'
+  content?: string // For text content
+  parts?: Array<{
+    type: 'text' | 'tool-call' | 'tool-result' | 'reasoning'
+    text?: string
+    toolCallId?: string
+    toolName?: string
+    input?: any
+    result?: any
+  }>
   createdAt: any
   editedAt?: any
-}
-
-interface Agent {
-  name: string
-  task: string
-  instructions: string
-  connected_agents: string[]
-  expected_input: string
-  expected_output: string
-  tools: string[]
 }
 
 interface WorkflowState {
   main_task: string
   relations: string
-  agents: Record<string, Agent>
+  agents: Record<string, {
+    name: string
+    task: string
+    instructions: string
+    connected_agents: string[]
+    expected_input: string
+    expected_output: string
+    receives_from_user: boolean
+    sends_to_user: boolean
+    tools: string[]
+  }>
 }
 
-interface Project {
+export interface Project {
   id: string
   name: string
   createdAt: any
   updatedAt: any
-  messages?: Message[]
+  messages: Message[]
   workflowState?: WorkflowState
 }
 
@@ -68,9 +79,13 @@ interface AuthContextType {
   getUserProjects: (uid: string) => Promise<Project[]>
   createProject: (uid: string, name?: string) => Promise<string>
   getProjectById: (uid: string, projectId: string) => Promise<Project | null>
+  subscribeToProject: (uid: string, projectId: string, callback: (project: Project | null) => void) => (() => void)
   updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
   updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
+  updateProjectWorkflow: (uid: string, projectId: string, workflowState: WorkflowState) => Promise<void>
   deleteProject: (uid: string, projectId: string) => Promise<void>
+  getAgentTraces: (uid: string, limitCount?: number) => Promise<AgentTrace[]>
+  getAgentSpans: (uid: string, limitCount?: number) => Promise<AgentSpan[]>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -239,6 +254,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const subscribeToProject = (uid: string, projectId: string, callback: (project: Project | null) => void): (() => void) => {
+    const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+
+    return onSnapshot(projectRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const project = {
+            id: docSnapshot.id,
+            ...docSnapshot.data()
+          } as Project
+          callback(project)
+        } else {
+          callback(null)
+        }
+      },
+      (error) => {
+        console.error('Failed to subscribe to project:', error)
+        callback(null)
+      }
+    )
+  }
+
   const updateProjectMessages = async (uid: string, projectId: string, messages: Message[]): Promise<void> => {
     try {
       const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
@@ -265,6 +302,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updateProjectWorkflow = async (uid: string, projectId: string, workflowState: WorkflowState): Promise<void> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      await updateDoc(projectRef, {
+        workflowState,
+        updatedAt: serverTimestamp()
+      })
+    } catch (error) {
+      console.error('Failed to update project workflow:', error)
+      throw error
+    }
+  }
+
   const deleteProject = async (uid: string, projectId: string): Promise<void> => {
     try {
       const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
@@ -272,6 +322,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Failed to delete project:', error)
       throw error
+    }
+  }
+
+  const getAgentTraces = async (uid: string, limitCount: number = 100): Promise<AgentTrace[]> => {
+    try {
+      const tracesRef = collection(firestore, 'users', uid, 'agent_traces')
+      const q = query(tracesRef, orderBy('created_at', 'desc'), limit(limitCount))
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as AgentTrace[]
+    } catch (error) {
+      console.error('Failed to get agent traces:', error)
+      return []
+    }
+  }
+
+  const getAgentSpans = async (uid: string, limitCount: number = 100): Promise<AgentSpan[]> => {
+    try {
+      const spansRef = collection(firestore, 'users', uid, 'agent_spans')
+      const q = query(spansRef, orderBy('created_at', 'desc'), limit(limitCount))
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as AgentSpan[]
+    } catch (error) {
+      console.error('Failed to get agent spans:', error)
+      return []
     }
   }
 
@@ -286,9 +368,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getUserProjects,
     createProject,
     getProjectById,
+    subscribeToProject,
     updateProjectMessages,
     updateProjectName,
-    deleteProject
+    updateProjectWorkflow,
+    deleteProject,
+    getAgentTraces,
+    getAgentSpans
   }
 
   return (

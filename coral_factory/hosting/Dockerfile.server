@@ -34,7 +34,7 @@ ENV REGISTRY_FILE_PATH=/app/registry.toml
 
 RUN pip install --no-cache-dir openai-agents[litellm] agents-arcade arcadepy python-dotenv PyYAML
 RUN pip install --no-cache-dir langchain langchain-community langchain-experimental langchain-groq langchain-huggingface langchain-mcp-adapters langchain-openai
-RUN pip install --no-cache-dir pymongo
+RUN pip install --no-cache-dir firebase-admin
 COPY hosting/shared /app
 
 EXPOSE 5555

@@ -24,7 +24,8 @@ from agents import tracing  # type: ignore[import]
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Optional
-from pymongo import MongoClient
+import firebase_admin
+from firebase_admin import credentials, firestore
 import logging
 
 required = (
@@ -37,7 +38,9 @@ if not all(hasattr(tracing, name) for name in required):
     raise ImportError("The `agents` package is not installed.")
 
 
-MONGO_URI = os.getenv("MONGO_URI")
+# Firebase configuration
+FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID")
+FIREBASE_SERVICE_ACCOUNT_PATH = os.getenv("FIREBASE_SERVICE_ACCOUNT_PATH")
 logger = logging.getLogger(__name__)
 
 
@@ -47,31 +50,39 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
 
         def __init__(
             self,
-            mongo_uri: Optional[str] = None,
+            firebase_project_id: Optional[str] = None,
+            firebase_service_account_path: Optional[str] = None,
             *,
-            database_name: str = "agent_traces",
+            user_id: Optional[str] = None,
             metadata: Optional[dict] = None,
             tags: Optional[list[str]] = None,
-            collection_prefix: str = "trace",
             name: Optional[str] = None,
         ):
-            self.mongo_uri = mongo_uri or MONGO_URI
-            self.database_name = database_name
-            self.collection_prefix = collection_prefix
+            self.firebase_project_id = firebase_project_id or FIREBASE_PROJECT_ID
+            self.firebase_service_account_path = firebase_service_account_path or FIREBASE_SERVICE_ACCOUNT_PATH
+            self.user_id = user_id or os.getenv("USER_ID", "anonymous")
             self._metadata = metadata or {}
             self._tags = tags or []
             self._name = name
             self._first_response_inputs: dict = {}
             self._last_response_outputs: dict = {}
             
-            # Initialize MongoDB client
+            # Initialize Firebase Admin SDK
             try:
-                self.client = MongoClient(self.mongo_uri)
-                self.db = self.client[self.database_name]
-                self.traces_collection = self.db[f"{self.collection_prefix}_traces"]
-                self.spans_collection = self.db[f"{self.collection_prefix}_spans"]
+                if not firebase_admin._apps:
+                    if self.firebase_service_account_path:
+                        cred = credentials.Certificate(self.firebase_service_account_path)
+                        firebase_admin.initialize_app(cred, {
+                            'projectId': self.firebase_project_id
+                        })
+                    else:
+                        # Use default credentials (for Cloud Run, etc.)
+                        firebase_admin.initialize_app()
+                
+                self.db = firestore.client()
+                logger.info("Successfully connected to Firebase Firestore")
             except Exception as e:
-                logger.error(f"Failed to connect to MongoDB: {e}")
+                logger.error(f"Failed to connect to Firebase Firestore: {e}")
                 raise
 
             self._active_traces: dict[str, dict] = {}
@@ -80,7 +91,7 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
 
 
         def on_trace_start(self, trace: tracing.Trace) -> None:
-            """Start a new trace and store it in MongoDB."""
+            """Start a new trace and store it in Firestore."""
             if self._name:
                 trace_name = self._name
             elif trace.name:
@@ -94,7 +105,6 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
             trace_dict = trace.export() or {}
             
             trace_document = {
-                "_id": trace_id,
                 "trace_id": trace.trace_id,
                 "name": trace_name,
                 "start_time": start_time,
@@ -110,17 +120,20 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
                 "outputs": {},
                 "created_at": start_time,
                 "updated_at": start_time,
+                "user_id": self.user_id,
             }
             
             try:
-                self.traces_collection.insert_one(trace_document)
+                # Store in users/{user_id}/agent_traces/{trace_id}
+                trace_ref = self.db.collection('users').document(self.user_id).collection('agent_traces').document(trace_id)
+                trace_ref.set(trace_document)
                 self._active_traces[trace.trace_id] = trace_document
                 logger.debug(f"Started trace: {trace.trace_id}")
             except Exception as e:
-                logger.exception(f"Error creating trace in MongoDB: {e}")
+                logger.exception(f"Error creating trace in Firestore: {e}")
 
         def on_trace_end(self, trace: tracing.Trace) -> None:
-            """End a trace and update it in MongoDB."""
+            """End a trace and update it in Firestore."""
             if trace.trace_id not in self._active_traces:
                 logger.warning(f"Trace {trace.trace_id} not found in active traces")
                 return
@@ -145,17 +158,24 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
             }
             
             try:
-                self.traces_collection.update_one(
-                    {"trace_id": trace.trace_id},
-                    {"$set": update_data}
-                )
+                # Find the trace document to update
+                trace_doc = self._active_traces[trace.trace_id]
+                if "trace_id" in trace_doc:
+                    # Update the trace using a query to find the document by trace_id
+                    traces_ref = self.db.collection('users').document(self.user_id).collection('agent_traces')
+                    docs = traces_ref.where('trace_id', '==', trace.trace_id).get()
+                    
+                    for doc in docs:
+                        doc.reference.update(update_data)
+                        break
+                
                 self._active_traces.pop(trace.trace_id, None)
                 logger.debug(f"Completed trace: {trace.trace_id}")
             except Exception as e:
-                logger.exception(f"Error updating trace in MongoDB: {e}")
+                logger.exception(f"Error updating trace in Firestore: {e}")
 
         def on_span_start(self, span: tracing.Span) -> None:
-            """Start a new span and store it in MongoDB."""
+            """Start a new span and store it in Firestore."""
             if span.trace_id not in self._active_traces:
                 logger.warning(f"Parent trace {span.trace_id} not found for span {span.span_id}")
                 return
@@ -172,7 +192,6 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
             span_type = getattr(span, 'type', 'unknown')
             
             span_document = {
-                "_id": span_id,
                 "span_id": span.span_id,
                 "trace_id": span.trace_id,
                 "parent_id": span.parent_id,
@@ -191,17 +210,20 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
                 "tags": self._tags,
                 "created_at": start_time,
                 "updated_at": start_time,
+                "user_id": self.user_id,
             }
             
             try:
-                self.spans_collection.insert_one(span_document)
+                # Store in users/{user_id}/agent_spans/{span_id}
+                span_ref = self.db.collection('users').document(self.user_id).collection('agent_spans').document(span_id)
+                span_ref.set(span_document)
                 self._active_spans[span.span_id] = span_document
                 logger.debug(f"Started span: {span.span_id}")
             except Exception as e:
-                logger.exception(f"Error creating span in MongoDB: {e}")
+                logger.exception(f"Error creating span in Firestore: {e}")
 
         def on_span_end(self, span: tracing.Span) -> None:
-            """End a span and update it in MongoDB."""
+            """End a span and update it in Firestore."""
             if span.span_id not in self._active_spans:
                 logger.warning(f"Span {span.span_id} not found in active spans")
                 return
@@ -232,14 +254,18 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
                 self._last_response_outputs[span.trace_id] = outputs
             
             try:
-                self.spans_collection.update_one(
-                    {"span_id": span.span_id},
-                    {"$set": update_data}
-                )
+                # Find the span document to update
+                spans_ref = self.db.collection('users').document(self.user_id).collection('agent_spans')
+                docs = spans_ref.where('span_id', '==', span.span_id).get()
+                
+                for doc in docs:
+                    doc.reference.update(update_data)
+                    break
+                
                 self._active_spans.pop(span.span_id, None)
                 logger.debug(f"Completed span: {span.span_id}")
             except Exception as e:
-                logger.exception(f"Error updating span in MongoDB: {e}")
+                logger.exception(f"Error updating span in Firestore: {e}")
 
         def _extract_span_inputs(self, span: tracing.Span) -> dict:
             """Extract inputs from span data."""
@@ -270,17 +296,16 @@ class OpenAIAgentsTracingProcessor(tracing.TracingProcessor):  # type: ignore[no
                 return {}
 
         def shutdown(self) -> None:
-            """Close MongoDB connection."""
+            """Clean up Firebase connection."""
             try:
-                if hasattr(self, 'client'):
-                    self.client.close()
-                    logger.debug("MongoDB connection closed")
+                # Firebase Admin SDK doesn't require explicit connection closing
+                logger.debug("Firebase connection cleaned up")
             except Exception as e:
-                logger.exception(f"Error closing MongoDB connection: {e}")
+                logger.exception(f"Error cleaning up Firebase connection: {e}")
 
         def force_flush(self) -> None:
             """Force flush any pending operations."""
-            # MongoDB operations are synchronous by default, so no explicit flush needed
+            # Firestore operations are synchronous by default, so no explicit flush needed
             pass
 
 def _expand_env_variables(value: Any) -> Any:
@@ -329,7 +354,12 @@ async def _build_mcp_servers(
 
 async def main() -> None:
     # set_tracing_disabled(True)
-    set_trace_processors([OpenAIAgentsTracingProcessor(metadata={"user_id": os.getenv("USER_ID")})])
+    set_trace_processors([OpenAIAgentsTracingProcessor(
+        firebase_project_id=FIREBASE_PROJECT_ID,
+        firebase_service_account_path=FIREBASE_SERVICE_ACCOUNT_PATH,
+        user_id=os.getenv("USER_ID"),
+        metadata={"agent_type": "coral_agent"}
+    )])
 
     base_dir = os.path.dirname(__file__)
     config_path = os.path.join(base_dir, "final.yaml")
@@ -454,7 +484,7 @@ your purpose: {agent_cfg.get("instructions")}
                 "instructions": system_prompt,
                 "mcp_servers": [coral_server] + servers,
                 "model": LitellmModel(model=model_name, api_key=api_key),
-                "model_settings": ModelSettings(tool_choice="required"),
+                "model_settings": ModelSettings(tool_choice="required", temperature=0.0),
             }
             if tools:
                 agent_kwargs["tools"] = tools

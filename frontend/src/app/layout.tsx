@@ -35,6 +35,29 @@ export const metadata: Metadata = {
   appleWebApp: {
     title: "Reef",
   },
+  metadataBase: new URL('https://thereef.dev'),
+  openGraph: {
+    title: 'thereef.dev',
+    description: 'Build, deploy, and manage AI agents effortlessly.',
+    url: 'https://thereef.dev',
+    siteName: 'Reef',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'thereef.dev - Lovable for AI Agents',
+      }
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'thereef.dev',
+    description: 'Build, deploy, and manage AI agents effortlessly.',
+    images: ['/og-image.png'],
+  },
 }
 
 export default function RootLayout({

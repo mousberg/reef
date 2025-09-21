@@ -13,7 +13,7 @@ export interface WorkflowAgent {
 export interface WorkflowConfig {
   main_task: string;
   relations: string;
-  agents: Record<string, WorkflowAgent>;
+  agents: WorkflowAgent[];
 }
 
 export interface WorkflowNode {
@@ -35,5 +35,13 @@ export interface WorkflowEdge {
   id: string;
   source: string;
   target: string;
-  type: 'smoothstep';
+  type?: string;
+  animated?: boolean;
+  style?: Record<string, any>;
+  markerEnd?: {
+    type: string;
+    color?: string;
+  };
+  sourceHandle?: string | null;
+  targetHandle?: string | null;
 }

@@ -13,11 +13,12 @@ export function AnimatedAIInput() {
   const { user, createProject } = useAuth()
 
   const AI_MODELS = [
-    "o3-mini",
-    "Gemini 2.5 Flash",
-    "Claude 3.5 Sonnet",
-    "GPT-4-1 Mini",
-    "GPT-4-1",
+    "gpt-5",
+    "gpt-5-mini",
+    "gpt-5-nano",
+    "gpt-5-chat-latest",
+    "magistral-medium-2509", // Magistral Medium 1.2 (Sep 2025, reasoning+vision, 128k)
+    "codestral-2508", // Codestral 2508 (Jul 2025, coding, 256k)
   ]
 
   const handleSubmit = async () => {
@@ -33,7 +34,7 @@ export function AnimatedAIInput() {
     try {
       // Create project in Firebase
       const projectId = await createProject(user.uid)
-      
+
       // Navigate to project page with initial prompt
       router.push(`/projects/${projectId}?prompt=${encodeURIComponent(value)}`)
     } catch (error) {

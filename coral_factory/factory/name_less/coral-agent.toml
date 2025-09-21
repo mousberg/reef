@@ -1,7 +1,7 @@
 [agent]
-name = "mail_agent"
+name = "OrchestratorAgent"
 version = "0.0.1"
-description = "Agent responsible for email communications"
+description = "Coordinates data flow among input, stock fetch, and email send; handles retries and logging."
 
 
 [options.TIMEOUT_MS]

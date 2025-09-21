@@ -86,8 +86,8 @@ services:
       # - DOCKER_SOCKET=/var/run/docker.sock
       - ARCADE_API_KEY=${{ARCADE_API_KEY:-}}
       - OPENAI_API_KEY=${{OPENAI_API_KEY:-}}
-      - FIREBASE_PROJECT_ID=${{FIREBASE_PROJECT_ID:-}}
-      - FIREBASE_SERVICE_ACCOUNT_PATH=${{FIREBASE_SERVICE_ACCOUNT_PATH:-}}
+      - FIREBASE_PROJECT_ID=reefs-c1adb
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/service.json
       - USER_ID={user_id}
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS -o /dev/null http://0.0.0.0:5555/v1/docs || exit 1"]
@@ -123,8 +123,8 @@ services:
       - OPENAI_API_KEY=${{OPENAI_API_KEY:-}}
       - AGENTS_PATH=/app/agents/
       - AGENT_QUERY='{query}'
-      - FIREBASE_PROJECT_ID=${{FIREBASE_PROJECT_ID:-}}
-      - FIREBASE_SERVICE_ACCOUNT_PATH=${{FIREBASE_SERVICE_ACCOUNT_PATH:-}}
+      - FIREBASE_PROJECT_ID=reefs-c1adb
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/service.json
       - RESULTS_API_URL=${{RESULTS_API_URL:-http://host.docker.internal:8000/results}}
       - ARCADE_API_KEY=${{ARCADE_API_KEY:-}}
       - USER_ID={user_id}
@@ -166,5 +166,6 @@ def kill_docker_containers():
 if __name__ == "__main__":
     # deploy_workflow("List all the repos of https://github.com/Coral-Protocol, and mail me the list to florisfok5@gmail.com")
 
-    deploy_workflow("List all the repos of https://github.com/Coral-Protocol, and mail me the list to florisfok5@gmail.com")
+    # deploy_workflow("List all the repos of https://github.com/Coral-Protocol, and mail me the list to florisfok5@gmail.com")
+    deploy_workflow("Send the stock summary of Google to florisfok5@gmail.com", "florisfok5@gmail.com")
 
