@@ -94,7 +94,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
                       console.log('Calling updateProjectWorkflow with:', {
                         userId: user.uid,
                         projectId: projectId,
-                        workflowStateAgents: Object.keys(partAny.input.workflowState.agents || {})
+                        workflowStateAgents: partAny.input.workflowState.agents?.length || 0
                       })
                       await updateProjectWorkflow(user.uid, projectId, partAny.input.workflowState)
                       console.log('Workflow updated in Firestore successfully!')
@@ -192,23 +192,47 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
   }, [status])
 
 
-  // Create conversation object for ChatPane using original Firebase messages for full tool support
-  const allMessages = initialMessages.concat(
-    messages.slice(initialMessages.length).map(msg => ({
+  // Normalize parts data for consistent rendering
+  const normalizePart = (part: any) => {
+    const normalized: any = {
+      type: part.type,
+      state: 'done' as const
+    }
+
+    if (part.type === 'text') {
+      normalized.text = part.text || ''
+    } else if (part.type === 'tool-call') {
+      normalized.toolCallId = part.toolCallId
+      normalized.toolName = part.toolName
+      normalized.input = part.input
+    } else if (part.type === 'tool-result') {
+      normalized.toolCallId = part.toolCallId
+      normalized.toolName = part.toolName
+      // Handle both 'result' (Firebase) and 'output' (AI SDK) properties
+      normalized.output = part.result || part.output
+    } else if (part.type === 'reasoning') {
+      normalized.text = part.text || ''
+    }
+
+    return normalized
+  }
+
+  // Create conversation object for ChatPane using normalized data
+  const allMessages = [
+    // Firebase messages (already have correct structure)
+    ...initialMessages.map(msg => ({
+      ...msg,
+      parts: msg.parts?.map(normalizePart) || []
+    })),
+    // AI SDK messages (need normalization)
+    ...messages.slice(initialMessages.length).map(msg => ({
       id: msg.id,
-      role: msg.role as 'user' | 'assistant' | 'tool',
+      role: msg.role as 'user' | 'assistant',
       content: msg.parts?.find(part => part.type === 'text')?.text || '',
-      parts: msg.parts?.map(part => ({
-        type: part.type,
-        text: part.type === 'text' ? (part as any).text || '' : '',
-        toolCallId: (part as any).toolCallId,
-        toolName: (part as any).toolName,
-        input: (part as any).input,
-        result: (part as any).output // AI SDK uses 'output', convert back to 'result' for consistency
-      })) || [],
-      createdAt: new Date()
+      createdAt: new Date(),
+      parts: msg.parts?.map(normalizePart) || []
     }))
-  )
+  ]
 
   const conversation = {
     id: projectId,
@@ -226,16 +250,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       role: msg.role as 'user' | 'assistant',
       content: msg.content || msg.parts?.find(part => part.type === 'text')?.text || '',
       createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date(),
-      parts: msg.parts?.map(part => ({
-        type: part.type,
-        text: part.text || (part.type === 'text' ? part.text : ''),
-        state: 'done' as const,
-        // Include tool-specific properties
-        ...(part.toolCallId && { toolCallId: part.toolCallId }),
-        ...(part.toolName && { toolName: part.toolName }),
-        ...(part.input && { input: part.input }),
-        ...(part.result && { output: part.result })
-      })) || []
+      parts: msg.parts || []
     }))
   }
 
