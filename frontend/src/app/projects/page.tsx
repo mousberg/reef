@@ -174,7 +174,10 @@ export default function ProjectsPage() {
   if (loading) {
     return (
       <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-center items-center max-w-[100vw]">
-        <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading projects...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[#37322F] border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading projects...</div>
+        </div>
       </div>
     )
   }
