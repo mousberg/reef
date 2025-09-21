@@ -2,48 +2,10 @@
 
 import { useParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth, type Project } from "@/contexts/AuthContext"
 import { ChatInterface } from "@/components/chat-interface"
 import { Canvas } from "@/components/canvas"
 import { Navigation } from "@/components/navigation"
-
-// Import Project type from AuthContext
-type Project = {
-  id: string
-  name: string
-  createdAt: any
-  updatedAt: any
-  messages: Array<{
-    id: string
-    role: 'user' | 'assistant' | 'tool'
-    content?: string
-    parts?: Array<{
-      type: 'text' | 'tool-call' | 'tool-result'
-      text?: string
-      toolCallId?: string
-      toolName?: string
-      input?: any
-      result?: any
-    }>
-    createdAt: any
-    editedAt?: any
-  }>
-  workflowState?: {
-    main_task: string
-    relations: string
-    agents: Record<string, {
-      name: string
-      task: string
-      instructions: string
-      connected_agents: string[]
-      expected_input: string
-      expected_output: string
-      receives_from_user: boolean
-      sends_to_user: boolean
-      tools: string[]
-    }>
-  }
-}
 
 
 export default function ProjectPage() {

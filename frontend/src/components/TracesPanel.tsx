@@ -16,6 +16,17 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
   const [selectedTrace, setSelectedTrace] = useState<string | null>(null)
   const [logEntries, setLogEntries] = useState<TraceLogEntry[]>([])
 
+  // Helper function to safely convert timestamps to Date objects
+  const toDate = useCallback((timestamp: Date | { toDate?: () => Date }): Date => {
+    if (timestamp instanceof Date) {
+      return timestamp
+    }
+    if (timestamp && typeof timestamp === 'object' && 'toDate' in timestamp && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate()
+    }
+    return new Date(timestamp as any)
+  }, [])
+
   const fetchTracesData = useCallback(async () => {
     if (!user) return
     
@@ -33,14 +44,13 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
       tracesData.forEach(trace => {
         entries.push({
           id: trace.id,
-          timestamp: trace.start_time?.toDate?.() || new Date(trace.start_time),
+          timestamp: toDate(trace.start_time),
           type: 'trace',
           level: trace.status === 'failed' ? 'error' : 'info',
           message: `${trace.metadata.agent_type}: ${trace.metadata.name}`,
           data: trace,
           duration: trace.end_time && trace.start_time 
-            ? (trace.end_time.toDate?.() || new Date(trace.end_time)).getTime() - 
-              (trace.start_time.toDate?.() || new Date(trace.start_time)).getTime()
+            ? toDate(trace.end_time).getTime() - toDate(trace.start_time).getTime()
             : undefined
         })
       })
@@ -49,14 +59,13 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
       spansData.forEach(span => {
         entries.push({
           id: span.id,
-          timestamp: span.start_time?.toDate?.() || new Date(span.start_time),
+          timestamp: toDate(span.start_time),
           type: 'span',
           level: span.status === 'failed' ? 'error' : span.error ? 'warning' : 'info',
           message: span.metadata.name,
           data: span,
           duration: span.end_time && span.start_time 
-            ? (span.end_time.toDate?.() || new Date(span.end_time)).getTime() - 
-              (span.start_time.toDate?.() || new Date(span.start_time)).getTime()
+            ? toDate(span.end_time).getTime() - toDate(span.start_time).getTime()
             : undefined
         })
       })
@@ -70,7 +79,7 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
     } finally {
       setLoading(false)
     }
-  }, [user, getAgentTraces, getAgentSpans])
+  }, [user, getAgentTraces, getAgentSpans, toDate])
 
   useEffect(() => {
     if (isOpen && user) {
@@ -119,8 +128,7 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
           <span className="text-[#556B5D] font-medium">Duration</span>
           <span className="text-[#2F3037] font-mono text-xs">
             {trace.end_time && trace.start_time 
-              ? formatDuration((trace.end_time.toDate?.() || new Date(trace.end_time)).getTime() - 
-                             (trace.start_time.toDate?.() || new Date(trace.start_time)).getTime())
+              ? formatDuration(toDate(trace.end_time).getTime() - toDate(trace.start_time).getTime())
               : 'N/A'}
           </span>
         </div>
@@ -163,8 +171,7 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
           <span className="text-[#556B5D] font-medium">Duration</span>
           <span className="text-[#2F3037] font-mono text-xs">
             {span.end_time && span.start_time 
-              ? formatDuration((span.end_time.toDate?.() || new Date(span.end_time)).getTime() - 
-                             (span.start_time.toDate?.() || new Date(span.start_time)).getTime())
+              ? formatDuration(toDate(span.end_time).getTime() - toDate(span.start_time).getTime())
               : 'N/A'}
           </span>
         </div>
@@ -177,14 +184,14 @@ export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
         </div>
       )}
 
-      {span.error && (
+      {span.error ? (
         <div>
           <h4 className="text-red-700 font-medium mb-2 text-sm">Error</h4>
           <pre className="bg-red-50 p-3 rounded-lg text-xs text-red-800 overflow-auto max-h-32 border border-red-200">
-            {JSON.stringify(span.error, null, 2)}
+            {typeof span.error === 'string' ? span.error : JSON.stringify(span.error, null, 2)}
           </pre>
         </div>
-      )}
+      ) : null}
       
       {span.inputs && Object.keys(span.inputs).length > 0 && (
         <div>
