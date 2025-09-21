@@ -42,7 +42,7 @@ function WorkflowCallRenderer({ input }: { input: any }) {
         <div>
           <h4 className="font-semibold text-green-700 dark:text-green-300">Workflow Summary</h4>
           <p className="text-sm text-green-600 dark:text-green-400">
-            {workflowState.agents?.length || 0} agent{(workflowState.agents?.length || 0) !== 1 ? 's' : ''} created
+            {workflowState.agents?.length || 0} agent{(workflowState.agents?.length || 0) !== 1 ? 's' : ''} edited
           </p>
         </div>
         <button
@@ -204,7 +204,7 @@ export function ToolCallRenderer({ toolName, input, className = "" }: ToolCallPr
           </svg>
         </div>
         <span className="text-sm font-medium text-green-700 dark:text-green-300">
-          {toolName === 'updateWorkflow' ? 'Workflow Created' : `Tool Completed: ${toolName}`}
+          {toolName === 'updateWorkflow' ? 'Workflow Modified' : `Tool Completed: ${toolName}`}
         </span>
       </div>
 
