@@ -93,7 +93,7 @@ export default function PrivacyPage() {
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">9. Children's Privacy</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">9. Children&apos;s Privacy</h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
                       Our service is not intended for children under 13 years of age. We do not knowingly collect 
                       personal information from children under 13.
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
                     <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">10. Changes to Privacy Policy</h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
                       We may update this privacy policy from time to time. We will notify you of any changes by posting 
-                      the new privacy policy on this page and updating the "Last updated" date.
+                      the new privacy policy on this page and updating the &quot;Last updated&quot; date.
                     </p>
                   </section>
 
