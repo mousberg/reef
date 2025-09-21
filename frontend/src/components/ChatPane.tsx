@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, forwardRef, useImperativeHandle, useRef } from "react"
-import { Square } from "lucide-react"
+import { Square, ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
 import Message from "./Message"
 import Composer, { ComposerRef } from "./Composer"
 import { cls, timeAgo } from "../lib/utils"
@@ -67,6 +68,7 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
 ) {
   const [busy, setBusy] = useState(false)
   const composerRef = useRef<ComposerRef>(null)
+  const router = useRouter()
 
   useImperativeHandle(
     ref,
@@ -87,8 +89,18 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
       <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8">
-        <div className="mb-2 text-3xl tracking-tight sm:text-4xl md:text-5xl">
-          <span className="block leading-[1.05] font-title text-2xl">{conversation.title}</span>
+        <div className="mb-2 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push("/projects")}
+            className="flex items-center gap-2 text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+            title="Back to Projects"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div className="text-3xl tracking-tight sm:text-4xl md:text-5xl">
+            <span className="block leading-[1.05] font-title text-2xl">{conversation.title}</span>
+          </div>
         </div>
         <div className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
           Updated {timeAgo(conversation.updatedAt)}
