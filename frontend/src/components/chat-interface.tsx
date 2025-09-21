@@ -157,7 +157,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
             }).filter((part: any): part is NonNullable<typeof part> => part !== null) || []
 
             // Determine role, mapping AI SDK roles to Firebase roles
-            let role: 'user' | 'assistant' | 'tool' = msg.role as any
+            const role: 'user' | 'assistant' | 'tool' = msg.role as any
 
             return {
               id: msg.id || crypto.randomUUID(),
