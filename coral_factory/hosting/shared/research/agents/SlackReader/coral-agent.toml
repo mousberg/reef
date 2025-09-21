@@ -1,7 +1,7 @@
 [agent]
-name = "StockInfoAgent"
+name = "SlackReader"
 version = "0.0.1"
-description = "Fetches current stock price/summary for a ticker using Google Finance API."
+description = "SlackReader identifies itself as a Slack message reader that fetches latest messages from channels or DMs and emits structured events for downstream processing"
 
 
 [options.TIMEOUT_MS]

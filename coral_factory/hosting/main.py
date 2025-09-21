@@ -125,7 +125,7 @@ services:
       - AGENT_QUERY='{query}'
       - FIREBASE_PROJECT_ID=reefs-c1adb
       - FIREBASE_SERVICE_ACCOUNT_PATH=/app/service.json
-      - RESULTS_API_URL=${{RESULTS_API_URL:-http://host.docker.internal:8000/results}}
+      - RESULTS_API_URL=${{RESULTS_API_URL:-http://host.docker.internal:8001/results}}
       - ARCADE_API_KEY=${{ARCADE_API_KEY:-}}
       - USER_ID={user_id}
     # Tool server only needs to be reachable inside the network
