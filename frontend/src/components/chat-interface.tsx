@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { useSearchParams } from "next/navigation"
@@ -19,6 +19,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
   const initialPrompt = searchParams.get("prompt")
   const { user, updateProjectMessages, updateProjectName, updateProjectWorkflow } = useAuth()
   const [tracesOpen, setTracesOpen] = useState(false)
+  const initialPromptSentRef = useRef(false)
 
   // Convert Firebase messages to AI SDK v5 UI message format (simplified for AI SDK compatibility)
   const convertedMessages = initialMessages
@@ -186,109 +187,10 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     }
   })
 
-  // Add initial prompt as first message if provided
-  useEffect(() => {
-    if (initialPrompt && messages.length === 0) {
-      setMessages([{
-        id: crypto.randomUUID(),
-        role: 'user',
-        parts: [{ type: 'text' as const, text: initialPrompt }]
-      }])
-    }
-  }, [initialPrompt, messages.length, setMessages])
-
-  // Debug status changes and message updates
-  useEffect(() => {
-    console.log('Chat status changed:', status)
-  }, [status])
-
-
-  // Normalize parts data for consistent rendering - only keep parts we want to display
-  const normalizePart = (part: any) => {
-    // Only process parts we want to render in the UI
-    if (part.type === 'text') {
-      return {
-        type: 'text' as const,
-        text: part.text || '',
-        state: 'done' as const
-      }
-    } else if (part.type === 'tool-call') {
-      return {
-        type: 'tool-call' as const,
-        toolCallId: part.toolCallId,
-        toolName: part.toolName,
-        input: part.input,
-        state: 'done' as const
-      }
-    } else if (part.type === 'tool-updateWorkflow') {
-      // Handle the specific tool-updateWorkflow type from AI SDK
-      return {
-        type: 'tool-call' as const,
-        toolCallId: part.toolCallId || crypto.randomUUID(),
-        toolName: 'updateWorkflow',
-        input: part.input,
-        state: 'done' as const
-      }
-    } else if (part.type === 'tool-result') {
-      return {
-        type: 'tool-result' as const,
-        toolCallId: part.toolCallId,
-        toolName: part.toolName,
-        output: part.result || part.output, // Handle both Firebase and AI SDK properties
-        state: 'done' as const
-      }
-    } else if (part.type === 'reasoning' && part.text && part.text.trim()) {
-      // Only include reasoning if it has actual text content
-      return {
-        type: 'reasoning' as const,
-        text: part.text,
-        state: 'done' as const
-      }
-    }
-
-    // Filter out any other part types (step-start, etc.) - return null to exclude them
-    return null
-  }
-
-  // Create conversation object for ChatPane using normalized data
-  const allMessages = [
-    // Firebase messages (already have correct structure)
-    ...initialMessages.map(msg => ({
-      ...msg,
-      parts: msg.parts?.map(normalizePart).filter((part): part is NonNullable<typeof part> => part !== null) || []
-    })),
-    // AI SDK messages (need normalization)
-    ...messages.slice(initialMessages.length).map(msg => ({
-      id: msg.id,
-      role: msg.role as 'user' | 'assistant',
-      content: msg.parts?.find(part => part.type === 'text')?.text || '',
-      createdAt: new Date(),
-      parts: msg.parts?.map(normalizePart).filter((part): part is NonNullable<typeof part> => part !== null) || []
-    }))
-  ]
-
-  const conversation = {
-    id: projectId,
-    title: projectName || "Project Chat",
-    updatedAt: allMessages.length > 0 ? new Date() : new Date(),
-    messageCount: allMessages.length,
-    preview: allMessages.length > 0 ?
-      allMessages[allMessages.length - 1].parts?.find(part => part.type === 'text')?.text?.slice(0, 80) ||
-      allMessages[allMessages.length - 1].content?.slice(0, 80) || "No text content"
-      : "No messages yet",
-    pinned: false,
-    folder: "Projects",
-    messages: allMessages.map(msg => ({
-      id: msg.id,
-      role: msg.role as 'user' | 'assistant',
-      content: msg.content || msg.parts?.find(part => part.type === 'text')?.text || '',
-      createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date(),
-      parts: msg.parts || []
-    }))
-  }
-
+  // Define handleSendMessage early so it can be used in useEffect
   const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return
+    // Prevent sending empty messages or messages with only whitespace
+    if (!content || !content.trim() || content.trim().length === 0) return
 
     const userMessage = {
       id: crypto.randomUUID(),
@@ -377,6 +279,125 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     await sendMessage(userMessage)
   }
 
+  // Send initial prompt as first message if provided
+  useEffect(() => {
+    if (initialPrompt && !initialPromptSentRef.current && messages.length === 0) {
+      initialPromptSentRef.current = true
+      // Send the initial prompt as a message to trigger AI response
+      handleSendMessage(initialPrompt)
+    }
+  }, [initialPrompt, handleSendMessage, messages.length])
+
+  // Debug status changes and message updates
+  useEffect(() => {
+    console.log('Chat status changed:', status)
+  }, [status])
+
+
+  // Normalize parts data for consistent rendering - only keep parts we want to display
+  const normalizePart = (part: any) => {
+    // Only process parts we want to render in the UI
+    if (part.type === 'text') {
+      return {
+        type: 'text' as const,
+        text: part.text || '',
+        state: 'done' as const
+      }
+    } else if (part.type === 'tool-call') {
+      return {
+        type: 'tool-call' as const,
+        toolCallId: part.toolCallId,
+        toolName: part.toolName,
+        input: part.input,
+        state: 'done' as const
+      }
+    } else if (part.type === 'tool-updateWorkflow') {
+      // Handle the specific tool-updateWorkflow type from AI SDK
+      return {
+        type: 'tool-call' as const,
+        toolCallId: part.toolCallId || crypto.randomUUID(),
+        toolName: 'updateWorkflow',
+        input: part.input,
+        state: 'done' as const
+      }
+    } else if (part.type === 'tool-result') {
+      return {
+        type: 'tool-result' as const,
+        toolCallId: part.toolCallId,
+        toolName: part.toolName,
+        output: part.result || part.output, // Handle both Firebase and AI SDK properties
+        state: 'done' as const
+      }
+    } else if (part.type === 'reasoning' && part.text && part.text.trim()) {
+      // Only include reasoning if it has actual text content
+      return {
+        type: 'reasoning' as const,
+        text: part.text,
+        state: 'done' as const
+      }
+    }
+
+    // Filter out any other part types (step-start, etc.) - return null to exclude them
+    return null
+  }
+
+  // Helper function to check if a message has meaningful content
+  const hasContent = (msg: any) => {
+    // Check if the main content is not empty/whitespace
+    const mainContent = msg.content?.trim()
+    if (mainContent && mainContent.length > 0) return true
+    
+    // Check if any text parts have meaningful content
+    const hasTextContent = msg.parts?.some((part: any) => 
+      part?.type === 'text' && part?.text?.trim() && part.text.trim().length > 0
+    )
+    if (hasTextContent) return true
+    
+    // Check if it has non-text parts (tool calls, reasoning, etc.)
+    const hasNonTextParts = msg.parts?.some((part: any) => 
+      part?.type && part.type !== 'text'
+    )
+    if (hasNonTextParts) return true
+    
+    return false
+  }
+
+  // Create conversation object for ChatPane using normalized data
+  const allMessages = [
+    // Firebase messages (already have correct structure)
+    ...initialMessages.map(msg => ({
+      ...msg,
+      parts: msg.parts?.map(normalizePart).filter((part): part is NonNullable<typeof part> => part !== null) || []
+    })),
+    // AI SDK messages (need normalization)
+    ...messages.slice(initialMessages.length).map(msg => ({
+      id: msg.id,
+      role: msg.role as 'user' | 'assistant',
+      content: msg.parts?.find(part => part.type === 'text')?.text || '',
+      createdAt: new Date(),
+      parts: msg.parts?.map(normalizePart).filter((part): part is NonNullable<typeof part> => part !== null) || []
+    }))
+  ].filter(hasContent) // Filter out empty messages
+
+  const conversation = {
+    id: projectId,
+    title: projectName || "Project Chat",
+    updatedAt: allMessages.length > 0 ? new Date() : new Date(),
+    messageCount: allMessages.length,
+    preview: allMessages.length > 0 ?
+      allMessages[allMessages.length - 1].parts?.find(part => part.type === 'text')?.text?.slice(0, 80) ||
+      allMessages[allMessages.length - 1].content?.slice(0, 80) || "No text content"
+      : "No messages yet",
+    pinned: false,
+    folder: "Projects",
+    messages: allMessages.map(msg => ({
+      id: msg.id,
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content || msg.parts?.find(part => part.type === 'text')?.text || '',
+      createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date(),
+      parts: msg.parts || []
+    })).filter(hasContent) // Filter out empty messages from conversation as well
+  }
 
   return (
     <div className="relative h-full">

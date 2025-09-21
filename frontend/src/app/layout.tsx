@@ -4,6 +4,7 @@ import { Inter, Instrument_Serif } from "next/font/google"
 import localFont from "next/font/local"
 import "./globals.css"
 import { AuthProvider } from "../contexts/AuthContext"
+import { ThemeProvider } from "../providers/theme-provider"
 import { Toaster } from "sonner"
 
 const inter = Inter({
@@ -65,7 +66,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${ppMondwest.variable} antialiased`}>
+    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${ppMondwest.variable} antialiased`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -84,10 +85,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Reef" />
       </head>
       <body className="font-sans antialiased">
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {children}
+            <Toaster theme="system" />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

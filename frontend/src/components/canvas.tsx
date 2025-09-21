@@ -1,8 +1,10 @@
 "use client"
 
 import { WorkflowCanvas } from './workflow/workflow-canvas';
+import { AnimatedCoral } from './animated-coral';
 import { useState } from 'react'
 import type { Project } from '@/contexts/AuthContext';
+import { WorkflowQueryDialog } from './ui/workflow-query-dialog';
 
 interface CanvasProps {
   project: Project
@@ -19,6 +21,7 @@ export function Canvas({ project }: CanvasProps) {
   const [running, setRunning] = useState(false)
   const [runError, setRunError] = useState<string | null>(null)
   const [runSuccess, setRunSuccess] = useState(false)
+  const [showQueryDialog, setShowQueryDialog] = useState(false)
 
   const handleExport = async () => {
     setExportError(null)
@@ -51,13 +54,13 @@ export function Canvas({ project }: CanvasProps) {
     }
   }
 
-  const handleRun = async () => {
+  const handleRun = () => {
     setRunError(null)
     setRunSuccess(false)
+    setShowQueryDialog(true)
+  }
 
-    const query = window.prompt('Enter a query to run with this workflow:')
-    if (!query) return
-
+  const handleQuerySubmit = async (query: string) => {
     try {
       setRunning(true)
       const res = await fetch('/api/deploy', {
@@ -88,14 +91,14 @@ export function Canvas({ project }: CanvasProps) {
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-semibold text-gray-900">Workflow Canvas</h2>
             <span className="text-sm text-gray-500">
-              {project.workflowState ? 'AI-managed workflow' : 'No workflow created yet'}
+              {project.workflowState ? 'AI agents running on the Coral Protocol' : 'No workflow created yet'}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleRun} disabled={running} className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-60">
+            <button type="button" onClick={handleRun} disabled={running} className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-60">
               {running ? 'Running...' : 'RUN'}
             </button>
-            <button onClick={handleExport} disabled={exporting} className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
+            <button type="button" onClick={handleExport} disabled={exporting} className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
               {exporting ? 'Exporting...' : 'Export'}
             </button>
             <button type="button" className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
@@ -119,8 +122,19 @@ export function Canvas({ project }: CanvasProps) {
 
       {/* Canvas Area */}
       <div className="flex-1 overflow-hidden">
-        <WorkflowCanvas jsonContent={workflowJson} />
+        {project.workflowState ? (
+          <WorkflowCanvas jsonContent={workflowJson} />
+        ) : (
+          <AnimatedCoral />
+        )}
       </div>
+
+      {/* Query Dialog */}
+      <WorkflowQueryDialog
+        open={showQueryDialog}
+        onOpenChange={setShowQueryDialog}
+        onSubmit={handleQuerySubmit}
+      />
     </div>
   )
 }

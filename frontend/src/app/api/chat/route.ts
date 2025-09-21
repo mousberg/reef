@@ -31,7 +31,7 @@ const createUpdateWorkflowTool = (userId: string, projectId: string) => tool({
     // Simple success response - Firestore update will happen client-side
     return {
       success: true,
-      message: `Workflow created successfully for project ${projectId}`,
+      message: `Workflow created successfully edited`,
       agentCount: workflowState.agents.length
     }
   }
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     console.log('API Route - Starting OpenAI stream with multi-step tool calls...')
 
     const result = await streamText({
-      model: openai('gpt-5-nano'),
+      model: openai('gpt-4.1'),
       messages: modelMessages,
       maxOutputTokens: 4000,
       system: getSystemPrompt(userId, projectId),

@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/button"
 import { Navigation } from "../../components/navigation"
 import { Footer } from "../../components/Footer"
 import { ConfirmationDialog } from "../../components/ConfirmationDialog"
+import { AnimatedAIInput } from "../../components/ui/animated-ai-input"
 import { toast } from "sonner"
 
 interface Project {
@@ -17,10 +18,9 @@ interface Project {
 }
 
 export default function ProjectsPage() {
-  const { user, getUserProjects, createProject, deleteProject, updateProjectName } = useAuth()
+  const { user, getUserProjects, deleteProject, updateProjectName } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
-  const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [editingProject, setEditingProject] = useState<string | null>(null)
@@ -54,25 +54,12 @@ export default function ProjectsPage() {
     fetchProjects()
   }, [user, getUserProjects, router])
 
-  const handleCreateProject = async () => {
-    if (!user) return
-
-    setCreating(true)
-    try {
-      const projectId = await createProject(user.uid)
-      // Navigate directly to the new project
-      router.push(`/projects/${projectId}`)
-    } catch (error) {
-      console.error("Failed to create project:", error)
-      setCreating(false)
-    }
-  }
 
   const handleDeleteProject = async () => {
     console.log("handleDeleteProject called")
     console.log("user:", user)
     console.log("confirmDialog:", confirmDialog)
-    
+
     if (!user || !confirmDialog.projectId) {
       console.log("Early return: missing user or projectId")
       return
@@ -80,12 +67,12 @@ export default function ProjectsPage() {
 
     console.log("Starting delete process for:", confirmDialog.projectId)
     setDeleting(confirmDialog.projectId)
-    
+
     try {
       console.log("Calling deleteProject...")
       await deleteProject(user.uid, confirmDialog.projectId)
       console.log("Delete successful, updating UI...")
-      
+
       setProjects(projects.filter(p => p.id !== confirmDialog.projectId))
       console.log("Showing success toast...")
       toast.success("Project deleted successfully")
@@ -131,8 +118,8 @@ export default function ProjectsPage() {
     setRenaming(projectId)
     try {
       await updateProjectName(user.uid, projectId, trimmedName)
-      setProjects(projects.map(p => 
-        p.id === projectId 
+      setProjects(projects.map(p =>
+        p.id === projectId
           ? { ...p, name: trimmedName, updatedAt: new Date() }
           : p
       ))
@@ -151,12 +138,12 @@ export default function ProjectsPage() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element
-      
+
       // Close dropdown if clicking outside
       if (!target.closest('[data-dropdown-container]')) {
         setActiveDropdown(null)
       }
-      
+
       // Close editing if clicking outside the input
       if (!target.closest('[data-editing-container]')) {
         if (editingProject) {
@@ -192,7 +179,7 @@ export default function ProjectsPage() {
 
           <div className="self-stretch pt-[9px] overflow-hidden border-b border-[rgba(55,50,47,0.06)] flex flex-col justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[66px] relative z-10">
             <Navigation />
-            
+
             {/* Hero Section */}
             <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-8 sm:pb-12 md:pb-16 flex flex-col justify-start items-center px-2 sm:px-4 md:px-8 lg:px-0 w-full sm:pl-0 sm:pr-0 pl-0 pr-0">
               <div className="w-full max-w-[937px] lg:w-[937px] flex flex-col justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
@@ -228,36 +215,38 @@ export default function ProjectsPage() {
 
               {projects.length === 0 ? (
                 <div className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-12 text-center">
-                  <div className="max-w-md mx-auto">
+                  <div className="max-w-2xl mx-auto">
                     <h2 className="text-[#2F3037] text-2xl font-medium leading-tight font-sans mb-4">
                       No projects yet
                     </h2>
                     <p className="text-[#37322F] text-base font-medium leading-6 font-sans opacity-70 mb-8">
                       Create your first project to get started with Reef. Projects help you organize your work and collaborate with others.
                     </p>
-                    <Button
-                      onClick={handleCreateProject}
-                      disabled={creating}
-                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
-                    >
-                      {creating ? "Creating..." : "Create Your First Project"}
-                    </Button>
+
+                    {/* AI Input for creating first project */}
+                    <div className="flex justify-center">
+                      <div className="w-full max-w-[600px]">
+                        <AnimatedAIInput />
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {projects.length > 0 && (
-                    <div className="flex justify-between items-center">
-                      <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">
-                        {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-center">
+                        <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">
+                          {projects.length} {projects.length === 1 ? 'project' : 'projects'}
+                        </div>
                       </div>
-                      <Button
-                        onClick={handleCreateProject}
-                        disabled={creating}
-                        className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
-                      >
-                        {creating ? "Creating..." : "New Project"}
-                      </Button>
+
+                      {/* AI Input for creating new projects */}
+                      <div className="flex justify-center">
+                        <div className="w-full max-w-[600px]">
+                          <AnimatedAIInput />
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -331,7 +320,7 @@ export default function ProjectsPage() {
                                     "Open"
                                   )}
                                 </Button>
-                                
+
                                 {/* Three dots menu */}
                                 <div className="relative" data-dropdown-container>
                                 <button
@@ -345,11 +334,11 @@ export default function ProjectsPage() {
                                   className="p-2 hover:bg-[#F7F5F3] rounded-[8px] transition-colors"
                                   aria-label="More options"
                                 >
-                                  <svg 
-                                    width="16" 
-                                    height="16" 
-                                    viewBox="0 0 16 16" 
-                                    fill="none" 
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
                                     className="text-[#37322F] opacity-60 hover:opacity-100"
                                   >
                                     <title>More options</title>
@@ -358,7 +347,7 @@ export default function ProjectsPage() {
                                     <circle cx="8" cy="13" r="1.5" fill="currentColor" />
                                   </svg>
                                 </button>
-                                
+
                                 {/* Dropdown menu */}
                                 {activeDropdown === project.id && (
                                   <div className="absolute right-0 top-full mt-2 bg-white border border-[rgba(55,50,47,0.12)] rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.1)] py-1 min-w-[120px] z-50">
@@ -403,7 +392,7 @@ export default function ProjectsPage() {
           <Footer />
         </div>
       </div>
-      
+
       {/* Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={confirmDialog.isOpen}
@@ -416,7 +405,7 @@ export default function ProjectsPage() {
         confirmVariant="destructive"
         loading={deleting !== null}
       />
-      
+
       {/* ElevenLabs AI Assistant Widget */}
       <elevenlabs-convai agent-id="agent_3101k5p8y1r2e25bn1bb4rjpx932"></elevenlabs-convai>
       <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>

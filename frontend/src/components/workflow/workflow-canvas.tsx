@@ -40,7 +40,7 @@ function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
     try {
       const parsedConfig = parseWorkflowJson(json);
       const { nodes: newNodes, edges: newEdges } = convertToReactFlowElements(parsedConfig);
-      
+
       setNodes(newNodes);
       setEdges(newEdges);
       setConfig(parsedConfig);
@@ -76,18 +76,7 @@ function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
     );
   }
 
-  if (!config) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8">
-          <div className="text-gray-500 text-sm">No workflow loaded</div>
-          <div className="text-gray-400 text-xs mt-1">
-            Provide JSON content to visualize workflow
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Always render the canvas, even when empty
 
   return (
     <div className="flex-1 relative" style={{ minHeight: '500px', height: '100%' }}>
