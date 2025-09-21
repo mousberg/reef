@@ -1,8 +1,10 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from 'react'
+import type {
+  User
+} from 'firebase/auth'
 import {
-  User,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -10,26 +12,27 @@ import {
   updateProfile,
   signInWithPopup
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, deleteDoc } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, deleteDoc, query, orderBy, limit } from 'firebase/firestore'
 import { auth, firestore, googleProvider } from '../lib/firebase'
+import type { AgentTrace, AgentSpan } from '../types/traces'
 
 interface UserData {
   firstName: string
   lastName: string
   email: string
-  lastLoggedIn: any
+  lastLoggedIn: Date | { toDate?: () => Date }
   lastLoggedInIp: string
   termsAccepted: boolean
   marketingAccepted: boolean
-  createdAt: any
+  createdAt: Date | { toDate?: () => Date }
 }
 
 export interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
-  createdAt: any
-  editedAt?: any
+  createdAt: Date | { toDate?: () => Date }
+  editedAt?: Date | { toDate?: () => Date }
 }
 
 interface Agent {
@@ -51,8 +54,8 @@ interface WorkflowState {
 interface Project {
   id: string
   name: string
-  createdAt: any
-  updatedAt: any
+  createdAt: Date | { toDate?: () => Date }
+  updatedAt: Date | { toDate?: () => Date }
   messages?: Message[]
   workflowState?: WorkflowState
 }
@@ -71,6 +74,8 @@ interface AuthContextType {
   updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
   updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
   deleteProject: (uid: string, projectId: string) => Promise<void>
+  getAgentTraces: (uid: string, limitCount?: number) => Promise<AgentTrace[]>
+  getAgentSpans: (uid: string, limitCount?: number) => Promise<AgentSpan[]>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -275,6 +280,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const getAgentTraces = async (uid: string, limitCount: number = 100): Promise<AgentTrace[]> => {
+    try {
+      const tracesRef = collection(firestore, 'users', uid, 'agent_traces')
+      const q = query(tracesRef, orderBy('created_at', 'desc'), limit(limitCount))
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as AgentTrace[]
+    } catch (error) {
+      console.error('Failed to get agent traces:', error)
+      return []
+    }
+  }
+
+  const getAgentSpans = async (uid: string, limitCount: number = 100): Promise<AgentSpan[]> => {
+    try {
+      const spansRef = collection(firestore, 'users', uid, 'agent_spans')
+      const q = query(spansRef, orderBy('created_at', 'desc'), limit(limitCount))
+      const snapshot = await getDocs(q)
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as AgentSpan[]
+    } catch (error) {
+      console.error('Failed to get agent spans:', error)
+      return []
+    }
+  }
+
   const value = {
     user,
     loading,
@@ -288,7 +325,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getProjectById,
     updateProjectMessages,
     updateProjectName,
-    deleteProject
+    deleteProject,
+    getAgentTraces,
+    getAgentSpans
   }
 
   return (
