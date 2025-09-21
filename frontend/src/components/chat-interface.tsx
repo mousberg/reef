@@ -20,14 +20,14 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
   const { user, updateProjectMessages, updateProjectName, updateProjectWorkflow } = useAuth()
   const [tracesOpen, setTracesOpen] = useState(false)
 
-  // Convert Firebase messages to AI SDK v5 UI message format
+  // Convert Firebase messages to AI SDK v5 UI message format (simplified for AI SDK compatibility)
   const convertedMessages = initialMessages
-    .filter(msg => msg.role !== 'tool') // Filter out tool messages first
+    .filter(msg => msg.role !== 'tool') // Filter out tool messages for AI SDK
     .map(msg => {
-      // If message has parts, convert them to AI SDK format
-      const parts = msg.parts && msg.parts.length > 0
+      // Only include text parts for AI SDK compatibility
+      const textParts = msg.parts && msg.parts.length > 0
         ? msg.parts
-            .filter(part => part.type === 'text') // Only include text parts for now
+            .filter(part => part.type === 'text')
             .map(part => ({
               type: 'text' as const,
               text: part.text || ''
@@ -36,9 +36,8 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
 
       return {
         id: msg.id,
-        role: msg.role as 'user' | 'assistant', // Type assertion to match AI SDK
-        parts,
-        createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date()
+        role: msg.role as 'user' | 'assistant',
+        parts: textParts
       }
     })
 
@@ -182,8 +181,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       setMessages([{
         id: crypto.randomUUID(),
         role: 'user',
-        parts: [{ type: 'text' as const, text: initialPrompt }],
-        createdAt: new Date()
+        parts: [{ type: 'text' as const, text: initialPrompt }]
       }])
     }
   }, [initialPrompt, messages.length, setMessages])
@@ -194,26 +192,49 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
   }, [status])
 
 
-  // Create conversation object for ChatPane
+  // Create conversation object for ChatPane using original Firebase messages for full tool support
+  const allMessages = initialMessages.concat(
+    messages.slice(initialMessages.length).map(msg => ({
+      id: msg.id,
+      role: msg.role as 'user' | 'assistant' | 'tool',
+      content: msg.parts?.find(part => part.type === 'text')?.text || '',
+      parts: msg.parts?.map(part => ({
+        type: part.type,
+        text: part.type === 'text' ? (part as any).text || '' : '',
+        toolCallId: (part as any).toolCallId,
+        toolName: (part as any).toolName,
+        input: (part as any).input,
+        result: (part as any).output // AI SDK uses 'output', convert back to 'result' for consistency
+      })) || [],
+      createdAt: new Date()
+    }))
+  )
+
   const conversation = {
     id: projectId,
     title: projectName || "Project Chat",
-    updatedAt: messages.length > 0 ? new Date() : new Date(),
-    messageCount: messages.length,
-    preview: messages.length > 0 ?
-      messages[messages.length - 1].parts?.find(part => part.type === 'text')?.text?.slice(0, 80) || "No text content"
+    updatedAt: allMessages.length > 0 ? new Date() : new Date(),
+    messageCount: allMessages.length,
+    preview: allMessages.length > 0 ?
+      allMessages[allMessages.length - 1].parts?.find(part => part.type === 'text')?.text?.slice(0, 80) ||
+      allMessages[allMessages.length - 1].content?.slice(0, 80) || "No text content"
       : "No messages yet",
     pinned: false,
     folder: "Projects",
-    messages: messages.map(msg => ({
+    messages: allMessages.map(msg => ({
       id: msg.id,
-      role: msg.role as 'user' | 'assistant', // Type assertion for ChatPane
-      content: msg.parts?.find(part => part.type === 'text')?.text || '',
-      createdAt: new Date(), // Use current date since AI SDK UIMessage doesn't have createdAt
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content || msg.parts?.find(part => part.type === 'text')?.text || '',
+      createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date(),
       parts: msg.parts?.map(part => ({
         type: part.type,
-        text: part.type === 'text' ? (part as any).text || '' : JSON.stringify(part),
-        state: 'done' as const
+        text: part.text || (part.type === 'text' ? part.text : ''),
+        state: 'done' as const,
+        // Include tool-specific properties
+        ...(part.toolCallId && { toolCallId: part.toolCallId }),
+        ...(part.toolName && { toolName: part.toolName }),
+        ...(part.input && { input: part.input }),
+        ...(part.result && { output: part.result })
       })) || []
     }))
   }

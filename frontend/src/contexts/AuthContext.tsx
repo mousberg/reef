@@ -12,7 +12,7 @@ import {
   updateProfile,
   signInWithPopup
 } from 'firebase/auth'
-import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, deleteDoc, query, orderBy, limit } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, getDoc, collection, addDoc, getDocs, serverTimestamp, deleteDoc, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
 import { auth, firestore, googleProvider } from '../lib/firebase'
 import type { AgentTrace, AgentSpan } from '../types/traces'
 
@@ -81,6 +81,7 @@ interface AuthContextType {
   getUserProjects: (uid: string) => Promise<Project[]>
   createProject: (uid: string, name?: string) => Promise<string>
   getProjectById: (uid: string, projectId: string) => Promise<Project | null>
+  subscribeToProject: (uid: string, projectId: string, callback: (project: Project | null) => void) => (() => void)
   updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
   updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
   updateProjectWorkflow: (uid: string, projectId: string, workflowState: WorkflowState) => Promise<void>
@@ -255,6 +256,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const subscribeToProject = (uid: string, projectId: string, callback: (project: Project | null) => void): (() => void) => {
+    const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+
+    return onSnapshot(projectRef,
+      (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const project = {
+            id: docSnapshot.id,
+            ...docSnapshot.data()
+          } as Project
+          callback(project)
+        } else {
+          callback(null)
+        }
+      },
+      (error) => {
+        console.error('Failed to subscribe to project:', error)
+        callback(null)
+      }
+    )
+  }
+
   const updateProjectMessages = async (uid: string, projectId: string, messages: Message[]): Promise<void> => {
     try {
       const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
@@ -347,6 +370,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getUserProjects,
     createProject,
     getProjectById,
+    subscribeToProject,
     updateProjectMessages,
     updateProjectName,
     updateProjectWorkflow,

@@ -7,23 +7,52 @@ import { ChatInterface } from "@/components/chat-interface"
 import { Canvas } from "@/components/canvas"
 import { Navigation } from "@/components/navigation"
 
+// Import Project type from AuthContext
+type Project = {
+  id: string
+  name: string
+  createdAt: any
+  updatedAt: any
+  messages: Array<{
+    id: string
+    role: 'user' | 'assistant' | 'tool'
+    content?: string
+    parts?: Array<{
+      type: 'text' | 'tool-call' | 'tool-result'
+      text?: string
+      toolCallId?: string
+      toolName?: string
+      input?: any
+      result?: any
+    }>
+    createdAt: any
+    editedAt?: any
+  }>
+  workflowState?: {
+    main_task: string
+    relations: string
+    agents: Record<string, {
+      name: string
+      task: string
+      instructions: string
+      connected_agents: string[]
+      expected_input: string
+      expected_output: string
+      receives_from_user: boolean
+      sends_to_user: boolean
+      tools: string[]
+    }>
+  }
+}
+
 
 export default function ProjectPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
-  const { user, getProjectById } = useAuth()
+  const { user, subscribeToProject } = useAuth()
 
-  const [project, setProject] = useState<{
-    id: string
-    name: string
-    messages?: Array<{
-      id: string
-      role: 'user' | 'assistant'
-      content: string
-      createdAt: Date
-    }>
-  } | null>(null)
+  const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,27 +62,24 @@ export default function ProjectPage() {
       return
     }
 
-    const fetchProject = async () => {
-      try {
-        setLoading(true)
-        const projectData = await getProjectById(user.uid, projectId)
+    setLoading(true)
 
-        if (!projectData) {
-          setError("Project not found")
-          return
-        }
-
+    // Set up real-time subscription to project data
+    const unsubscribe = subscribeToProject(user.uid, projectId, (projectData) => {
+      if (projectData) {
         setProject(projectData)
-      } catch (err) {
-        console.error("Failed to fetch project:", err)
-        setError("Failed to load project")
-      } finally {
-        setLoading(false)
+        setError(null)
+      } else {
+        setError("Project not found")
       }
-    }
+      setLoading(false)
+    })
 
-    fetchProject()
-  }, [user, projectId, getProjectById, router])
+    // Cleanup subscription on component unmount
+    return () => {
+      unsubscribe()
+    }
+  }, [user, projectId, subscribeToProject, router])
 
   if (loading) {
     return (
