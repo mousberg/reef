@@ -47,7 +47,7 @@ rsync -avz /Users/floris.fok/Library/CloudStorage/OneDrive-Prosus-Naspers/Docume
 python3 -m venv venv
 source venv/bin/activate
 pip install fastapi uvicorn pydantic python-dotenv pyyaml toml
-python app.py
+uvicorn app:app --host 0.0.0.0 --port 8001
 """
 
 
