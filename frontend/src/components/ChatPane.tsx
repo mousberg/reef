@@ -120,22 +120,19 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
     <div className="flex h-full min-h-0 flex-1 flex-col">
       {/* Fixed Header */}
       <div className="flex-shrink-0 px-4 py-6 sm:px-8 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="mb-2 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.push("/projects")}
-            className="flex items-center gap-2 text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
-            title="Back to Projects"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div className="text-3xl tracking-tight sm:text-4xl md:text-5xl">
-            <span className="block leading-[1.05] font-title text-2xl">{conversation.title}</span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-zinc-500 dark:text-zinc-400">
-            Updated {timeAgo(conversation.updatedAt)}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/projects")}
+              className="flex items-center gap-2 text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+              title="Back to Projects"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="text-3xl tracking-tight sm:text-4xl md:text-5xl">
+              <span className="block leading-[1.05] font-title text-2xl">{conversation.title}</span>
+            </div>
           </div>
           {onToggleTraces && (
             <button
@@ -152,16 +149,8 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
             </button>
           )}
         </div>
-        
-        <div className="mt-4 flex flex-wrap gap-2">
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="inline-flex items-center rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:text-zinc-200"
-            >
-              {t}
-            </span>
-          ))}
+        <div className="text-sm text-zinc-500 dark:text-zinc-400">
+          Updated {timeAgo(conversation.updatedAt)}
         </div>
       </div>
 
