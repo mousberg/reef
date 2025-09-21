@@ -31,7 +31,7 @@ const createUpdateWorkflowTool = (userId: string, projectId: string) => tool({
     // Simple success response - Firestore update will happen client-side
     return {
       success: true,
-      message: `Workflow created successfully for project ${projectId}`,
+      message: `Workflow created successfully edited`,
       agentCount: workflowState.agents.length
     }
   }
