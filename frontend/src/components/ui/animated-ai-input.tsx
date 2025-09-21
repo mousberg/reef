@@ -16,8 +16,9 @@ export function AnimatedAIInput() {
     "gpt-5",
     "gpt-5-mini",
     "gpt-5-nano",
-    "gpt-5-chat-latest",
-    "magistral-medium-2509", // Magistral Medium 1.2 (Sep 2025, reasoning+vision, 128k)
+    "gpt-5-chat",
+    "mistral-large",
+    "magistral-medium", // Magistral Medium 1.2 (Sep 2025, reasoning+vision, 128k)
     "codestral-2508", // Codestral 2508 (Jul 2025, coding, 256k)
   ]
 
