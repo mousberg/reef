@@ -350,7 +350,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateProjectMessages,
     updateProjectName,
     updateProjectWorkflow,
-    deleteProject
+    deleteProject,
     getAgentTraces,
     getAgentSpans
   }
