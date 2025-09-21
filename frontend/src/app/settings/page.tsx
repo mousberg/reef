@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useAuth } from "../../contexts/AuthContext"
+import { useState, useEffect, useCallback } from "react"
+import { useAuth, type ToolAuthStatus } from "../../contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { Navigation } from "../../components/navigation"
 import { Button } from "../../components/ui/button"
@@ -9,6 +9,7 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore"
 import { firestore } from "../../lib/firebase"
 import { toast } from "sonner"
 import { Footer } from "../../components/Footer"
+import Image from "next/image"
 
 interface UserData {
   firstName: string
@@ -22,7 +23,7 @@ interface UserData {
 }
 
 export default function SettingsPage() {
-  const { user, getUserData, logout } = useAuth()
+  const { user, getUserData, logout, getAvailableTools, authorizeTool, getUserToolAuthStatus } = useAuth()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
   const [loggingOut, setLoggingOut] = useState(false)
@@ -32,7 +33,38 @@ export default function SettingsPage() {
     lastName: "",
     marketingAccepted: false
   })
+  const [availableTools, setAvailableTools] = useState<string[]>([])
+  const [toolAuthStatus, setToolAuthStatus] = useState<ToolAuthStatus[]>([])
+  const [authorizingTool, setAuthorizingTool] = useState<string | null>(null)
   const router = useRouter()
+
+  const fetchUserData = useCallback(async () => {
+    if (!user) return
+    
+    try {
+      const [data, tools, authStatus] = await Promise.all([
+        getUserData(user.uid),
+        getAvailableTools(user.uid),
+        getUserToolAuthStatus(user.uid)
+      ])
+      
+      setUserData(data)
+      setAvailableTools(tools)
+      setToolAuthStatus(authStatus)
+      
+      if (data) {
+        setEditableData({
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          marketingAccepted: data.marketingAccepted || false
+        })
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [user, getUserData, getAvailableTools, getUserToolAuthStatus])
 
   useEffect(() => {
     if (!user) {
@@ -40,26 +72,8 @@ export default function SettingsPage() {
       return
     }
 
-    const fetchUserData = async () => {
-      try {
-        const data = await getUserData(user.uid)
-        setUserData(data)
-        if (data) {
-          setEditableData({
-            firstName: data.firstName || "",
-            lastName: data.lastName || "",
-            marketingAccepted: data.marketingAccepted || false
-          })
-        }
-      } catch (error) {
-        console.error("Failed to fetch user data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchUserData()
-  }, [user, getUserData, router])
+  }, [user, fetchUserData, router])
 
   const handleSave = async () => {
     if (!user || !userData) return
@@ -101,6 +115,83 @@ export default function SettingsPage() {
     } finally {
       setLoggingOut(false)
     }
+  }
+
+  const handleToolAuthorization = async (toolName: string) => {
+    if (!user) return
+    
+    setAuthorizingTool(toolName)
+    try {
+      const success = await authorizeTool(user.uid, toolName)
+      if (success) {
+        toast.success(`${toolName} authorized successfully!`)
+        // Update the local auth status
+        setToolAuthStatus(prev => {
+          const existing = prev.find(status => status.toolName === toolName)
+          if (existing) {
+            return prev.map(status => 
+              status.toolName === toolName 
+                ? { ...status, isAuthenticated: true, authenticatedAt: new Date() }
+                : status
+            )
+          } else {
+            return [...prev, { toolName, isAuthenticated: true, authenticatedAt: new Date() }]
+          }
+        })
+      } else {
+        toast.error(`Failed to authorize ${toolName}`)
+      }
+    } catch (error) {
+      console.error("Failed to authorize tool:", error)
+      toast.error(`Failed to authorize ${toolName}`)
+    } finally {
+      setAuthorizingTool(null)
+    }
+  }
+
+  const isToolAuthenticated = (toolName: string): boolean => {
+    return toolAuthStatus.some(status => status.toolName === toolName && status.isAuthenticated)
+  }
+
+  const getToolIconPath = (toolName: string): string => {
+    const iconMap: Record<string, string> = {
+      'X': '/icons/x.svg',
+      'Linkedin': '/icons/linkedin.svg',
+      'GoogleSearch': '/icons/google-search.svg',
+      'Slack': '/icons/slack.svg',
+      'GoogleCalendar': '/icons/calendar.svg',
+      'GoogleFinance': '/icons/google-finance.svg',
+      'Gmail': '/icons/email.svg'
+    }
+    
+    // Extract the service name (before the first dot)
+    const serviceName = toolName.split('.')[0]
+    return iconMap[serviceName] || '/icons/default.svg'
+  }
+
+  const getServiceName = (toolName: string): string => {
+    return toolName.split('.')[0]
+  }
+
+  const getToolDisplayName = (toolName: string): string => {
+    const parts = toolName.split('.')
+    if (parts.length === 1) return toolName
+    
+    // Convert CamelCase to readable format
+    const action = parts[1].replace(/([A-Z])/g, ' $1').trim()
+    return action
+  }
+
+  const groupToolsByService = (tools: string[]) => {
+    const grouped: Record<string, string[]> = {}
+    tools.forEach(tool => {
+      const service = getServiceName(tool)
+      if (!grouped[service]) {
+        grouped[service] = []
+      }
+      grouped[service].push(tool)
+    })
+    return grouped
   }
 
   if (loading) {
@@ -197,6 +288,100 @@ export default function SettingsPage() {
                         I agree to receive marketing communications and updates
                       </label>
                     </div>
+                  </div>
+
+                  {/* Tool Authentication Section */}
+                  <div className="mt-8 pt-6 border-t border-border">
+                    <div className="mb-6">
+                      <h3 className="text-foreground text-lg font-medium leading-6 font-sans mb-2">
+                        Tool Authentication
+                      </h3>
+                      <p className="text-foreground/70 text-sm font-medium leading-5 font-sans">
+                        Connect and authorize tools for your AI agents to use
+                      </p>
+                    </div>
+                    
+                    {availableTools.length > 0 ? (
+                      <div className="space-y-6">
+                        {Object.entries(groupToolsByService(availableTools)).map(([serviceName, tools]) => (
+                          <div key={serviceName} className="bg-background dark:bg-card border border-border rounded-[16px] p-6">
+                            {/* Service Header */}
+                            <div className="flex items-center space-x-3 mb-4">
+                              <Image 
+                                src={getToolIconPath(serviceName)} 
+                                alt={serviceName}
+                                width={40}
+                                height={40}
+                                className="opacity-90"
+                              />
+                              <div>
+                                <h4 className="text-foreground text-lg font-semibold leading-6 font-sans">
+                                  {serviceName}
+                                </h4>
+                                <p className="text-foreground/60 text-sm font-medium leading-5 font-sans">
+                                  {tools.length} tool{tools.length > 1 ? 's' : ''} available
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Tools Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {tools.map((tool) => {
+                                const isAuthenticated = isToolAuthenticated(tool)
+                                const isAuthorizingThis = authorizingTool === tool
+                                const displayName = getToolDisplayName(tool)
+                                
+                                return (
+                                  <div key={tool} className="bg-card dark:bg-background border border-border/50 rounded-[12px] p-4 flex items-center justify-between hover:border-border transition-colors">
+                                    <div className="flex-1 min-w-0">
+                                      <h5 className="text-foreground text-sm font-medium leading-5 font-sans truncate">
+                                        {displayName}
+                                      </h5>
+                                      <div className="flex items-center space-x-2 mt-1">
+                                        <div className={`w-2 h-2 rounded-full ${isAuthenticated ? 'bg-green-500' : 'bg-gray-300'}`} />
+                                        <p className="text-foreground/60 text-xs font-medium leading-4 font-sans">
+                                          {isAuthenticated ? 'Connected' : 'Not connected'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    
+                                    <Button
+                                      onClick={() => handleToolAuthorization(tool)}
+                                      disabled={isAuthenticated || isAuthorizingThis}
+                                      size="sm"
+                                      className={`
+                                        ml-3 px-3 py-1.5 text-xs font-medium leading-4 font-sans rounded-[8px] transition-all shrink-0
+                                        ${isAuthenticated 
+                                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 cursor-default hover:bg-green-100 dark:hover:bg-green-900/20' 
+                                          : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                                        }
+                                        disabled:opacity-50
+                                      `}
+                                    >
+                                      {isAuthorizingThis ? 'Connecting...' : isAuthenticated ? '✓ Connected' : 'Connect'}
+                                    </Button>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 bg-background dark:bg-card border border-border rounded-[16px]">
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-8 h-8 text-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Tools icon">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                        <p className="text-foreground/60 text-sm font-medium leading-5 font-sans">
+                          No tools available at the moment
+                        </p>
+                        <p className="text-foreground/40 text-xs font-medium leading-4 font-sans mt-1">
+                          Tools will appear here when they become available
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                 </div>
