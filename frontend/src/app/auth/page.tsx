@@ -250,7 +250,7 @@ export default function AuthPage() {
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-[#37322F] text-sm font-medium leading-5 font-sans hover:opacity-70 transition-opacity"
+              className="text-[#37322F] text-sm font-medium leading-5 font-sans hover:opacity-70 transition-opacity cursor-pointer"
             >
               {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
             </button>

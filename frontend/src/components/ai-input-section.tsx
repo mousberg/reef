@@ -1,6 +1,7 @@
 "use client"
 
 import { AnimatedAIInput } from "./ui/animated-ai-input"
+import { BubbleAnimation } from "./ui/bubble-animation"
 
 export function AIInputSection() {
   return (
@@ -18,6 +19,9 @@ export function AIInputSection() {
           className="w-full h-full object-cover hidden dark:block"
         />
       </div>
+      
+      {/* Bubble Animation */}
+      <BubbleAnimation />
       <div className="relative z-10 w-full">
         <AnimatedAIInput />
       </div>
