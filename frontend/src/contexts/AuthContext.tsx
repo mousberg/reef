@@ -43,28 +43,29 @@ export interface Message {
   editedAt?: any
 }
 
-interface Agent {
-  name: string
-  description: string
-  task: string
-  expected_input: string
-  expected_output: string
-  tools: string[]
-}
-
 interface WorkflowState {
   main_task: string
   relations: string
-  agents: Agent[]
+  agents: Record<string, {
+    name: string
+    task: string
+    instructions: string
+    connected_agents: string[]
+    expected_input: string
+    expected_output: string
+    receives_from_user: boolean
+    sends_to_user: boolean
+    tools: string[]
+  }>
 }
 
-interface Project {
+export interface Project {
   id: string
   name: string
   createdAt: any
   updatedAt: any
   messages: Message[]
-  workflowState: WorkflowState
+  workflowState?: WorkflowState
 }
 
 interface AuthContextType {
