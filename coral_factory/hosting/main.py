@@ -166,5 +166,6 @@ def kill_docker_containers():
 if __name__ == "__main__":
     # deploy_workflow("List all the repos of https://github.com/Coral-Protocol, and mail me the list to florisfok5@gmail.com")
 
-    deploy_workflow("List all the repos of https://github.com/Coral-Protocol, and mail me the list to florisfok5@gmail.com")
+    # deploy_workflow("List all the repos of https://github.com/Coral-Protocol, and mail me the list to florisfok5@gmail.com")
+    deploy_workflow("Send the stock summary of Google to florisfok5@gmail.com", "florisfok5@gmail.com")
 

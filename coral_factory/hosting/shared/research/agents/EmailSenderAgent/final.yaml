@@ -1,0 +1,17 @@
+agent:
+  arcade:
+    toolkits:
+    - Gmail.SendEmail
+  context:
+    user_id: florisfok5@gmail.com
+  description: Sends stock information via email using Gmail API to recipient_email.
+  instructions: 'Your task is to Compose and send email with stock info to recipient_email..
+
+    You will be given recipient_email (string), subject (string), body (string) and
+    you need to output delivery_status (string) or error.'
+  name: EmailSenderAgent
+  queries: recipient_email (string), subject (string), body (string)
+mcp:
+  cache_tools_list: true
+  timeout_seconds: 60
+model: gpt-4.1

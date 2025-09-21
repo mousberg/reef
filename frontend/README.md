@@ -14,6 +14,7 @@ A clean Next.js starter project with modern tooling and best practices.
 1. Install dependencies:
    ```bash
    npm install
+   bun i
    ```
 
 2. Run the development server:

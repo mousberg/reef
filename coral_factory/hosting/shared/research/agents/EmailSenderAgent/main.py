@@ -484,7 +484,7 @@ your purpose: {agent_cfg.get("instructions")}
                 "instructions": system_prompt,
                 "mcp_servers": [coral_server] + servers,
                 "model": LitellmModel(model=model_name, api_key=api_key),
-                "model_settings": ModelSettings(tool_choice="required"),
+                "model_settings": ModelSettings(tool_choice="required", temperature=0.0),
             }
             if tools:
                 agent_kwargs["tools"] = tools
