@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { Button } from "../../components/ui/button"
@@ -17,12 +17,15 @@ interface Project {
 }
 
 export default function ProjectsPage() {
-  const { user, getUserProjects, createProject, deleteProject } = useAuth()
+  const { user, getUserProjects, createProject, deleteProject, updateProjectName } = useAuth()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [editingProject, setEditingProject] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState<string>("")
+  const [renaming, setRenaming] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean
     projectId: string | null
@@ -104,21 +107,68 @@ export default function ProjectsPage() {
     setConfirmDialog({ isOpen: false, projectId: null, projectName: "" })
   }
 
-  // Close dropdown when clicking outside
+  const startRename = (projectId: string, currentName: string) => {
+    setEditingProject(projectId)
+    setEditingName(currentName)
+    setActiveDropdown(null)
+  }
+
+  const cancelRename = useCallback(() => {
+    setEditingProject(null)
+    setEditingName("")
+  }, [])
+
+  const handleRename = async (projectId: string) => {
+    if (!user || !editingName.trim()) return
+
+    const trimmedName = editingName.trim()
+    if (trimmedName.length === 0) {
+      toast.error("Project name cannot be empty")
+      return
+    }
+
+    setRenaming(projectId)
+    try {
+      await updateProjectName(user.uid, projectId, trimmedName)
+      setProjects(projects.map(p => 
+        p.id === projectId 
+          ? { ...p, name: trimmedName, updatedAt: new Date() }
+          : p
+      ))
+      toast.success("Project renamed successfully")
+      setEditingProject(null)
+      setEditingName("")
+    } catch (error) {
+      console.error("Failed to rename project:", error)
+      toast.error("Failed to rename project")
+    } finally {
+      setRenaming(null)
+    }
+  }
+
+  // Close dropdown and editing when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Close dropdown if clicking outside
       const target = event.target as Element
+      
+      // Close dropdown if clicking outside
       if (!target.closest('[data-dropdown-container]')) {
         setActiveDropdown(null)
       }
+      
+      // Close editing if clicking outside the input
+      if (!target.closest('[data-editing-container]')) {
+        if (editingProject) {
+          cancelRename()
+        }
+      }
     }
 
-    if (activeDropdown) {
+    if (activeDropdown || editingProject) {
       document.addEventListener("mousedown", handleClickOutside)
       return () => document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [activeDropdown])
+  }, [activeDropdown, editingProject, cancelRename])
 
   if (loading) {
     return (
@@ -216,23 +266,59 @@ export default function ProjectsPage() {
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <h3 className="text-[#2F3037] text-xl font-medium leading-tight font-sans mb-2">
-                                {project.name}
-                              </h3>
+                              {editingProject === project.id ? (
+                                <div className="mb-2" data-editing-container>
+                                  <input
+                                    type="text"
+                                    value={editingName}
+                                    onChange={(e) => setEditingName(e.target.value)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        handleRename(project.id)
+                                      } else if (e.key === 'Escape') {
+                                        cancelRename()
+                                      }
+                                    }}
+                                    className="text-[#2F3037] text-xl font-medium leading-tight font-sans bg-white border border-[#37322F] rounded-[8px] px-3 py-1 w-full focus:outline-none focus:ring-2 focus:ring-[#37322F] focus:ring-opacity-20"
+                                    disabled={renaming === project.id}
+                                  />
+                                  <div className="flex gap-2 mt-2">
+                                    <Button
+                                      onClick={() => handleRename(project.id)}
+                                      disabled={renaming === project.id || !editingName.trim()}
+                                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[8px] px-3 py-1 text-xs font-medium leading-4 font-sans transition-all disabled:opacity-50"
+                                    >
+                                      {renaming === project.id ? "Saving..." : "Save"}
+                                    </Button>
+                                    <Button
+                                      onClick={cancelRename}
+                                      disabled={renaming === project.id}
+                                      className="bg-white hover:bg-[#F7F5F3] text-[#37322F] border border-[#37322F] rounded-[8px] px-3 py-1 text-xs font-medium leading-4 font-sans transition-all disabled:opacity-50"
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <h3 className="text-[#2F3037] text-xl font-medium leading-tight font-sans mb-2">
+                                  {project.name}
+                                </h3>
+                              )}
                               <div className="text-[#37322F] text-sm font-medium leading-5 font-sans opacity-50">
                                 Created {new Date(project.createdAt?.toDate?.() || project.createdAt).toLocaleDateString()}
                               </div>
                             </div>
-                            <div className="flex gap-2 items-center">
-                              <Button
-                                onClick={() => router.push(`/projects/${project.id}`)}
-                                className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
-                              >
-                                Open
-                              </Button>
-                              
-                              {/* Three dots menu */}
-                              <div className="relative" data-dropdown-container>
+                            {editingProject !== project.id && (
+                              <div className="flex gap-2 items-center">
+                                <Button
+                                  onClick={() => router.push(`/projects/${project.id}`)}
+                                  className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
+                                >
+                                  Open
+                                </Button>
+                                
+                                {/* Three dots menu */}
+                                <div className="relative" data-dropdown-container>
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -242,6 +328,7 @@ export default function ProjectsPage() {
                                     console.log("Setting activeDropdown to:", activeDropdown === project.id ? null : project.id)
                                   }}
                                   className="p-2 hover:bg-[#F7F5F3] rounded-[8px] transition-colors"
+                                  aria-label="More options"
                                 >
                                   <svg 
                                     width="16" 
@@ -249,8 +336,8 @@ export default function ProjectsPage() {
                                     viewBox="0 0 16 16" 
                                     fill="none" 
                                     className="text-[#37322F] opacity-60 hover:opacity-100"
-                                    aria-label="More options"
                                   >
+                                    <title>More options</title>
                                     <circle cx="8" cy="3" r="1.5" fill="currentColor" />
                                     <circle cx="8" cy="8" r="1.5" fill="currentColor" />
                                     <circle cx="8" cy="13" r="1.5" fill="currentColor" />
@@ -260,6 +347,17 @@ export default function ProjectsPage() {
                                 {/* Dropdown menu */}
                                 {activeDropdown === project.id && (
                                   <div className="absolute right-0 top-full mt-2 bg-white border border-[rgba(55,50,47,0.12)] rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.1)] py-1 min-w-[120px] z-50">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        startRename(project.id, project.name)
+                                      }}
+                                      disabled={renaming === project.id}
+                                      className="w-full px-4 py-2 text-left text-sm text-[#37322F] hover:bg-[#F7F5F3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {renaming === project.id ? "Renaming..." : "Rename"}
+                                    </button>
                                     <button
                                       type="button"
                                       onClick={(e) => {
@@ -274,8 +372,9 @@ export default function ProjectsPage() {
                                     </button>
                                   </div>
                                 )}
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       ))}
