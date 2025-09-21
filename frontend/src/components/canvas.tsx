@@ -4,7 +4,7 @@ import { WorkflowCanvas } from './workflow/workflow-canvas';
 import { AnimatedCoral } from './animated-coral';
 import { useState } from 'react'
 import type { Project } from '@/contexts/AuthContext';
-import { WorkflowQueryDialog } from './ui/workflow-query-dialog';
+import { RunQueryAlertDialog } from './ui/run-query-alert-dialog';
 
 interface CanvasProps {
   project: Project
@@ -130,7 +130,7 @@ export function Canvas({ project }: CanvasProps) {
       </div>
 
       {/* Query Dialog */}
-      <WorkflowQueryDialog
+      <RunQueryAlertDialog
         open={showQueryDialog}
         onOpenChange={setShowQueryDialog}
         onSubmit={handleQuerySubmit}
