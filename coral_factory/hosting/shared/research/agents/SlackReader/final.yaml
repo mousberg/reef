@@ -1,0 +1,21 @@
+agent:
+  arcade:
+    toolkits:
+    - Slack
+    - Slack
+    - Slack
+  context:
+    user_id: florisfok5@gmail.com
+  description: SlackReader identifies itself as a Slack message reader that fetches
+    latest messages from channels or DMs and emits structured events for downstream
+    processing
+  instructions: 'Your task is to Fetch new messages and produce message_event payloads.
+
+    You will be given channel/conversation identifiers, last_read_timestamp and you
+    need to output message_event objects: {text, user, channel, ts}.'
+  name: SlackReader
+  queries: channel/conversation identifiers, last_read_timestamp
+mcp:
+  cache_tools_list: true
+  timeout_seconds: 60
+model: gpt-4.1

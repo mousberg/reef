@@ -23,16 +23,16 @@ export function Navigation() {
           <ThemeToggle />
           {user ? (
             <>
-              <div className="px-2 sm:px-3 md:px-[14px] py-1 sm:py-[6px] bg-secondary dark:bg-secondary shadow-[0px_1px_2px_rgba(55,50,47,0.12)] dark:shadow-[0px_1px_2px_rgba(0,0,0,0.3)] overflow-hidden rounded-full flex justify-center items-center">
+              <div className="px-2 sm:px-3 md:px-[14px] py-1 sm:py-[6px] bg-primary dark:bg-secondary shadow-[0px_1px_2px_rgba(55,50,47,0.12)] dark:shadow-[0px_1px_2px_rgba(0,0,0,0.3)] overflow-hidden rounded-full flex justify-center items-center">
                 <Link href="/projects">
-                  <div className="flex flex-col justify-center text-foreground text-xs md:text-[13px] font-medium leading-5 font-sans">
+                  <div className="flex flex-col justify-center text-primary-foreground dark:text-secondary-foreground text-xs md:text-[13px] font-medium leading-5 font-sans">
                     Projects
                   </div>
                 </Link>
               </div>
-              <div className="px-2 sm:px-3 md:px-[14px] py-1 sm:py-[6px] bg-secondary dark:bg-secondary shadow-[0px_1px_2px_rgba(55,50,47,0.12)] dark:shadow-[0px_1px_2px_rgba(0,0,0,0.3)] overflow-hidden rounded-full flex justify-center items-center">
+              <div className="px-2 sm:px-3 md:px-[14px] py-1 sm:py-[6px] bg-primary dark:bg-secondary shadow-[0px_1px_2px_rgba(55,50,47,0.12)] dark:shadow-[0px_1px_2px_rgba(0,0,0,0.3)] overflow-hidden rounded-full flex justify-center items-center">
                 <Link href="/settings">
-                  <div className="flex flex-col justify-center text-foreground text-xs md:text-[13px] font-medium leading-5 font-sans">
+                  <div className="flex flex-col justify-center text-primary-foreground dark:text-secondary-foreground text-xs md:text-[13px] font-medium leading-5 font-sans">
                     Settings
                   </div>
                 </Link>

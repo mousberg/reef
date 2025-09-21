@@ -1,7 +1,7 @@
 [agent]
-name = "OrchestratorAgent"
+name = "EmailSender"
 version = "0.0.1"
-description = "Coordinates data flow among input, stock fetch, and email send; handles retries and logging."
+description = "EmailSender knows how to send emails using Gmail API"
 
 
 [options.TIMEOUT_MS]

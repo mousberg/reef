@@ -9,34 +9,34 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
   {
-    question: "What is Reefs and who is it for?",
+    question: "What is Reefs?",
     answer:
-      "Reefs is a developer-first platform for building AI agents, designed like Lovable for AI. It's perfect for developers, startups, and enterprises who want to create, deploy, and manage intelligent agents that users love.",
+      "A platform for building AI agents. Designed for developers who want to create and deploy intelligent agents.",
   },
   {
-    question: "How does the AI agent builder work?",
+    question: "How do I build agents?",
     answer:
-      "Our platform provides visual builders and code-first tools to design AI agent workflows. You can define agent behaviors, integrate with LLMs, set up conversation flows, and deploy agents across multiple channels with just a few clicks.",
+      "Use visual builders or code to design agent workflows. Define behaviors, integrate with LLMs, and deploy across channels.",
   },
   {
-    question: "Can I integrate Reefs with my existing tools?",
+    question: "Does it integrate with existing tools?",
     answer:
-      "Yes! Reefs integrates seamlessly with popular LLMs, databases, APIs, and development tools. We support webhooks, REST APIs, and SDKs for custom integrations with your existing tech stack.",
+      "Yes. Supports popular LLMs, databases, APIs, and development tools through webhooks, REST APIs, and SDKs.",
   },
   {
-    question: "What kind of support do you provide?",
+    question: "What support is available?",
     answer:
-      "We offer 24/7 customer support, dedicated account managers for enterprise clients, comprehensive documentation, and onboarding assistance to help you get started quickly.",
+      "Documentation, community support, and customer service for technical issues.",
   },
   {
-    question: "Is my data secure with Reefs?",
+    question: "Is data secure?",
     answer:
-      "Absolutely. We use enterprise-grade security measures including end-to-end encryption, SOC 2 compliance, and regular security audits. Your agent data and conversations are stored in secure, redundant data centers.",
+      "Yes. Uses encryption, secure data centers, and follows security best practices.",
   },
   {
-    question: "How do I get started with Reefs?",
+    question: "How do I get started?",
     answer:
-      "Getting started is simple! Sign up for our free trial, choose from our agent templates or build from scratch, and deploy your first AI agent in minutes. Our documentation and community will guide you every step of the way.",
+      "Sign up, choose a template or build from scratch, then deploy your agent.",
   },
 ]
 
@@ -87,7 +87,7 @@ export default function FAQSection() {
                 <div key={index} className="w-full border-b border-[rgba(73,66,61,0.16)] overflow-hidden">
                   <button
                     onClick={() => toggleItem(index)}
-                    className="w-full px-5 py-[18px] flex justify-between items-center gap-5 text-left hover:bg-[rgba(73,66,61,0.02)] transition-colors duration-200"
+                    className="w-full px-5 py-[18px] flex justify-between items-center gap-5 text-left hover:bg-[rgba(73,66,61,0.02)] transition-colors duration-200 cursor-pointer"
                     aria-expanded={isOpen}
                   >
                     <div className="flex-1 text-foreground text-base font-medium leading-6 font-sans">

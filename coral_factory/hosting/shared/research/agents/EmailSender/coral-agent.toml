@@ -1,7 +1,7 @@
 [agent]
-name = "EmailSenderAgent"
+name = "EmailSender"
 version = "0.0.1"
-description = "Sends stock information via email using Gmail API to recipient_email."
+description = "EmailSender knows how to send emails using Gmail API"
 
 
 [options.TIMEOUT_MS]
