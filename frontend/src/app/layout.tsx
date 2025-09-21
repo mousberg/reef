@@ -4,6 +4,7 @@ import { Inter, Instrument_Serif } from "next/font/google"
 import localFont from "next/font/local"
 import "./globals.css"
 import { AuthProvider } from "../contexts/AuthContext"
+import { ThemeProvider } from "../providers/theme-provider"
 import { Toaster } from "sonner"
 
 const inter = Inter({
@@ -61,10 +62,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Reef" />
       </head>
       <body className="font-sans antialiased">
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {children}
+            <Toaster theme="system" />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
