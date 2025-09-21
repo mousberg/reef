@@ -7,6 +7,10 @@ from fastapi import BackgroundTasks
 import uvicorn
 import os
 
+from arcadepy import Arcade
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 
 from factory.from_json import from_workflow_config, WorkflowConfig
@@ -70,15 +74,10 @@ class Results(BaseModel):
     result: str
 
 
-class CreateWorkflowRequest(BaseModel):
-    workflow_config: WorkflowConfig
-    user_id: str
-
-@app.post("/create/workflow")
-async def create_workflow(workflow_config: WorkflowConfig, token: str = Depends(verify_token)):
+@app.post("/create/workflow/{user_id}")
+async def create_workflow(workflow_config: WorkflowConfig, user_id: str, token: str = Depends(verify_token)):
     """Create a new workflow configuration"""
     # ONLY do me
-    user_id: str = 'florisfok5@gmail.com'
     from_workflow_config(workflow_config, user_id)
     return JSONResponse(content={"success": True})
 
@@ -115,6 +114,29 @@ async def health_check():
 async def auth_status(token: str = Depends(verify_token)):
     """Check authentication status"""
     return JSONResponse(content={"authenticated": True, "message": "Valid token"})
+
+@app.get("/auth/authorize/{user_id}/{tool_name}")
+async def authorize(user_id: str, tool_name: str, token: str = Depends(verify_token)):
+    """Authorize a tool for a user"""
+    client = Arcade()
+    auth_response = client.tools.authorize(tool_name=tool_name, user_id=user_id)
+    return JSONResponse(content={"authenticated": True, "message": "Valid token"})
+
+
+@app.get("/auth/tools")
+async def tools(user_id: str, token: str = Depends(verify_token)):
+    """Authorize a tool for a user"""
+    available_tools = [
+        "X",
+        "LinkedIn",
+        "GoogleSearch",
+        "Slack",
+        "GoogleCalendar",
+        "GoogleFinance",
+        "Gmail"
+    ]
+    return JSONResponse(content={"tools": available_tools})
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
