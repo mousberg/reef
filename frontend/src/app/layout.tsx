@@ -31,6 +31,9 @@ export const metadata: Metadata = {
   title: "Reefs - Lovable for AI Agents",
   description:
     "Build, deploy, and manage AI agents effortlessly. The natural language platform for creating intelligent agents that users love.",
+  appleWebApp: {
+    title: "Reef",
+  },
 }
 
 export default function RootLayout({
@@ -48,7 +51,14 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
         />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400&display=swap" />
-        <link rel="icon" href="/reef-blue.svg" sizes="any" />
+
+        {/* Favicon links for compatibility */}
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-title" content="Reef" />
       </head>
       <body className="font-sans antialiased">
         <AuthProvider>
