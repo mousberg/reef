@@ -181,6 +181,10 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       
       {/* Traces Panel */}
       <TracesPanel isOpen={tracesOpen} onClose={() => setTracesOpen(false)} />
+      
+      {/* ElevenLabs AI Assistant Widget */}
+      <elevenlabs-convai agent-id="agent_3101k5p8y1r2e25bn1bb4rjpx932"></elevenlabs-convai>
+      <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
     </div>
   )
 }
