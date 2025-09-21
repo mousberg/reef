@@ -26,6 +26,7 @@ export default function ProjectsPage() {
   const [editingProject, setEditingProject] = useState<string | null>(null)
   const [editingName, setEditingName] = useState<string>("")
   const [renaming, setRenaming] = useState<string | null>(null)
+  const [opening, setOpening] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean
     projectId: string | null
@@ -311,10 +312,21 @@ export default function ProjectsPage() {
                             {editingProject !== project.id && (
                               <div className="flex gap-2 items-center">
                                 <Button
-                                  onClick={() => router.push(`/projects/${project.id}`)}
-                                  className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all"
+                                  onClick={() => {
+                                    setOpening(project.id)
+                                    router.push(`/projects/${project.id}`)
+                                  }}
+                                  disabled={opening === project.id}
+                                  className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                                 >
-                                  Open
+                                  {opening === project.id ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                      Opening...
+                                    </div>
+                                  ) : (
+                                    "Open"
+                                  )}
                                 </Button>
                                 
                                 {/* Three dots menu */}
