@@ -1,4 +1,5 @@
-import { WorkflowConfig, WorkflowNode, WorkflowEdge } from '@/types/workflow';
+import { WorkflowConfig, WorkflowNode } from '@/types/workflow';
+import { Edge, MarkerType } from 'reactflow';
 
 export function parseWorkflowJson(jsonContent: string): WorkflowConfig {
   try {
@@ -11,7 +12,7 @@ export function parseWorkflowJson(jsonContent: string): WorkflowConfig {
 
 export function convertToReactFlowElements(config: WorkflowConfig): {
   nodes: WorkflowNode[];
-  edges: WorkflowEdge[];
+  edges: Edge[];
 } {
   const agents = config.agents;
   const agentNames = Object.keys(agents);
@@ -79,7 +80,7 @@ export function convertToReactFlowElements(config: WorkflowConfig): {
   const nodes: WorkflowNode[] = [...agentNodes, ...toolNodes];
 
   // Create edges based on connected_agents
-  const edges: WorkflowEdge[] = [];
+  const edges: Edge[] = [];
   
   // Create edges between agents
   agentNames.forEach((agentName) => {
@@ -98,7 +99,7 @@ export function convertToReactFlowElements(config: WorkflowConfig): {
             strokeWidth: 2
           },
           markerEnd: {
-            type: 'arrowclosed',
+            type: MarkerType.ArrowClosed,
             color: '#6366f1'
           }
         });

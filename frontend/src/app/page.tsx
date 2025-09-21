@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Navigation } from "../components/navigation"
 import { LandingHero } from "../components/landing-hero"
-import { DashboardSection } from "../components/dashboard-section"
 import { FeatureCardsSection } from "../components/feature-cards-section"
 import TestimonialsSection from "../components/testimonials-section"
 import FAQSection from "../components/faq-section"

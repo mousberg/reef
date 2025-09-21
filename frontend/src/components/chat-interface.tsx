@@ -16,15 +16,29 @@ interface ChatInterfaceProps {
 export function ChatInterface({ projectId, initialMessages = [], projectName }: ChatInterfaceProps) {
   const searchParams = useSearchParams()
   const initialPrompt = searchParams.get("prompt")
-  const { user, updateProjectMessages, updateProjectName } = useAuth()
+  const { user, updateProjectMessages, updateProjectName, updateProjectWorkflow } = useAuth()
 
   // Convert Firebase messages to AI SDK v5 UI message format
-  const convertedMessages = initialMessages.map(msg => ({
-    id: msg.id,
-    role: msg.role,
-    parts: [{ type: 'text' as const, text: msg.content }],
-    createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date()
-  }))
+  const convertedMessages = initialMessages
+    .filter(msg => msg.role !== 'tool') // Filter out tool messages first
+    .map(msg => {
+      // If message has parts, convert them to AI SDK format
+      const parts = msg.parts && msg.parts.length > 0
+        ? msg.parts
+            .filter(part => part.type === 'text') // Only include text parts for now
+            .map(part => ({
+              type: 'text' as const,
+              text: part.text || ''
+            }))
+        : [{ type: 'text' as const, text: msg.content || '' }]
+
+      return {
+        id: msg.id,
+        role: msg.role as 'user' | 'assistant', // Type assertion to match AI SDK
+        parts,
+        createdAt: msg.createdAt instanceof Date ? msg.createdAt : msg.createdAt?.toDate?.() || new Date()
+      }
+    })
 
   const {
     messages,
@@ -35,7 +49,8 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     transport: new DefaultChatTransport({
       api: '/api/chat',
       body: {
-        projectId
+        projectId,
+        userId: user?.uid
       }
     }),
     messages: convertedMessages,
@@ -43,17 +58,114 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       // Save complete conversation to Firebase after AI response is complete
       if (user) {
         try {
-          // Convert all current UI messages to Firebase format (includes the AI response)
-          const allFirebaseMessages: Message[] = finishedMessages.map(msg => ({
-            id: msg.id || crypto.randomUUID(),
-            role: msg.role,
-            content: msg.parts?.find(part => part.type === 'text')?.text || '',
-            createdAt: new Date()
-          }))
+          console.log('AI SDK onFinish - finishedMessages:', finishedMessages.length)
+
+          // IMPORTANT: Check for updateWorkflow tool calls BEFORE converting to Firebase format
+          // This ensures we catch tool calls in their original structured format
+          for (const message of finishedMessages) {
+            console.log('Processing message:', {
+              role: message.role,
+              id: message.id,
+              partsCount: message.parts?.length || 0
+            })
+
+            if (message.role === 'assistant' && message.parts) {
+              for (const part of message.parts) {
+                // Check if this is a tool call part (type assertion needed due to AI SDK types)
+                const partAny = part as any
+                console.log('Checking part:', {
+                  type: partAny.type,
+                  toolName: partAny.toolName,
+                  hasInput: !!partAny.input,
+                  keys: Object.keys(partAny)
+                })
+
+                if (partAny.type === 'tool-updateWorkflow') {
+                  console.log('Found updateWorkflow tool call:', {
+                    type: partAny.type,
+                    hasInput: !!partAny.input,
+                    hasWorkflowState: !!(partAny.input && partAny.input.workflowState),
+                    inputKeys: partAny.input ? Object.keys(partAny.input) : []
+                  })
+
+                  if (partAny.input && partAny.input.workflowState) {
+                    try {
+                      console.log('Calling updateProjectWorkflow with:', {
+                        userId: user.uid,
+                        projectId: projectId,
+                        workflowStateAgents: Object.keys(partAny.input.workflowState.agents || {})
+                      })
+                      await updateProjectWorkflow(user.uid, projectId, partAny.input.workflowState)
+                      console.log('Workflow updated in Firestore successfully!')
+                    } catch (error) {
+                      console.error('Failed to update workflow in Firestore:', error)
+                    }
+                  } else {
+                    console.log('Missing workflowState in tool call input')
+                  }
+                }
+              }
+            }
+          }
+
+          // For AI SDK 5, finishedMessages contains all messages including tool calls/results
+          const messagesToSave = finishedMessages
+
+          // Convert AI SDK messages to Firebase format
+          const allFirebaseMessages: Message[] = messagesToSave.map((msg: any) => {
+            // Convert AI SDK message parts to Firebase format, handling different part types
+            const parts = msg.parts?.map((part: any) => {
+              // Handle different AI SDK part types
+              if (part.type === 'text') {
+                return {
+                  type: 'text' as const,
+                  text: (part as any).text
+                }
+              } else if (part.type === 'tool-call') {
+                return {
+                  type: 'tool-call' as const,
+                  toolCallId: (part as any).toolCallId,
+                  toolName: (part as any).toolName,
+                  input: (part as any).input
+                }
+              } else if (part.type === 'tool-result') {
+                return {
+                  type: 'tool-result' as const,
+                  toolCallId: (part as any).toolCallId,
+                  toolName: (part as any).toolName,
+                  result: (part as any).output // Note: AI SDK uses 'output', we store as 'result'
+                }
+              } else {
+                // Handle other part types as text for now
+                return {
+                  type: 'text' as const,
+                  text: JSON.stringify(part)
+                }
+              }
+            }) || []
+
+            // Determine role, mapping AI SDK roles to Firebase roles
+            let role: 'user' | 'assistant' | 'tool' = msg.role as any
+
+            return {
+              id: msg.id || crypto.randomUUID(),
+              role,
+              content: msg.parts?.find((part: any) => part.type === 'text')?.text || '',
+              parts,
+              createdAt: new Date()
+            }
+          })
 
           await updateProjectMessages(user.uid, projectId, allFirebaseMessages)
-          console.log('Complete conversation saved to Firebase:', {
-            totalMessages: allFirebaseMessages.length
+          console.log('Complete conversation with tool calls saved to Firebase:', {
+            totalMessages: allFirebaseMessages.length,
+            messagesWithParts: allFirebaseMessages.filter(msg => msg.parts && msg.parts.length > 0).length,
+            toolCallCount: allFirebaseMessages.filter(msg =>
+              msg.parts?.some(part => part.type === 'tool-call')
+            ).length,
+            toolResultCount: allFirebaseMessages.filter(msg =>
+              msg.parts?.some(part => part.type === 'tool-result')
+            ).length
           })
         } catch (error) {
           console.error('Failed to save complete conversation to Firebase:', error)
@@ -79,31 +191,28 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     console.log('Chat status changed:', status)
   }, [status])
 
-  useEffect(() => {
-    console.log('Messages updated:', messages.map(msg => ({
-      id: msg.id,
-      role: msg.role,
-      parts: msg.parts,
-      partsCount: msg.parts?.length,
-      partsTypes: msg.parts?.map(p => p.type)
-    })))
-  }, [messages])
 
   // Create conversation object for ChatPane
   const conversation = {
     id: projectId,
     title: projectName || "Project Chat",
-    updatedAt: messages.length > 0 ? messages[messages.length - 1].createdAt : new Date(),
+    updatedAt: messages.length > 0 ? new Date() : new Date(),
     messageCount: messages.length,
-    preview: messages.length > 0 ? messages[messages.length - 1].parts?.find(part => part.type === 'text')?.text?.slice(0, 80) || "No text content" : "No messages yet",
+    preview: messages.length > 0 ?
+      messages[messages.length - 1].parts?.find(part => part.type === 'text')?.text?.slice(0, 80) || "No text content"
+      : "No messages yet",
     pinned: false,
     folder: "Projects",
     messages: messages.map(msg => ({
       id: msg.id,
-      role: msg.role,
+      role: msg.role as 'user' | 'assistant', // Type assertion for ChatPane
       content: msg.parts?.find(part => part.type === 'text')?.text || '',
-      createdAt: msg.createdAt,
-      parts: msg.parts // Pass through the parts for reasoning content
+      createdAt: new Date(), // Use current date since AI SDK UIMessage doesn't have createdAt
+      parts: msg.parts?.map(part => ({
+        type: part.type,
+        text: part.type === 'text' ? (part as any).text || '' : JSON.stringify(part),
+        state: 'done' as const
+      })) || []
     }))
   }
 
@@ -121,17 +230,37 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     if (user) {
       try {
         // Get current messages and add the new user message
-        const currentFirebaseMessages: Message[] = messages.map(msg => ({
-          id: msg.id || crypto.randomUUID(),
-          role: msg.role,
-          content: msg.parts?.find(part => part.type === 'text')?.text || '',
-          createdAt: new Date()
-        }))
+        const currentFirebaseMessages: Message[] = messages.map(msg => {
+          const parts = msg.parts?.map((part: any) => {
+            // Handle AI SDK parts properly
+            if (part.type === 'text') {
+              return {
+                type: 'text' as const,
+                text: (part as any).text || ''
+              }
+            } else {
+              // Convert other part types to text for storage
+              return {
+                type: 'text' as const,
+                text: JSON.stringify(part)
+              }
+            }
+          }) || []
+
+          return {
+            id: msg.id || crypto.randomUUID(),
+            role: msg.role as 'user' | 'assistant', // Type assertion for Firebase
+            content: msg.parts?.find(part => part.type === 'text')?.text || '',
+            parts,
+            createdAt: new Date()
+          }
+        })
 
         const newFirebaseMessage: Message = {
           id: userMessage.id,
           role: userMessage.role,
           content: content,
+          parts: [{ type: 'text', text: content }],
           createdAt: new Date()
         }
 

@@ -26,8 +26,16 @@ interface UserData {
 
 export interface Message {
   id: string
-  role: 'user' | 'assistant'
-  content: string
+  role: 'user' | 'assistant' | 'tool'
+  content?: string // For text content
+  parts?: Array<{
+    type: 'text' | 'tool-call' | 'tool-result'
+    text?: string
+    toolCallId?: string
+    toolName?: string
+    input?: any
+    result?: any
+  }>
   createdAt: any
   editedAt?: any
 }
@@ -39,6 +47,8 @@ interface Agent {
   connected_agents: string[]
   expected_input: string
   expected_output: string
+  receives_from_user: boolean
+  sends_to_user: boolean
   tools: string[]
 }
 
@@ -53,8 +63,8 @@ interface Project {
   name: string
   createdAt: any
   updatedAt: any
-  messages?: Message[]
-  workflowState?: WorkflowState
+  messages: Message[]
+  workflowState: WorkflowState
 }
 
 interface AuthContextType {
@@ -70,6 +80,7 @@ interface AuthContextType {
   getProjectById: (uid: string, projectId: string) => Promise<Project | null>
   updateProjectMessages: (uid: string, projectId: string, messages: Message[]) => Promise<void>
   updateProjectName: (uid: string, projectId: string, name: string) => Promise<void>
+  updateProjectWorkflow: (uid: string, projectId: string, workflowState: WorkflowState) => Promise<void>
   deleteProject: (uid: string, projectId: string) => Promise<void>
 }
 
@@ -265,6 +276,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const updateProjectWorkflow = async (uid: string, projectId: string, workflowState: WorkflowState): Promise<void> => {
+    try {
+      const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
+      await updateDoc(projectRef, {
+        workflowState,
+        updatedAt: serverTimestamp()
+      })
+    } catch (error) {
+      console.error('Failed to update project workflow:', error)
+      throw error
+    }
+  }
+
   const deleteProject = async (uid: string, projectId: string): Promise<void> => {
     try {
       const projectRef = doc(firestore, 'users', uid, 'projects', projectId)
@@ -288,6 +312,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getProjectById,
     updateProjectMessages,
     updateProjectName,
+    updateProjectWorkflow,
     deleteProject
   }
 

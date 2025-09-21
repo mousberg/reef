@@ -98,7 +98,7 @@ export default function ProjectPage() {
 
               {/* Right side - Canvas */}
               <div className="flex-1">
-                <Canvas projectId={projectId} />
+                <Canvas project={project} />
               </div>
             </div>
           </div>
