@@ -27,24 +27,6 @@ sudo apt install -y python3 python3-pip
 # Add user to docker group (optional, requires logout/login)
 sudo usermod -aG docker $USER
 
-# For CentOS/RHEL/Fedora
-# sudo yum update -y
-# sudo yum install -y yum-utils
-# sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-# sudo yum install -y docker-ce docker-ce-cli containerd.io
-# sudo systemctl start docker
-# sudo systemctl enable docker
-# sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-# sudo chmod +x /usr/local/bin/docker-compose
-# sudo yum install -y python3 python3-pip
-
-# For macOS
-# Install Homebrew if not already installed:
-# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-# brew install --cask docker
-# brew install docker-compose
-# brew install python
-
 # Verify installations
 docker --version
 docker-compose --version
@@ -55,3 +37,17 @@ pip3 --version
 sudo systemctl start docker
 sudo systemctl enable docker
 ```
+
+## SEND
+rsync -avz /Users/floris.fok/Library/CloudStorage/OneDrive-Prosus-Naspers/Documents/agents/reef/coral_factory floris@204.12.168.160:/home/floris/reef
+
+
+## BUILD AND RUN
+""" requirements.txt
+python3 -m venv venv
+source venv/bin/activate
+pip install fastapi uvicorn pydantic python-dotenv pyyaml toml
+python app.py
+"""
+
+

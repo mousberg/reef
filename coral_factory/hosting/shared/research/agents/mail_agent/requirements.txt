@@ -3,3 +3,4 @@ agents-arcade
 arcadepy
 python-dotenv
 PyYAML
+firebase-admin
