@@ -169,7 +169,7 @@ export default function ProjectsPage() {
           </div>
 
           {/* Main Content */}
-          <div className="w-full flex-1 px-6 sm:px-8 md:px-12 lg:px-0 py-8 relative z-10 mt-16">
+          <div className="w-full flex-1 px-6 sm:px-8 md:px-12 lg:px-0 py-8 relative z-10">
             <div className="max-w-4xl mx-auto">
 
               {projects.length === 0 ? (
