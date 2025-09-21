@@ -10,7 +10,7 @@ const workflowStateSchema = z.object({
   main_task: z.string().describe('The main task or goal of the workflow'),
   relations: z.string().describe('Description of how agents interact and pass data'),
   agents: z.array(z.object({
-    name: z.string().describe('The name of the agent'),
+    name: z.string().describe('The name of the agent NO WHITESPACE + NO SPECIAL CHARACTERS, just place "agent_name"'),
     description: z.string().describe('How the agent identifies itself to other agents'),
     task: z.string().describe('The task / goal the agent is trying to achieve'),
     expected_input: z.string().describe('What does the agent need to receive'),
