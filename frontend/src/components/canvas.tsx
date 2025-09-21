@@ -5,6 +5,7 @@ import { AnimatedCoral } from './animated-coral';
 import { useState } from 'react'
 import type { Project } from '@/contexts/AuthContext';
 import { RunQueryAlertDialog } from './ui/run-query-alert-dialog';
+import { toast } from 'sonner';
 
 interface CanvasProps {
   project: Project
@@ -15,20 +16,12 @@ export function Canvas({ project }: CanvasProps) {
   const workflowJson = project.workflowState ? JSON.stringify(project.workflowState, null, 2) : undefined;
 
   const [exporting, setExporting] = useState(false)
-  const [exportError, setExportError] = useState<string | null>(null)
-  const [exportSuccess, setExportSuccess] = useState(false)
-
   const [running, setRunning] = useState(false)
-  const [runError, setRunError] = useState<string | null>(null)
-  const [runSuccess, setRunSuccess] = useState(false)
   const [showQueryDialog, setShowQueryDialog] = useState(false)
 
   const handleExport = async () => {
-    setExportError(null)
-    setExportSuccess(false)
-
     if (!project.workflowState) {
-      setExportError('No workflow to export')
+      toast.error('No workflow to export')
       return
     }
 
@@ -42,21 +35,19 @@ export function Canvas({ project }: CanvasProps) {
 
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setExportError(data?.error || 'Export failed')
+        toast.error(data?.error || 'Export failed')
         return
       }
 
-      setExportSuccess(true)
+      toast.success('Exported to factory successfully')
     } catch (e: any) {
-      setExportError(e?.message || 'Export failed')
+      toast.error(e?.message || 'Export failed')
     } finally {
       setExporting(false)
     }
   }
 
   const handleRun = () => {
-    setRunError(null)
-    setRunSuccess(false)
     setShowQueryDialog(true)
   }
 
@@ -71,13 +62,13 @@ export function Canvas({ project }: CanvasProps) {
 
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setRunError(data?.error || 'Run failed')
+        toast.error(data?.error || 'Run failed')
         return
       }
 
-      setRunSuccess(true)
+      toast.success('Run started successfully')
     } catch (e: any) {
-      setRunError(e?.message || 'Run failed')
+      toast.error(e?.message || 'Run failed')
     } finally {
       setRunning(false)
     }
@@ -95,29 +86,30 @@ export function Canvas({ project }: CanvasProps) {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={handleRun} disabled={running} className="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-60">
-              {running ? 'Running...' : 'RUN'}
+            <button 
+              type="button" 
+              onClick={handleRun} 
+              disabled={running} 
+              className="relative px-4 py-[6px] bg-emerald-600 dark:bg-emerald-700 shadow-[0px_0px_0px_2.5px_rgba(255,255,255,0.08)_inset] dark:shadow-[0px_0px_0px_1px_rgba(255,255,255,0.15)_inset] overflow-hidden rounded-full flex justify-center items-center cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="w-full h-full absolute left-0 top-0 bg-gradient-to-b from-[rgba(255,255,255,0)] to-[rgba(0,0,0,0.10)] mix-blend-multiply"></div>
+              <span className="text-white text-[13px] font-medium leading-5 font-sans relative z-10">
+                {running ? 'Running...' : 'Run'}
+              </span>
             </button>
-            <button type="button" onClick={handleExport} disabled={exporting} className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-60">
-              {exporting ? 'Exporting...' : 'Export'}
-            </button>
-            <button type="button" className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
-              Publish
+            <button 
+              type="button" 
+              onClick={handleExport} 
+              disabled={exporting} 
+              className="relative px-4 py-[6px] bg-slate-600 dark:bg-slate-700 shadow-[0px_0px_0px_2.5px_rgba(255,255,255,0.08)_inset] dark:shadow-[0px_0px_0px_1px_rgba(255,255,255,0.15)_inset] overflow-hidden rounded-full flex justify-center items-center cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="w-full h-full absolute left-0 top-0 bg-gradient-to-b from-[rgba(255,255,255,0)] to-[rgba(0,0,0,0.10)] mix-blend-multiply"></div>
+              <span className="text-white text-[13px] font-medium leading-5 font-sans relative z-10">
+                {exporting ? 'Building...' : 'Build'}
+              </span>
             </button>
           </div>
         </div>
-        {exportError && (
-          <div className="mt-2 text-sm text-red-600">{exportError}</div>
-        )}
-        {exportSuccess && (
-          <div className="mt-2 text-sm text-green-600">Exported to factory successfully.</div>
-        )}
-        {runError && (
-          <div className="mt-2 text-sm text-red-600">{runError}</div>
-        )}
-        {runSuccess && (
-          <div className="mt-2 text-sm text-green-600">Run started successfully.</div>
-        )}
       </div>
 
       {/* Canvas Area */}

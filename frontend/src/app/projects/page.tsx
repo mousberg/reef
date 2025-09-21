@@ -216,10 +216,8 @@ export default function ProjectsPage() {
                     </p>
 
                     {/* AI Input for creating first project */}
-                    <div className="flex justify-center">
-                      <div className="w-full max-w-[600px]">
-                        <AnimatedAIInput />
-                      </div>
+                    <div className="w-full">
+                      <AnimatedAIInput />
                     </div>
                   </div>
                 </div>
@@ -234,10 +232,8 @@ export default function ProjectsPage() {
                       </div>
 
                       {/* AI Input for creating new projects */}
-                      <div className="flex justify-center">
-                        <div className="w-full max-w-[600px]">
-                          <AnimatedAIInput />
-                        </div>
+                      <div className="w-full">
+                        <AnimatedAIInput />
                       </div>
                     </div>
                   )}
