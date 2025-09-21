@@ -6,13 +6,22 @@ import { useRouter } from "next/navigation"
 import Message from "./Message"
 import Composer, { ComposerRef } from "./Composer"
 import { cls, timeAgo } from "../lib/utils"
+import { ToolCallRenderer, ToolResultRenderer } from "./ToolRenderer"
 
 interface ChatMessage {
   id: string
   role: "user" | "assistant"
   content: string
   createdAt: Date | any
-  parts?: Array<{ type: 'text' | 'reasoning' | string; text: string; state?: 'streaming' | 'done' }>
+  parts?: Array<{
+    type: 'text' | 'reasoning' | 'tool-call' | 'tool-result'
+    text?: string
+    toolCallId?: string
+    toolName?: string
+    input?: any
+    output?: any
+    state?: 'streaming' | 'done'
+  }>
 }
 
 interface Conversation {
@@ -151,43 +160,20 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
 
                   {/* Render tool call parts */}
                   {(m as any).parts?.filter((part: any) => part.type === 'tool-call').map((toolCallPart: any, index: number) => (
-                    <div key={`tool-call-${index}`} className="border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-2 bg-blue-50 dark:bg-blue-950/30">
-                      <div className="flex items-center gap-2 mb-2">
-                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Tool Call: {toolCallPart.toolName}</span>
-                      </div>
-                      <details className="text-xs">
-                        <summary className="cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200">
-                          View parameters
-                        </summary>
-                        <pre className="mt-2 p-2 bg-blue-100 dark:bg-blue-900/50 rounded text-blue-900 dark:text-blue-100 overflow-x-auto">
-{JSON.stringify(toolCallPart.input, null, 2)}
-                        </pre>
-                      </details>
-                    </div>
+                    <ToolCallRenderer
+                      key={`tool-call-${index}`}
+                      toolName={toolCallPart.toolName}
+                      input={toolCallPart.input}
+                    />
                   ))}
 
                   {/* Render tool result parts */}
                   {(m as any).parts?.filter((part: any) => part.type === 'tool-result').map((toolResultPart: any, index: number) => (
-                    <div key={`tool-result-${index}`} className="border border-green-200 dark:border-green-800 rounded-lg p-3 mb-2 bg-green-50 dark:bg-green-950/30">
-                      <div className="flex items-center gap-2 mb-2">
-                        <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm font-medium text-green-700 dark:text-green-300">Tool Result: {toolResultPart.toolName}</span>
-                      </div>
-                      <details className="text-xs">
-                        <summary className="cursor-pointer text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200">
-                          View result
-                        </summary>
-                        <pre className="mt-2 p-2 bg-green-100 dark:bg-green-900/50 rounded text-green-900 dark:text-green-100 overflow-x-auto max-h-40 overflow-y-auto">
-{typeof toolResultPart.output === 'string' ? toolResultPart.output : JSON.stringify(toolResultPart.output, null, 2)}
-                        </pre>
-                      </details>
-                    </div>
+                    <ToolResultRenderer
+                      key={`tool-result-${index}`}
+                      toolName={toolResultPart.toolName}
+                      output={toolResultPart.output}
+                    />
                   ))}
 
                   {/* Render text parts */}

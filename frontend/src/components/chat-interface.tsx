@@ -116,7 +116,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
           const allFirebaseMessages: Message[] = messagesToSave.map((msg: any) => {
             // Convert AI SDK message parts to Firebase format, handling different part types
             const parts = msg.parts?.map((part: any) => {
-              // Handle different AI SDK part types
+              // Handle different AI SDK part types - only keep parts we want to store
               if (part.type === 'text') {
                 return {
                   type: 'text' as const,
@@ -136,14 +136,17 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
                   toolName: (part as any).toolName,
                   result: (part as any).output // Note: AI SDK uses 'output', we store as 'result'
                 }
-              } else {
-                // Handle other part types as text for now
+              } else if (part.type === 'reasoning' && part.text && part.text.trim()) {
+                // Only include reasoning if it has actual text content
                 return {
-                  type: 'text' as const,
-                  text: JSON.stringify(part)
+                  type: 'reasoning' as const,
+                  text: (part as any).text
                 }
+              } else {
+                // Filter out any other part types (step-start, etc.) - return null to exclude them
+                return null
               }
-            }) || []
+            }).filter((part: any): part is NonNullable<typeof part> => part !== null) || []
 
             // Determine role, mapping AI SDK roles to Firebase roles
             let role: 'user' | 'assistant' | 'tool' = msg.role as any
@@ -192,29 +195,42 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
   }, [status])
 
 
-  // Normalize parts data for consistent rendering
+  // Normalize parts data for consistent rendering - only keep parts we want to display
   const normalizePart = (part: any) => {
-    const normalized: any = {
-      type: part.type,
-      state: 'done' as const
-    }
-
+    // Only process parts we want to render in the UI
     if (part.type === 'text') {
-      normalized.text = part.text || ''
+      return {
+        type: 'text' as const,
+        text: part.text || '',
+        state: 'done' as const
+      }
     } else if (part.type === 'tool-call') {
-      normalized.toolCallId = part.toolCallId
-      normalized.toolName = part.toolName
-      normalized.input = part.input
+      return {
+        type: 'tool-call' as const,
+        toolCallId: part.toolCallId,
+        toolName: part.toolName,
+        input: part.input,
+        state: 'done' as const
+      }
     } else if (part.type === 'tool-result') {
-      normalized.toolCallId = part.toolCallId
-      normalized.toolName = part.toolName
-      // Handle both 'result' (Firebase) and 'output' (AI SDK) properties
-      normalized.output = part.result || part.output
-    } else if (part.type === 'reasoning') {
-      normalized.text = part.text || ''
+      return {
+        type: 'tool-result' as const,
+        toolCallId: part.toolCallId,
+        toolName: part.toolName,
+        output: part.result || part.output, // Handle both Firebase and AI SDK properties
+        state: 'done' as const
+      }
+    } else if (part.type === 'reasoning' && part.text && part.text.trim()) {
+      // Only include reasoning if it has actual text content
+      return {
+        type: 'reasoning' as const,
+        text: part.text,
+        state: 'done' as const
+      }
     }
 
-    return normalized
+    // Filter out any other part types (step-start, etc.) - return null to exclude them
+    return null
   }
 
   // Create conversation object for ChatPane using normalized data
@@ -222,7 +238,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     // Firebase messages (already have correct structure)
     ...initialMessages.map(msg => ({
       ...msg,
-      parts: msg.parts?.map(normalizePart) || []
+      parts: msg.parts?.map(normalizePart).filter((part): part is NonNullable<typeof part> => part !== null) || []
     })),
     // AI SDK messages (need normalization)
     ...messages.slice(initialMessages.length).map(msg => ({
@@ -230,7 +246,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
       role: msg.role as 'user' | 'assistant',
       content: msg.parts?.find(part => part.type === 'text')?.text || '',
       createdAt: new Date(),
-      parts: msg.parts?.map(normalizePart) || []
+      parts: msg.parts?.map(normalizePart).filter((part): part is NonNullable<typeof part> => part !== null) || []
     }))
   ]
 
@@ -270,20 +286,36 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
         // Get current messages and add the new user message
         const currentFirebaseMessages: Message[] = messages.map(msg => {
           const parts = msg.parts?.map((part: any) => {
-            // Handle AI SDK parts properly
+            // Handle AI SDK parts properly - only keep parts we want to store
             if (part.type === 'text') {
               return {
                 type: 'text' as const,
                 text: (part as any).text || ''
               }
-            } else {
-              // Convert other part types to text for storage
+            } else if (part.type === 'tool-call') {
               return {
-                type: 'text' as const,
-                text: JSON.stringify(part)
+                type: 'tool-call' as const,
+                toolCallId: (part as any).toolCallId,
+                toolName: (part as any).toolName,
+                input: (part as any).input
               }
+            } else if (part.type === 'tool-result') {
+              return {
+                type: 'tool-result' as const,
+                toolCallId: (part as any).toolCallId,
+                toolName: (part as any).toolName,
+                result: (part as any).output || (part as any).result
+              }
+            } else if (part.type === 'reasoning' && part.text && part.text.trim()) {
+              return {
+                type: 'reasoning' as const,
+                text: (part as any).text
+              }
+            } else {
+              // Filter out any other part types - return null to exclude them
+              return null
             }
-          }) || []
+          }).filter((part): part is NonNullable<typeof part> => part !== null) || []
 
           return {
             id: msg.id || crypto.randomUUID(),

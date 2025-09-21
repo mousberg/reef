@@ -32,7 +32,7 @@ export interface Message {
   role: 'user' | 'assistant' | 'tool'
   content?: string // For text content
   parts?: Array<{
-    type: 'text' | 'tool-call' | 'tool-result'
+    type: 'text' | 'tool-call' | 'tool-result' | 'reasoning'
     text?: string
     toolCallId?: string
     toolName?: string
