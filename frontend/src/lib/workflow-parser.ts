@@ -17,9 +17,8 @@ export function convertToReactFlowElements(config: WorkflowConfig): {
   const agents = config.agents;
 
   // Horizontal layout with nodes spaced evenly
-  const spacing = 400; // Horizontal spacing between nodes
-  const yPosition = 200; // Fixed Y position for all nodes
-  const toolYOffset = 120; // Vertical offset for tool nodes
+  const spacing = 320; // Horizontal spacing between nodes (reduced for better fit)
+  const yPosition = 150; // Fixed Y position for all nodes
 
   // Create agent nodes
   const agentNodes: WorkflowNode[] = agents.map((agent, index) => {
@@ -39,35 +38,8 @@ export function convertToReactFlowElements(config: WorkflowConfig): {
     };
   });
 
-  // Create tool nodes for each agent
-  const toolNodes: WorkflowNode[] = [];
-  agents.forEach((agent, agentIndex) => {
-    const agentX = agentIndex * spacing;
-    const agentWidth = 275; // Approximate width of agent node
-
-    if (agent.tools.length > 0) {
-      const toolSpacing = 90; // Spacing between tool nodes
-      const totalToolsWidth = (agent.tools.length - 1) * toolSpacing;
-      const startX = agentX + (agentWidth / 2) - (totalToolsWidth / 2);
-
-      agent.tools.forEach((tool, toolIndex) => {
-        toolNodes.push({
-          id: `${agent.name}-tool-${toolIndex}`,
-          type: 'tool',
-          position: {
-            x: startX + (toolIndex * toolSpacing),
-            y: yPosition + toolYOffset
-          },
-          data: {
-            tool,
-            parentAgent: agent.name
-          }
-        });
-      });
-    }
-  });
-
-  const nodes: WorkflowNode[] = [...agentNodes, ...toolNodes];
+  // Tools are now integrated into agent nodes as icons
+  const nodes: WorkflowNode[] = agentNodes;
 
   // Create edges for workflow flow
   const edges: Edge[] = [];
@@ -84,35 +56,20 @@ export function convertToReactFlowElements(config: WorkflowConfig): {
       type: 'smoothstep',
       animated: true,
       style: {
-        strokeDasharray: '5,5',
-        stroke: '#6366f1',
-        strokeWidth: 2
+        stroke: '#4f46e5',
+        strokeWidth: 3,
+        strokeLinecap: 'round'
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: '#6366f1'
+        color: '#4f46e5',
+        width: 24,
+        height: 24
       }
     });
   }
 
-  // Create edges from agents to their tools
-  agents.forEach((agent, agentIndex) => {
-    agent.tools.forEach((tool, toolIndex) => {
-      edges.push({
-        id: `${agent.name}-tool-${toolIndex}`,
-        source: agent.name,
-        target: `${agent.name}-tool-${toolIndex}`,
-        sourceHandle: 'tools', // Use the specific bottom handle for tools
-        targetHandle: null, // Use default top handle
-        type: 'straight',
-        style: {
-          stroke: '#94a3b8',
-          strokeWidth: 2,
-          strokeDasharray: '4,4'
-        }
-      });
-    });
-  });
+  // Tools are now integrated into agent nodes, no separate tool edges needed
 
   return { nodes, edges };
 }
