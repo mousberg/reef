@@ -173,38 +173,30 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-center items-center max-w-[100vw]">
+      <div className="w-full min-h-screen relative bg-background overflow-x-hidden flex flex-col justify-center items-center max-w-[100vw]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-[#37322F] border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading projects...</div>
+          <div className="w-8 h-8 border-2 border-foreground dark:border-foreground border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-foreground text-lg font-medium leading-6 font-sans">Loading projects...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-start items-center max-w-[100vw]">
+    <div className="w-full min-h-screen relative bg-background overflow-x-hidden flex flex-col justify-start items-center max-w-[100vw]">
       <div className="relative flex flex-col justify-start items-center w-full max-w-[100vw] overflow-x-hidden">
         <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-[1060px] lg:w-[1060px] relative flex flex-col justify-start items-start min-h-screen overflow-x-hidden">
           {/* Vertical lines */}
-          <div className="w-[1px] h-full absolute left-4 sm:left-6 md:left-8 lg:left-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0" />
-          <div className="w-[1px] h-full absolute right-4 sm:right-6 md:right-8 lg:right-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0" />
+          <div className="w-[1px] h-full absolute left-4 sm:left-6 md:left-8 lg:left-0 top-0 bg-border/50 shadow-[1px_0px_0px_background] dark:shadow-[1px_0px_0px_rgba(0,0,0,0.3)] z-0" />
+          <div className="w-[1px] h-full absolute right-4 sm:right-6 md:right-8 lg:right-0 top-0 bg-border/50 shadow-[1px_0px_0px_background] dark:shadow-[1px_0px_0px_rgba(0,0,0,0.3)] z-0" />
 
-          <div className="self-stretch pt-[9px] overflow-hidden border-b border-[rgba(55,50,47,0.06)] flex flex-col justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[66px] relative z-10">
+          <div className="self-stretch pt-[9px] overflow-hidden flex flex-col justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[66px] relative z-10">
             <Navigation />
             
             {/* Hero Section */}
             <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-8 sm:pb-12 md:pb-16 flex flex-col justify-start items-center px-2 sm:px-4 md:px-8 lg:px-0 w-full sm:pl-0 sm:pr-0 pl-0 pr-0">
               <div className="w-full max-w-[937px] lg:w-[937px] flex flex-col justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 <div className="self-stretch rounded-[3px] flex flex-col justify-center items-center gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-                  <div className="font-title w-full max-w-[748.71px] lg:w-[748.71px] text-center flex justify-center flex-col text-[#37322F] text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-normal leading-[1.1] sm:leading-[1.15] md:leading-[1.2] lg:leading-24 font-serif px-2 sm:px-4 md:px-0">
-                    Your AI Agent Projects
-                  </div>
-                  <div className="w-full max-w-[506.08px] lg:w-[506.08px] text-center flex justify-center flex-col text-[rgba(55,50,47,0.80)] sm:text-lg md:text-xl leading-[1.4] sm:leading-[1.45] md:leading-[1.5] lg:leading-7 font-sans px-2 sm:px-4 md:px-0 lg:text-lg font-medium text-sm">
-                    Build, deploy, and manage your intelligent agents.
-                    <br className="hidden sm:block" />
-                    Create your next breakthrough AI experience.
-                  </div>
                 </div>
               </div>
 
@@ -227,18 +219,18 @@ export default function ProjectsPage() {
             <div className="max-w-4xl mx-auto">
 
               {projects.length === 0 ? (
-                <div className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-12 text-center">
+                <div className="bg-card dark:bg-card/95 shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] dark:shadow-[0px_0px_0px_4px_rgba(255,255,255,0.05)] border border-border/20 dark:border-border/30 rounded-[24px] p-12 text-center">
                   <div className="max-w-md mx-auto">
-                    <h2 className="text-[#2F3037] text-2xl font-medium leading-tight font-sans mb-4">
+                    <h2 className="text-foreground text-2xl font-medium leading-tight font-sans mb-4">
                       No projects yet
                     </h2>
-                    <p className="text-[#37322F] text-base font-medium leading-6 font-sans opacity-70 mb-8">
+                    <p className="text-foreground/70 text-base font-medium leading-6 font-sans mb-8">
                       Create your first project to get started with Reef. Projects help you organize your work and collaborate with others.
                     </p>
                     <Button
                       onClick={handleCreateProject}
                       disabled={creating}
-                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-[12px] px-6 py-3 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                     >
                       {creating ? "Creating..." : "Create Your First Project"}
                     </Button>
@@ -247,14 +239,11 @@ export default function ProjectsPage() {
               ) : (
                 <div className="space-y-6">
                   {projects.length > 0 && (
-                    <div className="flex justify-between items-center">
-                      <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">
-                        {projects.length} {projects.length === 1 ? 'project' : 'projects'}
-                      </div>
+                    <div className="flex justify-end">
                       <Button
                         onClick={handleCreateProject}
                         disabled={creating}
-                        className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                       >
                         {creating ? "Creating..." : "New Project"}
                       </Button>
@@ -266,7 +255,7 @@ export default function ProjectsPage() {
                       {projects.map((project) => (
                         <div
                           key={project.id}
-                          className="bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] border border-[rgba(2,6,23,0.08)] rounded-[24px] p-8 hover:shadow-[0px_0px_0px_4px_rgba(55,50,47,0.08)] transition-all cursor-pointer"
+                          className="bg-card dark:bg-card/95 shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] dark:shadow-[0px_0px_0px_4px_rgba(255,255,255,0.05)] border border-border/20 dark:border-border/30 rounded-[24px] p-8 hover:shadow-[0px_0px_0px_4px_rgba(55,50,47,0.08)] dark:hover:shadow-[0px_0px_0px_4px_rgba(255,255,255,0.08)] transition-all cursor-pointer"
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
@@ -283,32 +272,32 @@ export default function ProjectsPage() {
                                         cancelRename()
                                       }
                                     }}
-                                    className="text-[#2F3037] text-xl font-medium leading-tight font-sans bg-white border border-[#37322F] rounded-[8px] px-3 py-1 w-full focus:outline-none focus:ring-2 focus:ring-[#37322F] focus:ring-opacity-20"
+                                    className="text-foreground text-xl font-medium leading-tight font-sans bg-background dark:bg-card border border-foreground rounded-[8px] px-3 py-1 w-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20"
                                     disabled={renaming === project.id}
                                   />
                                   <div className="flex gap-2 mt-2">
                                     <Button
                                       onClick={() => handleRename(project.id)}
                                       disabled={renaming === project.id || !editingName.trim()}
-                                      className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[8px] px-3 py-1 text-xs font-medium leading-4 font-sans transition-all disabled:opacity-50"
+                                      className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-[8px] px-3 py-1 text-xs font-medium leading-4 font-sans transition-all disabled:opacity-50"
                                     >
                                       {renaming === project.id ? "Saving..." : "Save"}
                                     </Button>
                                     <Button
                                       onClick={cancelRename}
                                       disabled={renaming === project.id}
-                                      className="bg-white hover:bg-[#F7F5F3] text-[#37322F] border border-[#37322F] rounded-[8px] px-3 py-1 text-xs font-medium leading-4 font-sans transition-all disabled:opacity-50"
+                                      className="bg-background dark:bg-card hover:bg-accent text-foreground border border-foreground rounded-[8px] px-3 py-1 text-xs font-medium leading-4 font-sans transition-all disabled:opacity-50"
                                     >
                                       Cancel
                                     </Button>
                                   </div>
                                 </div>
                               ) : (
-                                <h3 className="text-[#2F3037] text-xl font-medium leading-tight font-sans mb-2">
+                                <h3 className="text-foreground text-xl font-medium leading-tight font-title mb-2">
                                   {project.name}
                                 </h3>
                               )}
-                              <div className="text-[#37322F] text-sm font-medium leading-5 font-sans opacity-50">
+                              <div className="text-foreground/50 text-sm font-medium leading-5 font-sans">
                                 Created {new Date(project.createdAt?.toDate?.() || project.createdAt).toLocaleDateString()}
                               </div>
                             </div>
@@ -320,11 +309,11 @@ export default function ProjectsPage() {
                                     router.push(`/projects/${project.id}`)
                                   }}
                                   disabled={opening === project.id}
-                                  className="bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
+                                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-[12px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
                                 >
                                   {opening === project.id ? (
                                     <div className="flex items-center justify-center gap-2">
-                                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                      <div className="w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
                                       Opening...
                                     </div>
                                   ) : (
@@ -342,7 +331,7 @@ export default function ProjectsPage() {
                                     setActiveDropdown(activeDropdown === project.id ? null : project.id)
                                     console.log("Setting activeDropdown to:", activeDropdown === project.id ? null : project.id)
                                   }}
-                                  className="p-2 hover:bg-[#F7F5F3] rounded-[8px] transition-colors"
+                                  className="p-2 hover:bg-accent dark:hover:bg-accent/50 rounded-[8px] transition-colors"
                                   aria-label="More options"
                                 >
                                   <svg 
@@ -350,7 +339,7 @@ export default function ProjectsPage() {
                                     height="16" 
                                     viewBox="0 0 16 16" 
                                     fill="none" 
-                                    className="text-[#37322F] opacity-60 hover:opacity-100"
+                                    className="text-foreground/60 hover:text-foreground"
                                   >
                                     <title>More options</title>
                                     <circle cx="8" cy="3" r="1.5" fill="currentColor" />
@@ -361,7 +350,7 @@ export default function ProjectsPage() {
                                 
                                 {/* Dropdown menu */}
                                 {activeDropdown === project.id && (
-                                  <div className="absolute right-0 top-full mt-2 bg-white border border-[rgba(55,50,47,0.12)] rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.1)] py-1 min-w-[120px] z-50">
+                                  <div className="absolute right-0 top-full mt-2 bg-card dark:bg-card/95 border border-border/30 rounded-[12px] shadow-[0px_4px_12px_rgba(0,0,0,0.1)] dark:shadow-[0px_4px_12px_rgba(0,0,0,0.3)] py-1 min-w-[120px] z-50">
                                     <button
                                       type="button"
                                       onClick={(e) => {
@@ -369,7 +358,7 @@ export default function ProjectsPage() {
                                         startRename(project.id, project.name)
                                       }}
                                       disabled={renaming === project.id}
-                                      className="w-full px-4 py-2 text-left text-sm text-[#37322F] hover:bg-[#F7F5F3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                      className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-accent dark:hover:bg-accent/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       {renaming === project.id ? "Renaming..." : "Rename"}
                                     </button>
@@ -381,7 +370,7 @@ export default function ProjectsPage() {
                                         openDeleteConfirmation(project.id, project.name)
                                       }}
                                       disabled={deleting === project.id}
-                                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                      className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       {deleting === project.id ? "Deleting..." : "Delete"}
                                     </button>

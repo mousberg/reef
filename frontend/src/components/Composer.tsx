@@ -21,7 +21,70 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
   const [isFocused, setIsFocused] = useState(false)
   const [lineCount, setLineCount] = useState(1)
   const [pendingMessage, setPendingMessage] = useState("")
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  const staticText = "Create an agent that "
+  const dynamicTexts = [
+    "responds to my whatsapp messages",
+    "books me an uber ride", 
+    "researches my X feed"
+  ]
+
+  // Animated typing effect for placeholder
+  useEffect(() => {
+    let currentTextIndex = 0
+    let currentCharIndex = 0
+    let isDeleting = false
+    let timeoutId: NodeJS.Timeout
+
+    const typeEffect = () => {
+      const currentDynamicText = dynamicTexts[currentTextIndex]
+      
+      if (!isDeleting) {
+        // Typing forward
+        const dynamicPart = currentDynamicText.slice(0, currentCharIndex + 1)
+        setAnimatedPlaceholder(staticText + dynamicPart)
+        currentCharIndex++
+        
+        if (currentCharIndex === currentDynamicText.length) {
+          // Pause at end before deleting
+          timeoutId = setTimeout(() => {
+            isDeleting = true
+            typeEffect()
+          }, 2000)
+          return
+        }
+        
+        timeoutId = setTimeout(typeEffect, 50)
+      } else {
+        // Deleting backward
+        const dynamicPart = currentDynamicText.slice(0, currentCharIndex)
+        setAnimatedPlaceholder(staticText + dynamicPart)
+        currentCharIndex--
+        
+        if (currentCharIndex < 0) {
+          // Move to next text
+          currentTextIndex = (currentTextIndex + 1) % dynamicTexts.length
+          isDeleting = false
+          currentCharIndex = 0
+          
+          // Pause before typing next
+          timeoutId = setTimeout(typeEffect, 500)
+          return
+        }
+        
+        timeoutId = setTimeout(typeEffect, 30)
+      }
+    }
+
+    // Start the animation
+    typeEffect()
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [])
 
   // Auto-resize textarea based on content with max height limit
   useEffect(() => {
@@ -129,7 +192,7 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
               onChange={(e) => setValue(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder={busy ? "AI is thinking..." : "Ask anything"}
+              placeholder={busy ? "AI is thinking..." : animatedPlaceholder}
               rows={1}
               disabled={busy}
               className={cls(
