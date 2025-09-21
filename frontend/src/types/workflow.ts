@@ -1,9 +1,12 @@
 export interface WorkflowAgent {
   name: string;
-  description: string;
   task: string;
+  instructions: string;
+  connected_agents: string[];
   expected_input: string;
   expected_output: string;
+  receives_from_user: boolean;
+  sends_to_user: boolean;
   tools: string[];
 }
 

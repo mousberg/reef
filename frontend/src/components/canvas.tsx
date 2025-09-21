@@ -1,29 +1,7 @@
 "use client"
 
 import { WorkflowCanvas } from './workflow/workflow-canvas';
-
-interface Project {
-  id: string
-  name: string
-  createdAt: any
-  updatedAt: any
-  messages: any[]
-  workflowState?: {
-    main_task: string
-    relations: string
-    agents: Record<string, {
-      name: string
-      task: string
-      instructions: string
-      connected_agents: string[]
-      expected_input: string
-      expected_output: string
-      receives_from_user: boolean
-      sends_to_user: boolean
-      tools: string[]
-    }>
-  }
-}
+import type { Project } from '@/contexts/AuthContext';
 
 interface CanvasProps {
   project: Project
@@ -45,10 +23,10 @@ export function Canvas({ project }: CanvasProps) {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500">
+            <button type="button" className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500">
               Export
             </button>
-            <button className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+            <button type="button" className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
               Publish
             </button>
           </div>
