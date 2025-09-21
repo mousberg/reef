@@ -14,7 +14,16 @@ export default function ProjectPage() {
   const projectId = params.id as string
   const { user, getProjectById } = useAuth()
 
-  const [project, setProject] = useState<any>(null)
+  const [project, setProject] = useState<{
+    id: string
+    name: string
+    messages?: Array<{
+      id: string
+      role: 'user' | 'assistant'
+      content: string
+      createdAt: Date
+    }>
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -71,6 +80,7 @@ export default function ProjectPage() {
                   {error || "Project not found"}
                 </h1>
                 <button
+                  type="button"
                   onClick={() => router.push("/projects")}
                   className="text-[#37322F] hover:opacity-70 text-lg font-medium leading-6 font-sans transition-all"
                 >
