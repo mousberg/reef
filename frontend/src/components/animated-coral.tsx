@@ -67,9 +67,9 @@ export function AnimatedCoral() {
   }, [])
 
   return (
-    <div className="flex items-center justify-center h-full bg-gradient-to-b from-blue-50 to-blue-100">
+    <div className="flex items-center justify-center h-full bg-white">
       <div className="text-center">
-        <pre className="text-pink-500 text-xs leading-tight font-mono mb-4 select-none">
+        <pre className="text-black text-xs leading-tight font-mono mb-4 select-none">
           {seaCreatureFrames[currentFrame]}
         </pre>
         <div className="text-gray-600 text-lg font-medium">
