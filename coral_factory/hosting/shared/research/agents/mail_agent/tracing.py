@@ -16,7 +16,7 @@ if not all(hasattr(tracing, name) for name in required):
     raise ImportError("The `agents` package is not installed.")
 
 
-MONGO_URI = "mongodb+srv://admin:[REDACTED]@ifood-lcm-dev.8hqge.mongodb.net/"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 logger = logging.getLogger(__name__)
 
 
