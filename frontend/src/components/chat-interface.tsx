@@ -420,6 +420,8 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
         onSend={handleSendMessage}
         isThinking={status === 'submitted' || status === 'streaming'}
         onPauseThinking={() => {}}
+        tracesOpen={tracesOpen}
+        onToggleTraces={() => setTracesOpen(!tracesOpen)}
       />
 
       {/* Traces Panel */}
