@@ -129,6 +129,14 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
                   toolName: (part as any).toolName,
                   input: (part as any).input
                 }
+              } else if (part.type === 'tool-updateWorkflow') {
+                // Handle the specific tool-updateWorkflow type from AI SDK
+                return {
+                  type: 'tool-call' as const,
+                  toolCallId: (part as any).toolCallId || crypto.randomUUID(),
+                  toolName: 'updateWorkflow',
+                  input: (part as any).input
+                }
               } else if (part.type === 'tool-result') {
                 return {
                   type: 'tool-result' as const,
@@ -209,6 +217,15 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
         type: 'tool-call' as const,
         toolCallId: part.toolCallId,
         toolName: part.toolName,
+        input: part.input,
+        state: 'done' as const
+      }
+    } else if (part.type === 'tool-updateWorkflow') {
+      // Handle the specific tool-updateWorkflow type from AI SDK
+      return {
+        type: 'tool-call' as const,
+        toolCallId: part.toolCallId || crypto.randomUUID(),
+        toolName: 'updateWorkflow',
         input: part.input,
         state: 'done' as const
       }
@@ -297,6 +314,14 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
                 type: 'tool-call' as const,
                 toolCallId: (part as any).toolCallId,
                 toolName: (part as any).toolName,
+                input: (part as any).input
+              }
+            } else if (part.type === 'tool-updateWorkflow') {
+              // Handle the specific tool-updateWorkflow type from AI SDK
+              return {
+                type: 'tool-call' as const,
+                toolCallId: (part as any).toolCallId || crypto.randomUUID(),
+                toolName: 'updateWorkflow',
                 input: (part as any).input
               }
             } else if (part.type === 'tool-result') {
