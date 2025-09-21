@@ -24,22 +24,24 @@ export function timeAgo(date: any) {
 
   const now = new Date();
   const sec = Math.max(1, Math.floor((now.getTime() - d.getTime()) / 1000));
+  
+  // If more than 24 hours ago, show the date
+  if (sec >= 86400) {
+    return d.toLocaleDateString();
+  }
+  
   const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
   const ranges: [number, Intl.RelativeTimeFormatUnit][] = [
     [60, "second"], [3600, "minute"], [86400, "hour"],
-    [604800, "day"], [2629800, "week"], [31557600, "month"],
   ];
-  let unit: Intl.RelativeTimeFormatUnit = "year";
-  let value = -Math.floor(sec / 31557600);
+  let unit: Intl.RelativeTimeFormatUnit = "hour";
+  let value = -Math.floor(sec / 3600);
   for (const [limit, u] of ranges) {
     if (sec < limit) {
       unit = u;
       const div =
         unit === "second" ? 1 :
-        limit / (unit === "minute" ? 60 :
-        unit === "hour" ? 3600 :
-        unit === "day" ? 86400 :
-        unit === "week" ? 604800 : 2629800);
+        unit === "minute" ? 60 : 3600;
       value = -Math.floor(sec / div);
       break;
     }

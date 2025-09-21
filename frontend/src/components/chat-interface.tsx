@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { useSearchParams } from "next/navigation"
 import { useAuth, Message } from "../contexts/AuthContext"
 import ChatPane from "./ChatPane"
+import { TracesPanel } from "./TracesPanel"
 
 interface ChatInterfaceProps {
   projectId: string
@@ -17,6 +18,7 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
   const searchParams = useSearchParams()
   const initialPrompt = searchParams.get("prompt")
   const { user, updateProjectMessages, updateProjectName, updateProjectWorkflow } = useAuth()
+  const [tracesOpen, setTracesOpen] = useState(false)
 
   // Convert Firebase messages to AI SDK v5 UI message format
   const convertedMessages = initialMessages
@@ -284,11 +286,34 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
 
 
   return (
-    <ChatPane
-      conversation={conversation}
-      onSend={handleSendMessage}
-      isThinking={status === 'submitted' || status === 'streaming'}
-      onPauseThinking={() => {}}
-    />
+    <div className="relative h-full">
+      {/* Traces Toggle Button */}
+      <button
+        type="button"
+        onClick={() => setTracesOpen(!tracesOpen)}
+        className="absolute top-4 right-4 px-3 py-[6px] bg-white shadow-[0px_1px_2px_rgba(55,50,47,0.12)] hover:shadow-[0px_2px_4px_rgba(55,50,47,0.16)] overflow-hidden rounded-full flex justify-center items-center gap-2 transition-all z-10"
+      >
+        <svg className="w-4 h-4 text-[#37322F]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span className="text-[#37322F] text-[13px] font-medium leading-5 font-sans">
+          Traces
+        </span>
+      </button>
+
+      <ChatPane
+        conversation={conversation}
+        onSend={handleSendMessage}
+        isThinking={status === 'submitted' || status === 'streaming'}
+        onPauseThinking={() => {}}
+      />
+
+      {/* Traces Panel */}
+      <TracesPanel isOpen={tracesOpen} onClose={() => setTracesOpen(false)} />
+
+      {/* ElevenLabs AI Assistant Widget */}
+      <elevenlabs-convai agent-id="agent_3101k5p8y1r2e25bn1bb4rjpx932"></elevenlabs-convai>
+      <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+    </div>
   )
 }

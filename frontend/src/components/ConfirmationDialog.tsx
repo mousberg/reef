@@ -90,7 +90,12 @@ export function ConfirmationDialog({
                   : "bg-[#37322F] hover:bg-[#2F2B28] text-white"
               }`}
             >
-              {loading ? "Loading..." : confirmText}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Loading...
+                </div>
+              ) : confirmText}
             </Button>
           </div>
         </div>

@@ -14,7 +14,16 @@ export default function ProjectPage() {
   const projectId = params.id as string
   const { user, getProjectById } = useAuth()
 
-  const [project, setProject] = useState<any>(null)
+  const [project, setProject] = useState<{
+    id: string
+    name: string
+    messages?: Array<{
+      id: string
+      role: 'user' | 'assistant'
+      content: string
+      createdAt: Date
+    }>
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -49,7 +58,10 @@ export default function ProjectPage() {
   if (loading) {
     return (
       <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-center items-center max-w-[100vw]">
-        <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading project...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[#37322F] border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading project...</div>
+        </div>
       </div>
     )
   }
@@ -71,6 +83,7 @@ export default function ProjectPage() {
                   {error || "Project not found"}
                 </h1>
                 <button
+                  type="button"
                   onClick={() => router.push("/projects")}
                   className="text-[#37322F] hover:opacity-70 text-lg font-medium leading-6 font-sans transition-all"
                 >
