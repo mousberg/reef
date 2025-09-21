@@ -87,7 +87,7 @@ export default function ProjectPage() {
 
   return (
           <div className="w-full flex-1 relative z-10">
-            <div className="flex h-[calc(100vh-64px)] bg-gray-50">
+            <div className="flex bg-gray-50">
               {/* Left side - Chat Interface */}
               <div className="w-[480px] border-r border-gray-200 bg-white">
                 <ChatInterface
