@@ -18,7 +18,7 @@ export interface ComposerRef {
 const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSend, busy }, ref) {
   const [value, setValue] = useState("")
   const [sending, setSending] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
+  const [setIsFocused] = useState(false)
   const [lineCount, setLineCount] = useState(1)
   const [pendingMessage, setPendingMessage] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -100,8 +100,6 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
       setSending(false)
     }
   }
-
-  const hasContent = value.length > 0
 
   return (
     <div className="w-full flex flex-col items-center px-4 pb-6 pt-2">
