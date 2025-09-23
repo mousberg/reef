@@ -2,17 +2,6 @@
 
 import type React from "react"
 
-function Badge({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <div className="px-[14px] py-[6px] bg-white shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] overflow-hidden rounded-[90px] flex justify-start items-center gap-[8px] border border-[rgba(2,6,23,0.08)] shadow-xs">
-      <div className="w-[14px] h-[14px] relative overflow-hidden flex items-center justify-center">{icon}</div>
-      <div className="text-center flex justify-center flex-col text-[#37322F] text-xs font-medium leading-3 font-sans">
-        {text}
-      </div>
-    </div>
-  )
-}
-
 const logoData = [
   { icon: "/icons/calendar.svg", name: "Calendar" },
   { icon: "/icons/contacts.svg", name: "Contacts" },
@@ -56,10 +45,8 @@ export default function SocialProofSection() {
           {/* Logo Grid - Responsive grid */}
           {logoData.map((logo, index) => {
             const isMobileFirstColumn = index % 2 === 0
-            const isMobileLastColumn = index % 2 === 1
             const isDesktopFirstColumn = index % 4 === 0
             const isDesktopLastColumn = index % 4 === 3
-            const isMobileBottomRow = index >= 6
             const isDesktopTopRow = index < 4
             const isDesktopBottomRow = index >= 4
 
