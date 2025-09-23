@@ -23,24 +23,25 @@ const featureCards = [
 ]
 
 export function FeatureCardsSection({ activeCard, progress, onCardClick }: FeatureCardsSectionProps) {
-  return (
-    <div className="self-stretch border-t border-[#E0DEDB] border-b border-[#E0DEDB] flex justify-center items-start">
-      <DecorativePattern side="left" />
+  return null
+  // return (
+  //   <div className="self-stretch flex justify-center items-start">
+  //     <DecorativePattern side="left" />
       
-      <div className="flex-1 px-0 sm:px-2 md:px-0 flex flex-col md:flex-row justify-center items-stretch gap-0">
-        {featureCards.map((card, index) => (
-          <FeatureCard
-            key={index}
-            title={card.title}
-            description={card.description}
-            isActive={activeCard === index}
-            progress={activeCard === index ? progress : 0}
-            onClick={() => onCardClick(index)}
-          />
-        ))}
-      </div>
+  //     <div className="flex-1 px-0 sm:px-2 md:px-0 flex flex-col md:flex-row justify-center items-stretch gap-0">
+  //       {featureCards.map((card, index) => (
+  //         <FeatureCard
+  //           key={index}
+  //           title={card.title}
+  //           description={card.description}
+  //           isActive={activeCard === index}
+  //           progress={activeCard === index ? progress : 0}
+  //           onClick={() => onCardClick(index)}
+  //         />
+  //       ))}
+  //     </div>
 
-      <DecorativePattern side="right" />
-    </div>
-  )
+  //     <DecorativePattern side="right" />
+  //   </div>
+  // )
 }

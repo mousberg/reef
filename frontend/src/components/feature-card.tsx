@@ -13,12 +13,18 @@ export function FeatureCard({
   progress,
   onClick,
 }: FeatureCardProps) {
+  const isAnalyticsCard = title === "Analytics & insights"
+  
   return (
     <div
-      className={`w-full md:flex-1 self-stretch px-6 py-5 overflow-hidden flex flex-col justify-start items-start gap-2 cursor-pointer relative border-b md:border-b-0 last:border-b-0 ${
+      className={`w-full md:flex-1 self-stretch px-6 py-5 overflow-hidden flex flex-col justify-start items-start gap-2 cursor-pointer relative ${
         isActive
-          ? "bg-white shadow-[0px_0px_0px_0.75px_#E0DEDB_inset]"
-          : "border-l-0 border-r-0 md:border border-[#E0DEDB]/80"
+          ? "bg-white"
+          : ""
+      } ${
+        isAnalyticsCard
+          ? "border-l border-r border-border/50"
+          : ""
       }`}
       onClick={onClick}
     >
@@ -31,10 +37,10 @@ export function FeatureCard({
         </div>
       )}
 
-      <div className="font-title self-stretch flex justify-center flex-col text-[#49423D] text-sm md:text-sm font-semibold leading-6 md:leading-6 font-sans">
+      <div className="self-stretch flex justify-center flex-col text-[#49423D] text-sm md:text-sm font-semibold leading-6 md:leading-6 text-center">
         {title}
       </div>
-      <div className="self-stretch text-[#605A57] text-[13px] md:text-[13px] font-normal leading-[22px] md:leading-[22px] font-sans">
+      <div className="self-stretch text-[#605A57] text-[13px] md:text-[13px] font-normal leading-[22px] md:leading-[22px] font-sans text-center">
         {description}
       </div>
     </div>

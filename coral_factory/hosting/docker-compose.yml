@@ -1,6 +1,66 @@
 services:
-  hello:
-    build: .
-    volumes:
-      - ./shared:/app/shared
-    command: python -c "print('Hello, World')"
+  coral-server:
+    build:
+      context: /Users/floris.fok/Library/CloudStorage/OneDrive-Prosus-Naspers/Documents/agents/reef/coral_factory
+      dockerfile: hosting/Dockerfile.server
+    container_name: coral-server
+    environment:
+      - REGISTRY_FILE_PATH=/app/registry.toml
+      # Uncomment to enable docker runtime for agents instead of executable
+      # - DOCKER_SOCKET=/var/run/docker.sock
+      - ARCADE_API_KEY=${ARCADE_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - FIREBASE_PROJECT_ID=reefs-c1adb
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/service.json
+      - USER_ID=florisfok5@gmail.com
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://0.0.0.0:5555/v1/docs || exit 1"]
+      interval: 1s
+      timeout: 1s
+      retries: 100
+      start_period: 1s
+
+    networks:
+      - coral-network
+
+  research:
+    build:
+      context: /Users/floris.fok/Library/CloudStorage/OneDrive-Prosus-Naspers/Documents/agents/reef/coral_factory
+      dockerfile: hosting/Dockerfile.research
+    container_name: coral-research
+    depends_on:
+      coral-server:
+        condition: service_healthy
+    environment:
+      - CORAL_API_BASE_URL=http://coral-server:5555
+      - TOOL_SERVER_LISTEN_HOST=0.0.0.0
+      - TOOL_SERVER_ADVERTISED_HOST=coral-research
+      - TOOL_SERVER_PORT=38080
+      - APPLICATION_ID=myApp
+      - PRIVACY_KEY=privkey
+      # Model config passed through to agents via options
+      - MODEL_PROVIDER=${MODEL_PROVIDER:-openai}
+      - MODEL_NAME=${MODEL_NAME:-gpt-4.1-mini}
+      - MODEL_API_KEY=${MODEL_API_KEY:-}
+      - MODEL_MAX_TOKENS=${MODEL_MAX_TOKENS:-16000}
+      - MODEL_TEMPERATURE=${MODEL_TEMPERATURE:-0.3}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AGENTS_PATH=/app/agents/
+      - AGENT_QUERY='Which Slack channels are there and mail me the list to florisfok5@gmail.comWhich Slack channels are there and mail me the list to florisfok5@gmail.com'
+      - FIREBASE_PROJECT_ID=reefs-c1adb
+      - FIREBASE_SERVICE_ACCOUNT_PATH=/app/service.json
+      - RESULTS_API_URL=${RESULTS_API_URL:-http://host.docker.internal:8001/results}
+      - ARCADE_API_KEY=${ARCADE_API_KEY:-}
+      - USER_ID=florisfok5@gmail.com
+    # Tool server only needs to be reachable inside the network
+    expose:
+      - "38080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - coral-network
+ 
+networks:
+  coral-network:
+    name: coral-network
+    driver: bridge

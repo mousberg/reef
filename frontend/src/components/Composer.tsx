@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react"
-import { Send, Loader2, Plus, Mic } from "lucide-react"
+import { Loader2, Plus, Mic } from "lucide-react"
 import ComposerActionsPopover from "./ComposerActionsPopover"
 import { cls } from "../lib/utils"
 
@@ -108,14 +108,14 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
       <div className="w-full max-w-3xl">
         <div
           className={cls(
-            "relative flex items-end gap-2 rounded-[26px] border bg-white shadow-sm dark:bg-zinc-950 transition-all duration-200",
+            "relative flex items-center gap-3 rounded-[26px] border bg-white shadow-sm dark:bg-zinc-950 transition-all duration-200",
             "border-zinc-300 dark:border-zinc-700 px-4",
             lineCount > 1 ? "py-3" : "py-2",
           )}
         >
           <ComposerActionsPopover>
             <button
-              className="mb-1 inline-flex shrink-0 items-center justify-center rounded-full p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 transition-colors"
+              className="inline-flex shrink-0 items-center justify-center rounded-full p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 transition-colors"
               title="Add attachment"
             >
               <Plus className="h-5 w-5" />
@@ -129,12 +129,12 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
               onChange={(e) => setValue(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder={busy ? "AI is thinking..." : "Ask anything"}
+              placeholder={busy ? "AI is thinking..." : "Message"}
               rows={1}
               disabled={busy}
               className={cls(
                 "w-full resize-none bg-transparent text-[15px] outline-none placeholder:text-zinc-400 transition-all duration-200",
-                "py-1.5",
+                "py-3 leading-5",
                 busy && "cursor-not-allowed opacity-60",
               )}
               style={{
@@ -151,7 +151,7 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
             />
           </div>
 
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2">
             <button className="inline-flex shrink-0 items-center justify-center rounded-full p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 transition-colors">
               <Mic className="h-5 w-5" />
             </button>

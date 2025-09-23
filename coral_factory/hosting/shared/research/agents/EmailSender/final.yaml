@@ -1,0 +1,17 @@
+agent:
+  arcade:
+    toolkits:
+    - Gmail
+  context:
+    user_id: florisfok5@gmail.com
+  description: EmailSender knows how to send emails using Gmail API
+  instructions: 'Your task is to Send emails triggered by events from SlackReader.
+
+    You will be given recipient_email, subject, body, optional attachments and you
+    need to output email_sent_status.'
+  name: EmailSender
+  queries: recipient_email, subject, body, optional attachments
+mcp:
+  cache_tools_list: true
+  timeout_seconds: 60
+model: gpt-4.1

@@ -209,7 +209,12 @@ export default function AuthPage() {
               disabled={loading}
               className="w-full h-12 bg-[#37322F] hover:bg-[#2F2B28] text-white rounded-[12px] text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
             >
-              {loading ? "Loading..." : (isSignUp ? "Create Account" : "Sign In")}
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Loading...
+                </div>
+              ) : (isSignUp ? "Create Account" : "Sign In")}
             </Button>
           </form>
 
@@ -245,7 +250,7 @@ export default function AuthPage() {
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-[#37322F] text-sm font-medium leading-5 font-sans hover:opacity-70 transition-opacity"
+              className="text-[#37322F] text-sm font-medium leading-5 font-sans hover:opacity-70 transition-opacity cursor-pointer"
             >
               {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
             </button>

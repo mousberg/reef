@@ -7,6 +7,66 @@ node_modules/
 */build/
 */dist/
 
+# .env
+.env
+*/.env
+*/.env.local
+*/.env.development.local
+*/.env.test.local
+*/.env.production.local
+
+# Firebase
+service.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.manifest
+*.spec
+*.sqlite3
+*.db
+*.db-journal
+*.log
+*.pot
+*.mo
+*.pyc
+*.pkl
+*.mypy_cache/
+*.pytest_cache/
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+.cache/
+*.cover
+*.py,cover
+.hypothesis/
+*.ipynb_checkpoints
+# Cython debug symbols
+cython_debug/
+# VS Code Python settings
+.vscode/
+# pipenv
+Pipfile.lock
+# poetry
+poetry.lock
+# virtualenv
+venv/
+ENV/
+env/
+.venv/
+ENV.bak/
+env.bak/
+
+
 # Environment variables
 .env
 .env.local

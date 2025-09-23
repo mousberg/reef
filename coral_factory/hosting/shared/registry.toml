@@ -1,0 +1,9 @@
+[[local-agent]]
+path = "research/agents/SlackReader"
+
+[[local-agent]]
+path = "research/agents/EmailSender"
+
+[[local-agent]]
+path = "research/agents/interface"
+
