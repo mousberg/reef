@@ -1,28 +1,4 @@
-import { FeatureCard } from "./feature-card"
-import { DecorativePattern } from "./decorative-pattern"
-
-interface FeatureCardsSectionProps {
-  activeCard: number
-  progress: number
-  onCardClick: (index: number) => void
-}
-
-const featureCards = [
-  {
-    title: "Plan your schedules",
-    description: "Design and orchestrate intelligent AI agent workflows with visual builders."
-  },
-  {
-    title: "Analytics & insights", 
-    description: "Monitor agent performance, conversations, and outcomes in real-time."
-  },
-  {
-    title: "Collaborate seamlessly",
-    description: "Deploy and manage multiple agents seamlessly across your applications."
-  }
-]
-
-export function FeatureCardsSection({ activeCard, progress, onCardClick }: FeatureCardsSectionProps) {
+export function FeatureCardsSection() {
   return null
   // return (
   //   <div className="self-stretch flex justify-center items-start">
