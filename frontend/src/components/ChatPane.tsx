@@ -5,7 +5,7 @@ import { Square, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Message from "./Message"
 import Composer, { ComposerRef } from "./Composer"
-import { cls, timeAgo } from "../lib/utils"
+import { timeAgo } from "../lib/utils"
 import { ToolCallRenderer, ToolResultRenderer } from "./ToolRenderer"
 
 interface ChatMessage {
@@ -85,7 +85,7 @@ function ThinkingMessage({ onPause, hasActiveTool }: ThinkingMessageProps) {
 }
 
 const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
-  { conversation, onSend, isThinking, onPauseThinking, tracesOpen, onToggleTraces },
+  { conversation, onSend, isThinking, onPauseThinking, onToggleTraces },
   ref,
 ) {
   const [busy, setBusy] = useState(false)
@@ -112,9 +112,7 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
 
   if (!conversation) return null
 
-  const tags: string[] = []
   const messages = Array.isArray(conversation.messages) ? conversation.messages : []
-  const count = messages.length || conversation.messageCount || 0
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
