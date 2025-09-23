@@ -18,7 +18,7 @@ type ViewMode = 'timeline' | 'list' | 'conversation'
 type FilterStatus = 'all' | 'completed' | 'failed' | 'pending' | 'running'
 
 export function TracesPanel({ isOpen, onClose }: TracesPanelProps) {
-  const { user, subscribeToAgentTraces, subscribeToAgentSpans } = useAuth()
+  const { subscribeToAgentTraces, subscribeToAgentSpans } = useAuth()
   const [loading, setLoading] = useState(false)
   const [selectedTrace, setSelectedTrace] = useState<string | null>(null)
   const [selectedSpan, setSelectedSpan] = useState<string | null>(null)
