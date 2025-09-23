@@ -39,11 +39,6 @@ export default function LandingPage() {
           <div className="self-stretch pt-[9px] overflow-hidden flex flex-col justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[66px] relative z-10">
             <Navigation />
             <LandingHero />
-            <FeatureCardsSection 
-              activeCard={activeCard} 
-              progress={progress} 
-              onCardClick={handleCardClick} 
-            />
             <DocumentationSection />
             <SocialProofSection />
             {/* <TestimonialsSection /> */}
