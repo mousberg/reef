@@ -9,12 +9,12 @@ interface DiffusionImageProps {
   className?: string
 }
 
-export default function DiffusionImage({ src, alt, className = "" }: DiffusionImageProps) {
+export default function DiffusionImage({ src, className = "" }: DiffusionImageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
   const animationRef = useRef<number | null>(null)
-  const [ref, inView, entry] = useInView({
+  const [ref] = useInView({
     threshold: 0,
     triggerOnce: false,
   })
