@@ -7,7 +7,7 @@ function getToolsPrompt(): string {
   return fs.readFileSync(promptPath, 'utf-8');
 }
 
-export function getSystemPrompt(userId: string, projectId: string): string {
+export function getSystemPrompt(): string {
   const tools_prompt = getToolsPrompt();
 
   return `You are Workflow Builder. Your single goal is to iteratively build a valid WorkflowConfig.

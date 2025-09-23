@@ -18,7 +18,6 @@ export interface ComposerRef {
 const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSend, busy }, ref) {
   const [value, setValue] = useState("")
   const [sending, setSending] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
   const [lineCount, setLineCount] = useState(1)
   const [pendingMessage, setPendingMessage] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -101,8 +100,6 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
     }
   }
 
-  const hasContent = value.length > 0
-
   return (
     <div className="w-full flex flex-col items-center px-4 pb-6 pt-2">
       <div className="w-full max-w-3xl">
@@ -127,8 +124,6 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
               ref={inputRef}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
               placeholder={busy ? "AI is thinking..." : "Message"}
               rows={1}
               disabled={busy}

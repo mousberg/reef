@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       model: openai('gpt-4.1'),
       messages: modelMessages,
       maxOutputTokens: 4000,
-      system: getSystemPrompt(userId, projectId),
+      system: getSystemPrompt(),
       tools: {
         updateWorkflow: createUpdateWorkflowTool(userId, projectId)
       },

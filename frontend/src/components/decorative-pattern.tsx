@@ -5,7 +5,6 @@ interface DecorativePatternProps {
 }
 
 export function DecorativePattern({ 
-  side = "left", 
   patternCount = 50,
   className = ""
 }: DecorativePatternProps) {

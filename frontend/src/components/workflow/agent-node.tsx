@@ -99,7 +99,7 @@ const getNodeColors = (isFirst: boolean, isLast: boolean) => {
 };
 
 export function AgentNode({ data }: AgentNodeProps) {
-  const { agent, agentName, isFirst, isLast } = data;
+  const { agent, isFirst, isLast } = data;
   const [isExpanded, setIsExpanded] = useState(false);
 
   const colors = getNodeColors(isFirst || false, isLast || false);

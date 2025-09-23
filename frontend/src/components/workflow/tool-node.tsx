@@ -38,7 +38,6 @@ import {
   MessageCircle,
   Video,
   Camera,
-  Music,
   Share2,
   Briefcase,
   DollarSign,
@@ -63,7 +62,7 @@ interface ToolNodeProps {
 }
 
 export function ToolNode({ data }: ToolNodeProps) {
-  const { tool, parentAgent } = data;
+  const { tool } = data;
   
   // Map of available tool icons (SVG paths)
   const toolIcons: Record<string, string> = {

@@ -5,18 +5,6 @@ import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import DiffusionImage from "./ui/diffusion-image"
 
-// Badge component for consistency
-function Badge({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <div className="px-[14px] py-[6px] bg-secondary shadow-[0px_0px_0px_4px_rgba(55,50,47,0.05)] dark:shadow-[0px_0px_0px_4px_rgba(0,0,0,0.15)] overflow-hidden rounded-[90px] flex justify-start items-center gap-[8px] border border-border/20 shadow-xs">
-      <div className="w-[14px] h-[14px] relative overflow-hidden flex items-center justify-center">{icon}</div>
-      <div className="text-center flex justify-center flex-col text-foreground text-xs font-medium leading-3 font-sans">
-        {text}
-      </div>
-    </div>
-  )
-}
-
 export default function DocumentationSection() {
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)

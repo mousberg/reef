@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { useState } from "react"
 
 interface WorkflowState {
   main_task: string
@@ -123,7 +123,7 @@ function WorkflowResultRenderer({ output }: { output: any }) {
 }
 
 // Generic fallback renderer
-function GenericCallRenderer({ toolName, input }: { toolName: string, input: any }) {
+function GenericCallRenderer({ input }: { input: any }) {
   // Try to extract meaningful information from the input
   const inputEntries = input && typeof input === 'object' ? Object.entries(input) : []
 
@@ -150,7 +150,7 @@ function GenericCallRenderer({ toolName, input }: { toolName: string, input: any
   )
 }
 
-function GenericResultRenderer({ toolName, output }: { toolName: string, output: any }) {
+function GenericResultRenderer({ output }: { output: any }) {
   // Handle string output
   if (typeof output === 'string') {
     return (
@@ -211,7 +211,7 @@ export function ToolCallRenderer({ toolName, input, className = "" }: ToolCallPr
       {toolName === 'updateWorkflow' ? (
         <WorkflowCallRenderer input={input} />
       ) : (
-        <GenericCallRenderer toolName={toolName} input={input} />
+        <GenericCallRenderer input={input} />
       )}
     </div>
   )
@@ -235,7 +235,7 @@ export function ToolResultRenderer({ toolName, output, className = "" }: ToolRes
       {toolName === 'updateWorkflow' ? (
         <WorkflowResultRenderer output={output} />
       ) : (
-        <GenericResultRenderer toolName={toolName} output={output} />
+        <GenericResultRenderer output={output} />
       )}
     </div>
   )

@@ -46,7 +46,6 @@ export function ChatInterface({ projectId, initialMessages = [], projectName }: 
     messages,
     sendMessage,
     status,
-    setMessages
   } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/chat',
