@@ -211,7 +211,7 @@ export function ToolCallRenderer({ toolName, input, className = "" }: ToolCallPr
       {toolName === 'updateWorkflow' ? (
         <WorkflowCallRenderer input={input} />
       ) : (
-        <GenericCallRenderer toolName={toolName} input={input} />
+        <GenericCallRenderer input={input} />
       )}
     </div>
   )
@@ -235,7 +235,7 @@ export function ToolResultRenderer({ toolName, output, className = "" }: ToolRes
       {toolName === 'updateWorkflow' ? (
         <WorkflowResultRenderer output={output} />
       ) : (
-        <GenericResultRenderer toolName={toolName} output={output} />
+        <GenericResultRenderer output={output} />
       )}
     </div>
   )
