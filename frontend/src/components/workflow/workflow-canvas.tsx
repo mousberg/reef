@@ -8,9 +8,7 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   Connection,
-  Edge,
   BackgroundVariant,
-  Panel,
   ReactFlowProvider
 } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -30,7 +28,7 @@ interface WorkflowCanvasProps {
 function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [config, setConfig] = useState<WorkflowConfig | null>(null);
+  const [setConfig] = useState<WorkflowConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Parse JSON and update flow elements
