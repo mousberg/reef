@@ -4,8 +4,8 @@ import { useEffect, useState, useRef } from "react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { useSearchParams } from "next/navigation"
-import { useAuth, Message } from "../contexts/AuthContext"
-import ChatPane from "./chat/ChatPane"
+import { useAuth, Message } from "../../contexts/AuthContext"
+import ChatPane from "./ChatPane"
 import { TracesPanel } from "./TracesPanel"
 
 interface ChatInterfaceProps {
