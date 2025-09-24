@@ -39,3 +39,9 @@ export interface WorkflowEdge {
   sourceHandle?: string | null;
   targetHandle?: string | null;
 }
+
+export type WorkflowConfig = {
+  main_task: string;
+  relations: string;
+  agents: WorkflowAgent[];
+}
