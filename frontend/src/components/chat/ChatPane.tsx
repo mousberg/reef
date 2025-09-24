@@ -4,7 +4,7 @@ import { useState, forwardRef, useImperativeHandle, useRef, useEffect } from "re
 import { Square, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Message from "./Message"
-import Composer, { ComposerRef } from "../Composer"
+import Composer, { ComposerRef } from "./Composer"
 import { timeAgo } from "../../lib/utils"
 import { ToolCallRenderer, ToolResultRenderer } from "./ToolRenderer"
 
