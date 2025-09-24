@@ -118,40 +118,37 @@ const ChatPane = forwardRef<ChatPaneRef, ChatPaneProps>(function ChatPane(
     <div className="flex h-full min-h-0 flex-1 flex-col">
       {/* Fixed Header */}
       <div className="flex-shrink-0 px-4 py-6 sm:px-8 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => router.push("/projects")}
-              className="flex items-center gap-2 text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
-              title="Back to Projects"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <div className="text-3xl tracking-tight sm:text-4xl md:text-5xl">
-              <span className="block leading-[1.05] font-title text-2xl">{conversation.title}</span>
-            </div>
+        {/* Top row: Back button and Title */}
+        <div className="flex items-center gap-3 mb-3">
+          <button
+            type="button"
+            onClick={() => router.push("/projects")}
+            className="flex-shrink-0 flex items-center gap-2 text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+            title="Back to Projects"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-title leading-tight truncate">{conversation.title}</h1>
           </div>
+        </div>
+        {/* Bottom row: Updated timestamp and Traces button */}
+        <div className="flex items-center justify-between">
           <div className="text-sm text-zinc-500 dark:text-zinc-400">
             Updated {timeAgo(conversation.updatedAt)}
           </div>
-          {onToggleTraces && (
             <button
               type="button"
               onClick={onToggleTraces}
-              className="px-3 py-[6px] bg-white shadow-[0px_1px_2px_rgba(55,50,47,0.12)] hover:shadow-[0px_2px_4px_rgba(55,50,47,0.16)] overflow-hidden rounded-full flex justify-center items-center gap-2 transition-all"
+              className="flex-shrink-0 px-3 py-[6px] bg-white shadow-[0px_1px_2px_rgba(55,50,47,0.12)] hover:shadow-[0px_2px_4px_rgba(55,50,47,0.16)] overflow-hidden rounded-full flex justify-center items-center gap-2 transition-all dark:bg-zinc-800 dark:shadow-[0px_1px_2px_rgba(0,0,0,0.24)]"
             >
-              <svg className="w-4 h-4 text-[#37322F]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="w-4 h-4 text-[#37322F] dark:text-zinc-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span className="text-[#37322F] text-[13px] font-medium leading-5 font-sans">
+              <span className="text-[#37322F] dark:text-zinc-200 text-[13px] font-medium leading-5 font-sans">
                 Traces
               </span>
             </button>
-          )}
-        </div>
-        <div className="text-sm text-zinc-500 dark:text-zinc-400">
-          Updated {timeAgo(conversation.updatedAt)}
         </div>
       </div>
 
