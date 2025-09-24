@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useAuth, type Project } from "@/contexts/AuthContext"
-import { ChatInterface } from "@/components/chat-interface"
+import { ChatInterface } from "@/components/chat/chat-interface"
 import { Canvas } from "@/components/canvas"
 import { Navigation } from "@/components/navigation"
 
