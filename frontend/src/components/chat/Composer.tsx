@@ -3,7 +3,7 @@
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react"
 import { Loader2, Plus, Mic } from "lucide-react"
 import ComposerActionsPopover from "./ComposerActionsPopover"
-import { cls } from "../lib/utils"
+import { cls } from "../../lib/utils"
 
 interface ComposerProps {
   onSend?: (message: string) => Promise<void> | void
