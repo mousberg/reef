@@ -1,7 +1,7 @@
 "use client"
 import { useState, ReactNode } from "react"
 import { Paperclip, Bot, Search, Palette, BookOpen, MoreHorizontal, Globe, ChevronRight, LucideIcon } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover"
 
 interface ComposerActionsPopoverProps {
   children: ReactNode
