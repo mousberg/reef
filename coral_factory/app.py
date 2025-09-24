@@ -6,6 +6,7 @@ from typing import List
 from fastapi import BackgroundTasks
 import uvicorn
 import os
+import time
 
 from arcadepy import Arcade
 from dotenv import load_dotenv
@@ -41,6 +42,10 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     return credentials.credentials
 
 
+async def schedule_takedown():
+    """Schedule a takedown of the workflow"""
+    time.sleep(20)
+    kill_docker_containers()
 
 """
 {
@@ -91,12 +96,14 @@ async def deploy_workflow_endpoint(deploy_settings: DeploySettings, background_t
 
 
 @app.post("/results")
-async def get_results(results: Results):
+async def get_results(results: Results, background_tasks: BackgroundTasks):
     """Receive and process workflow results"""
     print("\n\nresults:\n\n")
     print(results)
     print("\n\n")
-    kill_docker_containers()
+
+
+    background_tasks.add_task(schedule_takedown)
 
     print("\n\nresults:\n\n")
     print(results)
