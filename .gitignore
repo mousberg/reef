@@ -53,7 +53,7 @@ htmlcov/
 # Cython debug symbols
 cython_debug/
 # VS Code Python settings
-.vscode/
+.vscode
 # pipenv
 Pipfile.lock
 # poetry
