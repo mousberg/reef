@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { Navigation } from "../../components/navigation"
-import { Footer } from "../../components/Footer"
+import { Navigation } from "../../components/navigation";
+import { Footer } from "../../components/Footer";
 
 export default function TermsPage() {
   return (
@@ -29,73 +29,107 @@ export default function TermsPage() {
 
                 <div className="prose prose-gray max-w-none">
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">1. Acceptance of Terms</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      1. Acceptance of Terms
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      By accessing and using Reefs (&quot;the Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. 
-                      If you do not agree to abide by the above, please do not use this service.
+                      By accessing and using Reefs (&quot;the Service&quot;),
+                      you accept and agree to be bound by the terms and
+                      provision of this agreement. If you do not agree to abide
+                      by the above, please do not use this service.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">2. Description of Service</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      2. Description of Service
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      Reefs is a platform for building, deploying, and managing AI agents. The service provides tools and infrastructure 
-                      to help users create intelligent agents through natural language interfaces.
+                      Reefs is a platform for building, deploying, and managing
+                      AI agents. The service provides tools and infrastructure
+                      to help users create intelligent agents through natural
+                      language interfaces.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">3. User Accounts</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      3. User Accounts
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      You are responsible for maintaining the confidentiality of your account and password. You agree to accept 
-                      responsibility for all activities that occur under your account or password.
+                      You are responsible for maintaining the confidentiality of
+                      your account and password. You agree to accept
+                      responsibility for all activities that occur under your
+                      account or password.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">4. Acceptable Use</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      4. Acceptable Use
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      You agree not to use the service for any unlawful purposes or to solicit others to perform such acts. 
-                      You agree not to transmit any material that is copyrighted, obscene, or otherwise objectionable.
+                      You agree not to use the service for any unlawful purposes
+                      or to solicit others to perform such acts. You agree not
+                      to transmit any material that is copyrighted, obscene, or
+                      otherwise objectionable.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">5. Intellectual Property</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      5. Intellectual Property
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      The service and its original content, features, and functionality are owned by Reefs and are protected 
-                      by international copyright, trademark, patent, trade secret, and other intellectual property laws.
+                      The service and its original content, features, and
+                      functionality are owned by Reefs and are protected by
+                      international copyright, trademark, patent, trade secret,
+                      and other intellectual property laws.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">6. Limitation of Liability</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      6. Limitation of Liability
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      In no event shall Reefs be liable for any indirect, incidental, special, consequential, or punitive damages, 
-                      including without limitation, loss of profits, data, use, goodwill, or other intangible losses.
+                      In no event shall Reefs be liable for any indirect,
+                      incidental, special, consequential, or punitive damages,
+                      including without limitation, loss of profits, data, use,
+                      goodwill, or other intangible losses.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">7. Termination</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      7. Termination
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We may terminate or suspend your account and bar access to the service immediately, without prior notice 
-                      or liability, under our sole discretion, for any reason whatsoever.
+                      We may terminate or suspend your account and bar access to
+                      the service immediately, without prior notice or
+                      liability, under our sole discretion, for any reason
+                      whatsoever.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">8. Changes to Terms</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      8. Changes to Terms
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We reserve the right to modify or replace these Terms at any time. If a revision is material, 
-                      we will provide at least 30 days notice prior to any new terms taking effect.
+                      We reserve the right to modify or replace these Terms at
+                      any time. If a revision is material, we will provide at
+                      least 30 days notice prior to any new terms taking effect.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">9. Contact Information</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      9. Contact Information
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      If you have any questions about these Terms of Service, please contact us.
+                      If you have any questions about these Terms of Service,
+                      please contact us.
                     </p>
                   </section>
                 </div>
@@ -107,5 +141,5 @@ export default function TermsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -12,7 +12,7 @@ export interface WorkflowAgent {
 
 export interface WorkflowNode {
   id: string;
-  type: 'agent' | 'start' | 'end' | 'tool';
+  type: "agent" | "start" | "end" | "tool";
   position: { x: number; y: number };
   data: {
     agent?: WorkflowAgent;
@@ -44,4 +44,4 @@ export type WorkflowConfig = {
   main_task: string;
   relations: string;
   agents: WorkflowAgent[];
-}
+};

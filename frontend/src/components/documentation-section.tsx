@@ -1,22 +1,24 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
-import DiffusionImage from "./ui/diffusion-image"
+import type React from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import DiffusionImage from "./ui/diffusion-image";
 
 export default function DocumentationSection() {
-  const { theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   // Show a placeholder until theme is mounted to prevent hydration mismatch
-  const factoryImage = mounted 
-    ? (theme === "dark" ? "/factoryDark.png" : "/factoryLight.png")
-    : "/factoryLight.png" // fallback
+  const factoryImage = mounted
+    ? theme === "dark"
+      ? "/factoryDark.png"
+      : "/factoryLight.png"
+    : "/factoryLight.png"; // fallback
 
   return (
     <div className="w-full border-b border-border/50 flex flex-col justify-center items-center">
@@ -46,7 +48,11 @@ export default function DocumentationSection() {
           {/* Left Column - Image */}
           <div className="w-full md:w-auto rounded-lg flex flex-col justify-center items-center gap-2 order-1 md:order-1 md:px-0 px-[00]">
             <div className="w-full md:w-[580px] h-[250px] md:h-[420px] bg-card shadow-[0px_0px_0px_0.9056603908538818px_rgba(0,0,0,0.08)] dark:shadow-[0px_0px_0px_0.9056603908538818px_rgba(255,255,255,0.05)] overflow-hidden rounded-lg flex flex-col justify-start items-start">
-              <DiffusionImage src={factoryImage} alt="Factory" className="w-full h-full object-cover" />
+              <DiffusionImage
+                src={factoryImage}
+                alt="Factory"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
@@ -66,5 +72,5 @@ export default function DocumentationSection() {
         </div>
       </div>
     </div>
-  )
+  );
 }

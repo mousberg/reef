@@ -1,60 +1,72 @@
-"use client"
+"use client";
 
-import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react"
-import { Loader2, Plus, Mic } from "lucide-react"
-import ComposerActionsPopover from "./ComposerActionsPopover"
-import { cls } from "../../lib/utils"
+import {
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+} from "react";
+import { Loader2, Plus, Mic } from "lucide-react";
+import ComposerActionsPopover from "./ComposerActionsPopover";
+import { cls } from "../../lib/utils";
 
 interface ComposerProps {
-  onSend?: (message: string) => Promise<void> | void
-  busy?: boolean
+  onSend?: (message: string) => Promise<void> | void;
+  busy?: boolean;
 }
 
 export interface ComposerRef {
-  insertTemplate: (templateContent: string) => void
-  focus: () => void
+  insertTemplate: (templateContent: string) => void;
+  focus: () => void;
 }
 
-const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSend, busy }, ref) {
-  const [value, setValue] = useState("")
-  const [sending, setSending] = useState(false)
-  const [lineCount, setLineCount] = useState(1)
-  const [pendingMessage, setPendingMessage] = useState("")
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer(
+  { onSend, busy },
+  ref,
+) {
+  const [value, setValue] = useState("");
+  const [sending, setSending] = useState(false);
+  const [lineCount, setLineCount] = useState(1);
+  const [pendingMessage, setPendingMessage] = useState("");
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea based on content with max height limit
   useEffect(() => {
     if (inputRef.current) {
-      const textarea = inputRef.current
-      const lineHeight = 20 // Approximate line height in pixels
-      const minHeight = 40
+      const textarea = inputRef.current;
+      const lineHeight = 20; // Approximate line height in pixels
+      const minHeight = 40;
 
       // Reset height to calculate scroll height
-      textarea.style.height = "auto"
-      const scrollHeight = textarea.scrollHeight
-      const calculatedLines = Math.max(1, Math.floor((scrollHeight - 16) / lineHeight)) // 16px for padding
+      textarea.style.height = "auto";
+      const scrollHeight = textarea.scrollHeight;
+      const calculatedLines = Math.max(
+        1,
+        Math.floor((scrollHeight - 16) / lineHeight),
+      ); // 16px for padding
 
-      setLineCount(calculatedLines)
+      setLineCount(calculatedLines);
 
       if (calculatedLines <= 12) {
         // Auto-expand for 1-12 lines
-        textarea.style.height = `${Math.max(minHeight, scrollHeight)}px`
-        textarea.style.overflowY = "hidden"
+        textarea.style.height = `${Math.max(minHeight, scrollHeight)}px`;
+        textarea.style.overflowY = "hidden";
       } else {
         // Fixed height with scroll for 12+ lines
-        textarea.style.height = `${minHeight + 11 * lineHeight}px` // 12 lines total
-        textarea.style.overflowY = "auto"
+        textarea.style.height = `${minHeight + 11 * lineHeight}px`; // 12 lines total
+        textarea.style.overflowY = "auto";
       }
     }
-  }, [value])
+  }, [value]);
 
   // Handle busy state changes - restore message when no longer busy
   useEffect(() => {
     if (!busy && !sending && pendingMessage && !value) {
-      setValue(pendingMessage)
-      setPendingMessage("")
+      setValue(pendingMessage);
+      setPendingMessage("");
     }
-  }, [busy, sending, pendingMessage, value])
+  }, [busy, sending, pendingMessage, value]);
 
   // Expose methods to parent component via ref
   useImperativeHandle(
@@ -63,40 +75,42 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
       // Insert template content into composer, maintaining existing text
       insertTemplate: (templateContent: string) => {
         setValue((prev) => {
-          const newValue = prev ? `${prev}\n\n${templateContent}` : templateContent
+          const newValue = prev
+            ? `${prev}\n\n${templateContent}`
+            : templateContent;
           // Focus and position cursor at end after state update
           setTimeout(() => {
-            inputRef.current?.focus()
-            const length = newValue.length
-            inputRef.current?.setSelectionRange(length, length)
-          }, 0)
-          return newValue
-        })
+            inputRef.current?.focus();
+            const length = newValue.length;
+            inputRef.current?.setSelectionRange(length, length);
+          }, 0);
+          return newValue;
+        });
       },
       // Focus the input field
       focus: () => {
-        inputRef.current?.focus()
+        inputRef.current?.focus();
       },
     }),
     [],
-  )
+  );
 
   // Handle sending message with validation and cleanup
   async function handleSend() {
-    if (!value.trim() || sending) return
-    setSending(true)
-    const messageToSend = value.trim()
+    if (!value.trim() || sending) return;
+    setSending(true);
+    const messageToSend = value.trim();
 
     // Store message and clear input immediately when sending
-    setPendingMessage(messageToSend)
-    setValue("")
+    setPendingMessage(messageToSend);
+    setValue("");
 
     try {
-      await onSend?.(messageToSend)
-      setPendingMessage("") // Clear pending message after successful send
-      inputRef.current?.focus() // Keep focus for continuous typing
+      await onSend?.(messageToSend);
+      setPendingMessage(""); // Clear pending message after successful send
+      inputRef.current?.focus(); // Keep focus for continuous typing
     } finally {
-      setSending(false)
+      setSending(false);
     }
   }
 
@@ -139,8 +153,8 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSend()
+                  e.preventDefault();
+                  handleSend();
                 }
               }}
             />
@@ -156,13 +170,21 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
               disabled={sending || busy || !value.trim()}
               className={cls(
                 "inline-flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-black text-white shadow-sm transition hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-                (sending || busy || !value.trim()) && "opacity-50 cursor-not-allowed",
+                (sending || busy || !value.trim()) &&
+                  "opacity-50 cursor-not-allowed",
               )}
             >
               {sending || busy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="icon"
+                >
                   <path d="M8.99992 16V6.41407L5.70696 9.70704C5.31643 10.0976 4.68342 10.0976 4.29289 9.70704C3.90237 9.31652 3.90237 8.6835 4.29289 8.29298L9.29289 3.29298L9.36907 3.22462C9.76184 2.90427 10.3408 2.92686 10.707 3.29298L15.707 8.29298L15.7753 8.36915C16.0957 8.76192 16.0731 9.34092 15.707 9.70704C15.3408 10.0732 14.7618 10.0958 14.3691 9.7754L14.2929 9.70704L10.9999 6.41407V16C10.9999 16.5523 10.5522 17 9.99992 17C9.44764 17 8.99992 16.5523 8.99992 16Z"></path>
                 </svg>
               )}
@@ -171,7 +193,7 @@ const Composer = forwardRef<ComposerRef, ComposerProps>(function Composer({ onSe
         </div>
       </div>
     </div>
-  )
-})
+  );
+});
 
-export default Composer
+export default Composer;

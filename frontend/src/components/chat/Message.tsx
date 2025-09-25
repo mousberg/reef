@@ -1,15 +1,17 @@
-import { cls } from "../../lib/utils"
-import { ReactNode } from "react"
+import { cls } from "../../lib/utils";
+import { ReactNode } from "react";
 
 interface MessageProps {
-  role: "user" | "assistant"
-  children: ReactNode
+  role: "user" | "assistant";
+  children: ReactNode;
 }
 
 export default function Message({ role, children }: MessageProps) {
-  const isUser = role === "user"
+  const isUser = role === "user";
   return (
-    <div className={cls("flex gap-3", isUser ? "justify-end" : "justify-start")}>
+    <div
+      className={cls("flex gap-3", isUser ? "justify-end" : "justify-start")}
+    >
       <div
         className={cls(
           "max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm",
@@ -21,5 +23,5 @@ export default function Message({ role, children }: MessageProps) {
         {children}
       </div>
     </div>
-  )
+  );
 }

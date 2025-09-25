@@ -1,5 +1,5 @@
-import { WorkflowConfig, WorkflowNode } from '@/types/workflow';
-import { Edge, MarkerType } from 'reactflow';
+import { WorkflowConfig, WorkflowNode } from "@/types/workflow";
+import { Edge, MarkerType } from "reactflow";
 
 export function parseWorkflowJson(jsonContent: string): WorkflowConfig {
   try {
@@ -24,17 +24,17 @@ export function convertToReactFlowElements(config: WorkflowConfig): {
   const agentNodes: WorkflowNode[] = agents.map((agent, index) => {
     return {
       id: agent.name,
-      type: 'agent',
+      type: "agent",
       position: {
         x: index * spacing,
-        y: yPosition
+        y: yPosition,
       },
       data: {
         agent,
         agentName: agent.name,
         isFirst: index === 0, // First agent in the array
-        isLast: index === agents.length - 1 // Last agent in the array
-      }
+        isLast: index === agents.length - 1, // Last agent in the array
+      },
     };
   });
 
@@ -53,19 +53,19 @@ export function convertToReactFlowElements(config: WorkflowConfig): {
       id: `${currentAgent.name}-${nextAgent.name}`,
       source: currentAgent.name,
       target: nextAgent.name,
-      type: 'smoothstep',
+      type: "smoothstep",
       animated: true,
       style: {
-        stroke: '#4f46e5',
+        stroke: "#4f46e5",
         strokeWidth: 3,
-        strokeLinecap: 'round'
+        strokeLinecap: "round",
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        color: '#4f46e5',
+        color: "#4f46e5",
         width: 24,
-        height: 24
-      }
+        height: 24,
+      },
     });
   }
 

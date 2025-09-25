@@ -19,11 +19,13 @@ The frontend for Reef - an AI agent workflow platform that enables users to buil
 ## Environment Setup
 
 1. Copy the environment example file:
+
    ```bash
    cp env_example .env.local
    ```
 
 2. Configure your environment variables in `.env.local`:
+
    ```bash
    # Firebase Client Configuration
    NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
@@ -41,6 +43,7 @@ The frontend for Reef - an AI agent workflow platform that enables users to buil
 ## Getting Started
 
 1. Install dependencies:
+
    ```bash
    npm install
    # or
@@ -50,6 +53,7 @@ The frontend for Reef - an AI agent workflow platform that enables users to buil
 2. Set up your environment variables (see Environment Setup above)
 
 3. Run the development server:
+
    ```bash
    npm run dev
    # or
@@ -70,6 +74,7 @@ The frontend for Reef - an AI agent workflow platform that enables users to buil
 ### Adding Components
 
 Add new shadcn/ui components:
+
 ```bash
 npx shadcn@latest add [component-name]
 ```
@@ -101,6 +106,7 @@ bun run build
 ### Environment Variables for Production
 
 Ensure all environment variables are properly set in your production environment:
+
 - Firebase configuration
 - OpenAI API key
 - Mistral API key (optional)

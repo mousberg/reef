@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -9,12 +9,15 @@ import ReactFlow, {
   addEdge,
   Connection,
   BackgroundVariant,
-  ReactFlowProvider
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+  ReactFlowProvider,
+} from "reactflow";
+import "reactflow/dist/style.css";
 
-import { AgentNode } from './agent-node';
-import { parseWorkflowJson, convertToReactFlowElements } from '@/lib/workflow-parser';
+import { AgentNode } from "./agent-node";
+import {
+  parseWorkflowJson,
+  convertToReactFlowElements,
+} from "@/lib/workflow-parser";
 
 const nodeTypes = {
   agent: AgentNode,
@@ -30,20 +33,26 @@ function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Parse JSON and update flow elements
-  const updateWorkflow = useCallback((json: string) => {
-    try {
-      const parsedConfig = parseWorkflowJson(json);
-      const { nodes: newNodes, edges: newEdges } = convertToReactFlowElements(parsedConfig);
+  const updateWorkflow = useCallback(
+    (json: string) => {
+      try {
+        const parsedConfig = parseWorkflowJson(json);
+        const { nodes: newNodes, edges: newEdges } =
+          convertToReactFlowElements(parsedConfig);
 
-      setNodes(newNodes);
-      setEdges(newEdges);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to parse workflow');
-      setNodes([]);
-      setEdges([]);
-    }
-  }, [setNodes, setEdges]);
+        setNodes(newNodes);
+        setEdges(newEdges);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to parse workflow",
+        );
+        setNodes([]);
+        setEdges([]);
+      }
+    },
+    [setNodes, setEdges],
+  );
 
   // Update workflow when jsonContent changes
   useEffect(() => {
@@ -54,14 +63,16 @@ function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
+    [setEdges],
   );
 
   if (error) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">
-          <div className="text-red-500 text-sm font-medium mb-2">Error parsing workflow</div>
+          <div className="text-red-500 text-sm font-medium mb-2">
+            Error parsing workflow
+          </div>
           <div className="text-red-400 text-xs">{error}</div>
         </div>
       </div>
@@ -71,7 +82,10 @@ function WorkflowCanvasInner({ jsonContent }: WorkflowCanvasProps) {
   // Always render the canvas, even when empty
 
   return (
-    <div className="flex-1 relative" style={{ minHeight: '500px', height: '100%' }}>
+    <div
+      className="flex-1 relative"
+      style={{ minHeight: "500px", height: "100%" }}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,40 +10,40 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "./alert-dialog"
-import { Input } from "./input"
+} from "./alert-dialog";
+import { Input } from "./input";
 
 interface RunQueryAlertDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (query: string) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (query: string) => void;
 }
 
 export function RunQueryAlertDialog({
   open,
   onOpenChange,
-  onSubmit
+  onSubmit,
 }: RunQueryAlertDialogProps) {
-  const [query, setQuery] = React.useState("")
+  const [query, setQuery] = React.useState("");
 
   const handleSubmit = () => {
     if (query.trim()) {
-      onSubmit(query.trim())
-      setQuery("")
-      onOpenChange(false)
+      onSubmit(query.trim());
+      setQuery("");
+      onOpenChange(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setQuery("")
-    onOpenChange(false)
-  }
+    setQuery("");
+    onOpenChange(false);
+  };
 
   React.useEffect(() => {
     if (open) {
-      setQuery("")
+      setQuery("");
     }
-  }, [open])
+  }, [open]);
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -62,16 +62,14 @@ export function RunQueryAlertDialog({
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && query.trim()) {
-                handleSubmit()
+              if (e.key === "Enter" && query.trim()) {
+                handleSubmit();
               }
             }}
           />
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleSubmit}
             disabled={!query.trim()}
@@ -82,5 +80,5 @@ export function RunQueryAlertDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

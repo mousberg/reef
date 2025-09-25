@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
-import { Navigation } from "../components/navigation"
-import { LandingHero } from "../components/landing-hero"
-import DocumentationSection from "../components/documentation-section"
-import SocialProofSection from "../components/social-proof-section"
+import { useEffect, useRef } from "react";
+import { Navigation } from "../components/navigation";
+import { LandingHero } from "../components/landing-hero";
+import DocumentationSection from "../components/documentation-section";
+import SocialProofSection from "../components/social-proof-section";
 // import TestimonialsSection from "../components/testimonials-section"
-import FAQSection from "../components/faq-section"
-import CTASection from "../components/cta-section"
-import { Footer } from "../components/Footer"
+import FAQSection from "../components/faq-section";
+import CTASection from "../components/cta-section";
+import { Footer } from "../components/Footer";
 
 export default function LandingPage() {
-  const mountedRef = useRef(true)
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
+      mountedRef.current = false;
+    };
+  }, []);
 
   return (
     <div className="w-full min-h-screen relative bg-background overflow-x-hidden flex flex-col justify-start items-center max-w-[100vw]">
@@ -36,14 +36,18 @@ export default function LandingPage() {
             <FAQSection />
             <CTASection />
           </div>
-          
+
           <Footer />
         </div>
       </div>
-      
+
       {/* ElevenLabs AI Assistant Widget */}
       <elevenlabs-convai agent-id="agent_3101k5p8y1r2e25bn1bb4rjpx932"></elevenlabs-convai>
-      <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+      <script
+        src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+        async
+        type="text/javascript"
+      ></script>
     </div>
-  )
+  );
 }

@@ -1,12 +1,25 @@
-import { Handle, Position } from 'reactflow';
-import { WorkflowAgent } from '@/types/workflow';
-import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
-import Image from 'next/image';
+import { Handle, Position } from "reactflow";
+import { WorkflowAgent } from "@/types/workflow";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import Image from "next/image";
 import {
-  Wrench, Database, Search, FileText, MessageSquare, Code, Globe, Settings,
-  ChevronDown, ChevronRight, Sparkles, ArrowRight, Zap, Calendar, Mail
-} from 'lucide-react';
+  Wrench,
+  Database,
+  Search,
+  FileText,
+  MessageSquare,
+  Code,
+  Globe,
+  Settings,
+  ChevronDown,
+  ChevronRight,
+  Sparkles,
+  ArrowRight,
+  Zap,
+  Calendar,
+  Mail,
+} from "lucide-react";
 
 interface AgentNodeProps {
   data: {
@@ -23,15 +36,15 @@ const getToolLogo = (tool: string) => {
 
   // Map specific services to their logos
   const logoMap: { [key: string]: string } = {
-    'slack': '/icons/slack.svg',
-    'github': '/icons/github.svg',
-    'jira': '/icons/jira.svg',
-    'notion': '/icons/notion.svg',
-    'databricks': '/icons/databricks.svg',
-    'calendar': '/icons/calendar.svg',
-    'email': '/icons/email.svg',
-    'contacts': '/icons/contacts.svg',
-    'linkedin': '/icons/linkedin.svg',
+    slack: "/icons/slack.svg",
+    github: "/icons/github.svg",
+    jira: "/icons/jira.svg",
+    notion: "/icons/notion.svg",
+    databricks: "/icons/databricks.svg",
+    calendar: "/icons/calendar.svg",
+    email: "/icons/email.svg",
+    contacts: "/icons/contacts.svg",
+    linkedin: "/icons/linkedin.svg",
   };
 
   // Check for exact matches first
@@ -45,7 +58,13 @@ const getToolLogo = (tool: string) => {
 };
 
 // Component for rendering tool icons
-const ToolIcon = ({ tool, className }: { tool: string; className?: string }) => {
+const ToolIcon = ({
+  tool,
+  className,
+}: {
+  tool: string;
+  className?: string;
+}) => {
   const logoPath = getToolLogo(tool);
 
   if (logoPath) {
@@ -64,37 +83,48 @@ const ToolIcon = ({ tool, className }: { tool: string; className?: string }) => 
   const toolLower = tool.toLowerCase();
   let IconComponent = Wrench; // default
 
-  if (toolLower.includes('search') || toolLower.includes('web')) IconComponent = Search;
-  else if (toolLower.includes('database') || toolLower.includes('sql')) IconComponent = Database;
-  else if (toolLower.includes('file') || toolLower.includes('document')) IconComponent = FileText;
-  else if (toolLower.includes('message') || toolLower.includes('chat')) IconComponent = MessageSquare;
-  else if (toolLower.includes('code') || toolLower.includes('script')) IconComponent = Code;
-  else if (toolLower.includes('api') || toolLower.includes('http')) IconComponent = Globe;
-  else if (toolLower.includes('config') || toolLower.includes('setting')) IconComponent = Settings;
-  else if (toolLower.includes('calendar') || toolLower.includes('schedule')) IconComponent = Calendar;
-  else if (toolLower.includes('email') || toolLower.includes('mail')) IconComponent = Mail;
+  if (toolLower.includes("search") || toolLower.includes("web"))
+    IconComponent = Search;
+  else if (toolLower.includes("database") || toolLower.includes("sql"))
+    IconComponent = Database;
+  else if (toolLower.includes("file") || toolLower.includes("document"))
+    IconComponent = FileText;
+  else if (toolLower.includes("message") || toolLower.includes("chat"))
+    IconComponent = MessageSquare;
+  else if (toolLower.includes("code") || toolLower.includes("script"))
+    IconComponent = Code;
+  else if (toolLower.includes("api") || toolLower.includes("http"))
+    IconComponent = Globe;
+  else if (toolLower.includes("config") || toolLower.includes("setting"))
+    IconComponent = Settings;
+  else if (toolLower.includes("calendar") || toolLower.includes("schedule"))
+    IconComponent = Calendar;
+  else if (toolLower.includes("email") || toolLower.includes("mail"))
+    IconComponent = Mail;
 
   return <IconComponent className={className} />;
 };
 
 const getNodeColors = (isFirst: boolean, isLast: boolean) => {
-  if (isFirst) return {
-    border: 'border-emerald-200',
-    bg: 'bg-white',
-    accent: 'text-emerald-600',
-    topBar: 'bg-emerald-500'
-  };
-  if (isLast) return {
-    border: 'border-rose-200',
-    bg: 'bg-white',
-    accent: 'text-rose-600',
-    topBar: 'bg-rose-500'
-  };
+  if (isFirst)
+    return {
+      border: "border-emerald-200",
+      bg: "bg-white",
+      accent: "text-emerald-600",
+      topBar: "bg-emerald-500",
+    };
+  if (isLast)
+    return {
+      border: "border-rose-200",
+      bg: "bg-white",
+      accent: "text-rose-600",
+      topBar: "bg-rose-500",
+    };
   return {
-    border: 'border-slate-200',
-    bg: 'bg-white',
-    accent: 'text-slate-600',
-    topBar: 'bg-slate-400'
+    border: "border-slate-200",
+    bg: "bg-white",
+    accent: "text-slate-600",
+    topBar: "bg-slate-400",
   };
 };
 
@@ -112,7 +142,7 @@ export function AgentNode({ data }: AgentNodeProps) {
         w-[260px] backdrop-blur-sm
         ${colors.border} ${colors.bg}
         hover:scale-[1.02] hover:-translate-y-0.5
-        ${isExpanded ? 'ring-2 ring-blue-300/50 shadow-2xl' : ''}
+        ${isExpanded ? "ring-2 ring-blue-300/50 shadow-2xl" : ""}
         group overflow-hidden
       `}
       onClick={() => setIsExpanded(!isExpanded)}
@@ -140,7 +170,9 @@ export function AgentNode({ data }: AgentNodeProps) {
               <div className="p-1.5 bg-white rounded-lg shadow-sm border border-slate-200/60">
                 <Zap className={`w-3.5 h-3.5 ${colors.accent}`} />
               </div>
-              <h3 className="font-semibold text-sm text-slate-900 truncate">{agent.name}</h3>
+              <h3 className="font-semibold text-sm text-slate-900 truncate">
+                {agent.name}
+              </h3>
             </div>
 
             {/* Status badges */}
@@ -222,9 +254,13 @@ export function AgentNode({ data }: AgentNodeProps) {
             <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                <span className="text-xs font-semibold text-slate-700">Instructions</span>
+                <span className="text-xs font-semibold text-slate-700">
+                  Instructions
+                </span>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">{agent.instructions}</p>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                {agent.instructions}
+              </p>
             </div>
 
             {/* Input/Output Flow */}
@@ -232,16 +268,24 @@ export function AgentNode({ data }: AgentNodeProps) {
               <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
                 <ArrowRight className="w-3 h-3 text-slate-600 mt-0.5 flex-shrink-0" />
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-slate-700 block mb-1">Input</span>
-                  <p className="text-xs text-slate-600 leading-relaxed">{agent.expected_input}</p>
+                  <span className="text-xs font-semibold text-slate-700 block mb-1">
+                    Input
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {agent.expected_input}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
                 <ArrowRight className="w-3 h-3 text-slate-600 mt-0.5 flex-shrink-0" />
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-slate-700 block mb-1">Output</span>
-                  <p className="text-xs text-slate-600 leading-relaxed">{agent.expected_output}</p>
+                  <span className="text-xs font-semibold text-slate-700 block mb-1">
+                    Output
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {agent.expected_output}
+                  </p>
                 </div>
               </div>
             </div>
@@ -251,14 +295,24 @@ export function AgentNode({ data }: AgentNodeProps) {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                  <span className="text-xs font-semibold text-slate-700">All Tools</span>
+                  <span className="text-xs font-semibold text-slate-700">
+                    All Tools
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 gap-1.5">
                   {agent.tools.map((tool, index) => {
                     return (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200/60 shadow-sm">
-                        <ToolIcon tool={tool} className="w-3 h-3 text-slate-600 flex-shrink-0" />
-                        <span className="text-xs text-slate-700 truncate font-medium">{tool}</span>
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200/60 shadow-sm"
+                      >
+                        <ToolIcon
+                          tool={tool}
+                          className="w-3 h-3 text-slate-600 flex-shrink-0"
+                        />
+                        <span className="text-xs text-slate-700 truncate font-medium">
+                          {tool}
+                        </span>
                       </div>
                     );
                   })}
@@ -271,11 +325,16 @@ export function AgentNode({ data }: AgentNodeProps) {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
-                  <span className="text-xs font-semibold text-slate-700">Connections</span>
+                  <span className="text-xs font-semibold text-slate-700">
+                    Connections
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {agent.connected_agents.map((connectedAgent, index) => (
-                    <Badge key={index} className="text-xs border-slate-200 text-slate-700 bg-slate-50 shadow-sm">
+                    <Badge
+                      key={index}
+                      className="text-xs border-slate-200 text-slate-700 bg-slate-50 shadow-sm"
+                    >
                       {connectedAgent}
                     </Badge>
                   ))}

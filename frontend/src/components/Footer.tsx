@@ -1,7 +1,7 @@
-import Link from "next/link"
+import Link from "next/link";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="w-full bg-background mt-auto">
@@ -10,21 +10,21 @@ export function Footer() {
           <div className="text-muted-foreground text-sm font-medium leading-5 font-sans">
             {currentYear} Reef. All rights reserved.
           </div>
-          
+
           <div className="flex items-center space-x-6">
-            <Link 
+            <Link
               href="/"
               className="text-foreground text-sm font-medium leading-5 font-sans hover:opacity-70 transition-opacity"
             >
               Home
             </Link>
-            <Link 
+            <Link
               href="/privacy"
               className="text-foreground text-sm font-medium leading-5 font-sans hover:opacity-70 transition-opacity"
             >
               Privacy
             </Link>
-            <Link 
+            <Link
               href="/terms"
               className="text-foreground text-sm font-medium leading-5 font-sans hover:opacity-70 transition-opacity"
             >
@@ -34,5 +34,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

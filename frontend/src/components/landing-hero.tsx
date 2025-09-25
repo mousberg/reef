@@ -1,4 +1,4 @@
-import { AIInputSection } from "./ai-input-section"
+import { AIInputSection } from "./ai-input-section";
 
 export function LandingHero() {
   return (
@@ -11,7 +11,8 @@ export function LandingHero() {
           <div className="w-full max-w-[506.08px] lg:w-[506.08px] text-center flex justify-center flex-col text-muted-foreground sm:text-lg md:text-xl leading-[1.4] sm:leading-[1.45] md:leading-[1.5] lg:leading-7 font-sans px-2 sm:px-4 md:px-0 lg:text-lg font-medium text-sm">
             Build, deploy, and manage AI agents effortlessly.
             <br className="hidden sm:block" />
-            The natural language platform for creating intelligent agents that users love.
+            The natural language platform for creating intelligent agents that
+            users love.
           </div>
         </div>
       </div>
@@ -20,7 +21,6 @@ export function LandingHero() {
       <div className="w-full max-w-[960px] lg:w-[960px] flex flex-col justify-center items-center relative z-10 mt-10 sm:mt-14 md:mt-18 lg:mt-24">
         <AIInputSection />
       </div>
-
     </div>
-  )
+  );
 }

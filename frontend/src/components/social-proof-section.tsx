@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
 const logoData = [
   { icon: "/icons/calendar.svg", name: "Calendar" },
@@ -10,8 +10,8 @@ const logoData = [
   { icon: "/icons/github.svg", name: "GitHub" },
   { icon: "/icons/jira.svg", name: "Jira" },
   { icon: "/icons/notion.svg", name: "Notion" },
-  { icon: "/icons/slack.svg", name: "Slack" }
-]
+  { icon: "/icons/slack.svg", name: "Slack" },
+];
 
 export default function SocialProofSection() {
   return (
@@ -22,7 +22,8 @@ export default function SocialProofSection() {
             Integrate with existing tools
           </div>
           <div className="self-stretch text-center text-[#605A57] dark:text-zinc-400 text-sm sm:text-base font-normal leading-6 sm:leading-7 font-sans">
-            Feel the power of AI agents by integrating them with the tools you love
+            Feel the power of AI agents by integrating them with the tools you
+            love
           </div>
         </div>
       </div>
@@ -44,11 +45,11 @@ export default function SocialProofSection() {
         <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-0">
           {/* Logo Grid - Responsive grid */}
           {logoData.map((logo, index) => {
-            const isMobileFirstColumn = index % 2 === 0
-            const isDesktopFirstColumn = index % 4 === 0
-            const isDesktopLastColumn = index % 4 === 3
-            const isDesktopTopRow = index < 4
-            const isDesktopBottomRow = index >= 4
+            const isMobileFirstColumn = index % 2 === 0;
+            const isDesktopFirstColumn = index % 4 === 0;
+            const isDesktopLastColumn = index % 4 === 3;
+            const isDesktopTopRow = index < 4;
+            const isDesktopBottomRow = index >= 4;
 
             return (
               <div
@@ -68,10 +69,14 @@ export default function SocialProofSection() {
                 `}
               >
                 <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10">
-                  <img src={logo.icon} alt={logo.name} className="w-full h-full object-contain brightness-0 dark:brightness-100 dark:invert" />
+                  <img
+                    src={logo.icon}
+                    alt={logo.name}
+                    className="w-full h-full object-contain brightness-0 dark:brightness-100 dark:invert"
+                  />
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
@@ -88,5 +93,5 @@ export default function SocialProofSection() {
         </div>
       </div>
     </div>
-  )
+  );
 }
