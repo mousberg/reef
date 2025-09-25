@@ -1,1 +1,0 @@
-Orchestrator coordinates SlackReader -> EmailSender; SlackReader outputs message events to EmailSender via the orchestrator.

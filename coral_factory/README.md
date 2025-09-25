@@ -39,15 +39,23 @@ sudo systemctl enable docker
 ```
 
 ## SEND
-rsync -avz /Users/floris.fok/Library/CloudStorage/OneDrive-Prosus-Naspers/Documents/agents/reef/coral_factory floris@204.12.168.160:/home/floris/reef
-
+rsync -avz local_path remote:remote_path
 
 ## BUILD AND RUN
-""" requirements.txt
+```bash
+# ENV
+EXPORT FIREBASE_PROJECT_ID = ""
+EXPORT FIREBASE_SERVICE_ACCOUNT_PATH = ""
+EXPORT ARCADE_API_KEY= ""
+EXPORT OPENAI_API_KEY= ""
+
+# VENV
 python3 -m venv venv
 source venv/bin/activate
-pip install fastapi uvicorn pydantic python-dotenv pyyaml toml
+pip install -r requirements.txt
+
+# RUN
 uvicorn app:app --host 0.0.0.0 --port 8001
-"""
+```
 
 

@@ -2,34 +2,39 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
-from typing import List
-from fastapi import BackgroundTasks
-import uvicorn
-import os
-import time
-
 from arcadepy import Arcade
 from dotenv import load_dotenv
-load_dotenv()
+import uvicorn
 import os
+import uuid
 
-from factory.from_json import from_workflow_config, WorkflowConfig
-from hosting.main import deploy_workflow as deploy_workflow_local
-from hosting.main import kill_docker_containers
+from factory.builder import WorkflowConfig
+from factory.runner import WorkflowRunner
 
 # Authentication configuration
-# Set environment variable CORAL_FACTORY_BEARER_TOKEN to change the token
-# Usage: Include "Authorization: Bearer <token>" header in all API requests
-# Default token for development: "coral-bearer-token-2024"
-BEARER_TOKEN = os.getenv("CORAL_FACTORY_BEARER_TOKEN", "coral-bearer-token-2024")
+load_dotenv()
+BEARER_TOKEN = os.getenv("FACTORY_BEARER_TOKEN", "bearer-token-2024")
 
+# FastAPI app
 app = FastAPI(
-    title="Coral Factory API", 
+    title="Factory API", 
     description="API for creating and deploying AI agent workflows with Bearer token authentication"
 )
 
 # Security scheme
 security = HTTPBearer()
+
+# Track running workflows
+running_workflows = {}
+
+class RunWorkflowRequest(BaseModel):
+    workflow_config: WorkflowConfig
+    user_id: str
+    user_task: str
+
+class RunWorkflowResponse(BaseModel):
+    success: bool
+    trace_id: str
 
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Verify the bearer token"""
@@ -42,74 +47,52 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     return credentials.credentials
 
 
-async def schedule_takedown():
-    """Schedule a takedown of the workflow"""
-    time.sleep(20)
-    kill_docker_containers()
-
-"""
-{
-  "main_task": "<string: the main task to be achieved>",
-  "relations": "<string: describe the relations between the agents and how they interact with each other>",
-  "agents": {
-    "<agent_name>": {
-      "name": "<string: the name of the agent>",
-      "task": "<string: the task to be achieved>",
-      "instructions": "<string: order of tools to use>",
-      "connected_agents": ["<agent_name>"],
-      "expected_input": "<string: what this agent needs to receive>",
-      "expected_output": "<string: what this agent needs to output>",
-      "receives_from_user": false,
-      "sends_to_user": false,
-      "tools": ["<tool_name>"]
-    }
-  }
-}
-"""
-
-class DeploySettings(BaseModel):
-    workflow_name: str
-    deploy_type: str = "local"
-    user_id: str
-    query: str
-
-class Results(BaseModel):
-    query: str
-    result: str
-
-
-@app.post("/create/workflow/{user_id}")
-async def create_workflow(workflow_config: WorkflowConfig, user_id: str, token: str = Depends(verify_token)):
-    """Create a new workflow configuration"""
-    # ONLY do me
-    from_workflow_config(workflow_config, user_id)
+@app.post("/verify/workflow")
+async def verify_workflow(workflow_config: WorkflowConfig, token: str = Depends(verify_token)):
+    """Verify a workflow configuration"""
+    print("workflow_config:\n\n")
+    print(workflow_config)
+    print("\n\n")
     return JSONResponse(content={"success": True})
 
-@app.post("/deploy/workflow")
-async def deploy_workflow_endpoint(deploy_settings: DeploySettings, background_tasks: BackgroundTasks, token: str = Depends(verify_token)):
+@app.post("/run/workflow/local", response_model=RunWorkflowResponse)
+async def run_workflow(run_workflow_request: RunWorkflowRequest, token: str = Depends(verify_token)):
     """Deploy a workflow with the specified settings"""
-    if deploy_settings.deploy_type == "local":
-        background_tasks.add_task(deploy_workflow_local, query=deploy_settings.query, user_id=deploy_settings.user_id)
-    else:
-        raise HTTPException(status_code=400, detail="Invalid deploy type")
-    return JSONResponse(content={"success": True})
+    global running_workflows
+    trace_id = str(uuid.uuid4())
 
+    runner = WorkflowRunner(
+        workflow_config=run_workflow_request.workflow_config,
+        user_id=run_workflow_request.user_id,
+        user_task=run_workflow_request.user_task,
+        trace_id=trace_id
+    )
+    runner.start()
+    running_workflows[trace_id] = runner
 
-@app.post("/results")
-async def get_results(results: Results, background_tasks: BackgroundTasks):
-    """Receive and process workflow results"""
-    print("\n\nresults:\n\n")
-    print(results)
-    print("\n\n")
+    return JSONResponse(content={"success": True, "trace_id": trace_id})
 
+@app.get("/workflow/status/{trace_id}")
+async def get_workflow_status(trace_id: str):
+    """Get the status of a workflow"""
+    if trace_id not in running_workflows:
+        return JSONResponse(content={"success": False, "trace_id": trace_id, "status": "not_found"})
+    return JSONResponse(content={"success": True, "trace_id": trace_id, "status": running_workflows[trace_id].status})
 
-    background_tasks.add_task(schedule_takedown)
+@app.get("/workflow/result/{trace_id}")
+async def get_workflow_result(trace_id: str):
+    """Get the result of a workflow"""
 
-    print("\n\nresults:\n\n")
-    print(results)
-    print("\n\n")
+    if trace_id not in running_workflows:
+        return JSONResponse(content={"success": False, "trace_id": trace_id, "status": "not_found"})
+    
+    if running_workflows[trace_id].status in ['pending', 'running']:
+        return JSONResponse(content={"success": False, "trace_id": trace_id, "status": "not_completed"})
 
-    return JSONResponse(content={"success": True})
+    result = running_workflows[trace_id].result
+    del running_workflows[trace_id]
+
+    return JSONResponse(content={"success": True, "trace_id": trace_id, "result": result})
 
 @app.get("/health")
 async def health_check():
