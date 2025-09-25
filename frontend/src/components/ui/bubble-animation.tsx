@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
 interface Bubble {
-  id: number
-  left: number
-  size: number
-  duration: number
-  delay: number
-  bubbleType: number
+  id: number;
+  left: number;
+  size: number;
+  duration: number;
+  delay: number;
+  bubbleType: number;
 }
 
 export function BubbleAnimation() {
-  const [bubbles, setBubbles] = useState<Bubble[]>([])
-  
-  const bubbleImages = ["/bubbles-1.svg", "/bubbles-2.svg", "/bubbles-3.svg"]
-  
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+
+  const bubbleImages = ["/bubbles-1.svg", "/bubbles-2.svg", "/bubbles-3.svg"];
+
   useEffect(() => {
     // Initial bubbles
-    const initialBubbles: Bubble[] = []
+    const initialBubbles: Bubble[] = [];
     for (let i = 0; i < 7; i++) {
       initialBubbles.push({
         id: i,
@@ -27,25 +27,28 @@ export function BubbleAnimation() {
         duration: Math.random() * 20 + 20, // 20-40s
         delay: Math.random() * 20, // 0-20s delay
         bubbleType: Math.floor(Math.random() * 3), // 0, 1, or 2
-      })
+      });
     }
-    setBubbles(initialBubbles)
-    
+    setBubbles(initialBubbles);
+
     // Add new bubbles over time
-    let id = 7
+    let id = 7;
     const interval = setInterval(() => {
-      setBubbles(prev => [...prev, {
-        id: id++,
-        left: Math.random() * 95 + 2.5,
-        size: Math.random() * 30 + 20,
-        duration: Math.random() * 20 + 20,
-        delay: 0, // New bubbles start immediately
-        bubbleType: Math.floor(Math.random() * 3),
-      }])
-    }, 2000) // New bubble every 2 seconds
-    
-    return () => clearInterval(interval)
-  }, [])
+      setBubbles((prev) => [
+        ...prev,
+        {
+          id: id++,
+          left: Math.random() * 95 + 2.5,
+          size: Math.random() * 30 + 20,
+          duration: Math.random() * 20 + 20,
+          delay: 0, // New bubbles start immediately
+          bubbleType: Math.floor(Math.random() * 3),
+        },
+      ]);
+    }, 2000); // New bubble every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -55,17 +58,17 @@ export function BubbleAnimation() {
           className="absolute opacity-50"
           style={{
             left: `${bubble.left}%`,
-            bottom: '-40px', // Start below view
+            bottom: "-40px", // Start below view
             width: `${bubble.size}px`,
             height: `${bubble.size}px`,
             animation: `simpleFloat ${bubble.duration}s infinite linear`,
             animationDelay: `${bubble.delay}s`,
           }}
         >
-          <img 
-            src={bubbleImages[bubble.bubbleType]} 
-            alt="" 
-            className="w-full h-full" 
+          <img
+            src={bubbleImages[bubble.bubbleType]}
+            alt=""
+            className="w-full h-full"
           />
         </div>
       ))}
@@ -90,5 +93,5 @@ export function BubbleAnimation() {
         }
       `}</style>
     </div>
-  )
+  );
 }

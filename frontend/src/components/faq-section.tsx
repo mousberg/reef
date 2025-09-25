@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
 interface FAQItem {
-  question: string
-  answer: string
+  question: string;
+  answer: string;
 }
 
 const faqData: FAQItem[] = [
@@ -38,7 +38,7 @@ const faqData: FAQItem[] = [
     answer:
       "Sign up, choose a template or build from scratch, then deploy your agent.",
   },
-]
+];
 
 function ChevronDownIcon({ className }: { className?: string }) {
   return (
@@ -50,17 +50,25 @@ function ChevronDownIcon({ className }: { className?: string }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="m6 9 6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
-  )
+  );
 }
 
 export default function FAQSection() {
-  const [openItems, setOpenItems] = useState<number[]>([])
+  const [openItems, setOpenItems] = useState<number[]>([]);
 
   const toggleItem = (index: number) => {
-    setOpenItems((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]))
-  }
+    setOpenItems((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
+    );
+  };
 
   return (
     <div className="w-full flex justify-center items-start">
@@ -81,10 +89,13 @@ export default function FAQSection() {
         <div className="w-full lg:flex-1 flex flex-col justify-center items-center">
           <div className="w-full flex flex-col">
             {faqData.map((item, index) => {
-              const isOpen = openItems.includes(index)
+              const isOpen = openItems.includes(index);
 
               return (
-                <div key={index} className="w-full border-b border-[rgba(73,66,61,0.16)] overflow-hidden">
+                <div
+                  key={index}
+                  className="w-full border-b border-[rgba(73,66,61,0.16)] overflow-hidden"
+                >
                   <button
                     onClick={() => toggleItem(index)}
                     className="w-full px-5 py-[18px] flex justify-between items-center gap-5 text-left hover:bg-[rgba(73,66,61,0.02)] transition-colors duration-200 cursor-pointer"
@@ -112,11 +123,11 @@ export default function FAQSection() {
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
