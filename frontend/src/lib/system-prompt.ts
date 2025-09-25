@@ -1,13 +1,13 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 // Read the tools prompt from Prompt.md
 function getToolsPrompt(): string {
-  const promptPath = path.join(process.cwd(), 'Prompt.md');
-  return fs.readFileSync(promptPath, 'utf-8');
+  const promptPath = path.join(process.cwd(), "Prompt.md");
+  return fs.readFileSync(promptPath, "utf-8");
 }
 
-export function getSystemPrompt(userId: string, projectId: string): string {
+export function getSystemPrompt(): string {
   const tools_prompt = getToolsPrompt();
 
   return `You are Workflow Builder. Your single goal is to iteratively build a valid WorkflowConfig.

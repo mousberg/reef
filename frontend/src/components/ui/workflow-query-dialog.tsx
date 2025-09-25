@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "./dialog"
-import { Button } from "./button"
-import { Input } from "./input"
+  DialogTitle,
+} from "./dialog";
+import { Button } from "./button";
+import { Input } from "./input";
 
 interface WorkflowQueryDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (query: string) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (query: string) => void;
 }
 
 export function WorkflowQueryDialog({
   open,
   onOpenChange,
-  onSubmit
+  onSubmit,
 }: WorkflowQueryDialogProps) {
-  const [query, setQuery] = React.useState("")
+  const [query, setQuery] = React.useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (query.trim()) {
-      onSubmit(query.trim())
-      setQuery("")
-      onOpenChange(false)
+      onSubmit(query.trim());
+      setQuery("");
+      onOpenChange(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setQuery("")
-    onOpenChange(false)
-  }
+    setQuery("");
+    onOpenChange(false);
+  };
 
   React.useEffect(() => {
     if (open) {
-      setQuery("")
+      setQuery("");
     }
-  }, [open])
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -65,22 +65,15 @@ export function WorkflowQueryDialog({
             />
           </div>
           <DialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-            >
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={!query.trim()}
-            >
+            <Button type="submit" disabled={!query.trim()}>
               OK
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

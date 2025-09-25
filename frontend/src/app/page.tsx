@@ -1,32 +1,23 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Navigation } from "../components/navigation"
-import { LandingHero } from "../components/landing-hero"
-import { FeatureCardsSection } from "../components/feature-cards-section"
-import DocumentationSection from "../components/documentation-section"
-import SocialProofSection from "../components/social-proof-section"
+import { useEffect, useRef } from "react";
+import { Navigation } from "../components/navigation";
+import { LandingHero } from "../components/landing-hero";
+import DocumentationSection from "../components/documentation-section";
+import SocialProofSection from "../components/social-proof-section";
 // import TestimonialsSection from "../components/testimonials-section"
-import FAQSection from "../components/faq-section"
-import CTASection from "../components/cta-section"
-import { Footer } from "../components/Footer"
+import FAQSection from "../components/faq-section";
+import CTASection from "../components/cta-section";
+import { Footer } from "../components/Footer";
 
 export default function LandingPage() {
-  const [activeCard, setActiveCard] = useState(-1)
-  const [progress, setProgress] = useState(0)
-  const mountedRef = useRef(true)
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     return () => {
-      mountedRef.current = false
-    }
-  }, [])
-
-  const handleCardClick = (index: number) => {
-    if (!mountedRef.current) return
-    setActiveCard(index)
-    setProgress(0)
-  }
+      mountedRef.current = false;
+    };
+  }, []);
 
   return (
     <div className="w-full min-h-screen relative bg-background overflow-x-hidden flex flex-col justify-start items-center max-w-[100vw]">
@@ -39,25 +30,24 @@ export default function LandingPage() {
           <div className="self-stretch pt-[9px] overflow-hidden flex flex-col justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-[66px] relative z-10">
             <Navigation />
             <LandingHero />
-            <FeatureCardsSection 
-              activeCard={activeCard} 
-              progress={progress} 
-              onCardClick={handleCardClick} 
-            />
             <DocumentationSection />
             <SocialProofSection />
             {/* <TestimonialsSection /> */}
             <FAQSection />
             <CTASection />
           </div>
-          
+
           <Footer />
         </div>
       </div>
-      
+
       {/* ElevenLabs AI Assistant Widget */}
       <elevenlabs-convai agent-id="agent_3101k5p8y1r2e25bn1bb4rjpx932"></elevenlabs-convai>
-      <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+      <script
+        src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+        async
+        type="text/javascript"
+      ></script>
     </div>
-  )
+  );
 }

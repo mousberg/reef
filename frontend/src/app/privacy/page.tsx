@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { Navigation } from "../../components/navigation"
-import { Footer } from "../../components/Footer"
+import { Navigation } from "../../components/navigation";
+import { Footer } from "../../components/Footer";
 
 export default function PrivacyPage() {
   return (
@@ -29,89 +29,130 @@ export default function PrivacyPage() {
 
                 <div className="prose prose-gray max-w-none">
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">1. Information We Collect</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      1. Information We Collect
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We collect information you provide directly to us, such as when you create an account, use our services, 
-                      or contact us for support. This may include your name, email address, and other contact information.
+                      We collect information you provide directly to us, such as
+                      when you create an account, use our services, or contact
+                      us for support. This may include your name, email address,
+                      and other contact information.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">2. How We Use Your Information</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      2. How We Use Your Information
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We use the information we collect to provide, maintain, and improve our services, process transactions, 
-                      send you technical notices and support messages, and communicate with you about products and services.
+                      We use the information we collect to provide, maintain,
+                      and improve our services, process transactions, send you
+                      technical notices and support messages, and communicate
+                      with you about products and services.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">3. Information Sharing</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      3. Information Sharing
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, 
-                      except as described in this privacy policy or as required by law.
+                      We do not sell, trade, or otherwise transfer your personal
+                      information to third parties without your consent, except
+                      as described in this privacy policy or as required by law.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">4. Data Security</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      4. Data Security
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We implement appropriate technical and organizational measures to protect your personal information 
-                      against unauthorized access, alteration, disclosure, or destruction.
+                      We implement appropriate technical and organizational
+                      measures to protect your personal information against
+                      unauthorized access, alteration, disclosure, or
+                      destruction.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">5. Data Retention</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      5. Data Retention
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We retain your personal information for as long as necessary to provide our services and fulfill 
-                      the purposes outlined in this privacy policy, unless a longer retention period is required by law.
+                      We retain your personal information for as long as
+                      necessary to provide our services and fulfill the purposes
+                      outlined in this privacy policy, unless a longer retention
+                      period is required by law.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">6. Your Rights</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      6. Your Rights
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      You have the right to access, update, or delete your personal information. You may also have the right 
-                      to restrict or object to certain processing of your data. Contact us to exercise these rights.
+                      You have the right to access, update, or delete your
+                      personal information. You may also have the right to
+                      restrict or object to certain processing of your data.
+                      Contact us to exercise these rights.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">7. Cookies and Tracking</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      7. Cookies and Tracking
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We use cookies and similar tracking technologies to collect information about your browsing activities 
-                      and to provide and improve our services. You can control cookie settings through your browser.
+                      We use cookies and similar tracking technologies to
+                      collect information about your browsing activities and to
+                      provide and improve our services. You can control cookie
+                      settings through your browser.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">8. Third-Party Services</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      8. Third-Party Services
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      Our service may contain links to third-party websites or services. We are not responsible for 
-                      the privacy practices of these third parties and encourage you to read their privacy policies.
+                      Our service may contain links to third-party websites or
+                      services. We are not responsible for the privacy practices
+                      of these third parties and encourage you to read their
+                      privacy policies.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">9. Children&apos;s Privacy</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      9. Children&apos;s Privacy
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      Our service is not intended for children under 13 years of age. We do not knowingly collect 
-                      personal information from children under 13.
+                      Our service is not intended for children under 13 years of
+                      age. We do not knowingly collect personal information from
+                      children under 13.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">10. Changes to Privacy Policy</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      10. Changes to Privacy Policy
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      We may update this privacy policy from time to time. We will notify you of any changes by posting 
-                      the new privacy policy on this page and updating the &quot;Last updated&quot; date.
+                      We may update this privacy policy from time to time. We
+                      will notify you of any changes by posting the new privacy
+                      policy on this page and updating the &quot;Last
+                      updated&quot; date.
                     </p>
                   </section>
 
                   <section className="mb-8">
-                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">11. Contact Us</h2>
+                    <h2 className="text-[#2F3037] text-xl font-medium leading-7 font-sans mb-4">
+                      11. Contact Us
+                    </h2>
                     <p className="text-[#37322F] text-base leading-6 font-sans mb-4">
-                      If you have any questions about this privacy policy, please contact us.
+                      If you have any questions about this privacy policy,
+                      please contact us.
                     </p>
                   </section>
                 </div>
@@ -123,5 +164,5 @@ export default function PrivacyPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

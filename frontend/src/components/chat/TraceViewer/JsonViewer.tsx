@@ -1,38 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 
 interface JsonViewerProps {
-  data: any
-  title: string
-  className?: string
+  data: any;
+  title: string;
+  className?: string;
 }
 
 export function JsonViewer({ data, title, className = "" }: JsonViewerProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
-    return null
+  if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
+    return null;
   }
 
   const formatJson = (obj: any): string => {
     try {
-      return JSON.stringify(obj, null, 2)
+      return JSON.stringify(obj, null, 2);
     } catch {
-      return String(obj)
+      return String(obj);
     }
-  }
+  };
 
   const getPreview = (obj: any): string => {
-    if (typeof obj === 'string') return obj.length > 50 ? obj.substring(0, 50) + '...' : obj
-    if (typeof obj === 'object') {
-      const keys = Object.keys(obj)
-      if (keys.length === 0) return '{}'
-      if (keys.length === 1) return `{ ${keys[0]}: ... }`
-      return `{ ${keys.slice(0, 2).join(', ')}${keys.length > 2 ? ', ...' : ''} }`
+    if (typeof obj === "string")
+      return obj.length > 50 ? obj.substring(0, 50) + "..." : obj;
+    if (typeof obj === "object") {
+      const keys = Object.keys(obj);
+      if (keys.length === 0) return "{}";
+      if (keys.length === 1) return `{ ${keys[0]}: ... }`;
+      return `{ ${keys.slice(0, 2).join(", ")}${keys.length > 2 ? ", ..." : ""} }`;
     }
-    return String(obj)
-  }
+    return String(obj);
+  };
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -48,12 +49,17 @@ export function JsonViewer({ data, title, className = "" }: JsonViewerProps) {
             </span>
           )}
           <svg
-            className={`w-4 h-4 text-[#556B5D] transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+            className={`w-4 h-4 text-[#556B5D] transition-transform ${isExpanded ? "rotate-90" : ""}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </div>
       </button>
@@ -66,5 +72,5 @@ export function JsonViewer({ data, title, className = "" }: JsonViewerProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

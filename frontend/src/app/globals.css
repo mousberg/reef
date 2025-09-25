@@ -123,6 +123,10 @@
 
 @layer utilities {
   .font-title {
-    font-family: var(--font-pp-mondwest), system-ui, -apple-system, sans-serif;
+    font-family:
+      var(--font-pp-mondwest),
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 }

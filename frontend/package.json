@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.32",
@@ -78,6 +80,7 @@
     "@types/react-dom": "^18",
     "eslint": "^9.36.0",
     "postcss": "^8.5",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"

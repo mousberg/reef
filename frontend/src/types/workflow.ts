@@ -10,15 +10,9 @@ export interface WorkflowAgent {
   tools: string[];
 }
 
-export interface WorkflowConfig {
-  main_task: string;
-  relations: string;
-  agents: WorkflowAgent[];
-}
-
 export interface WorkflowNode {
   id: string;
-  type: 'agent' | 'start' | 'end' | 'tool';
+  type: "agent" | "start" | "end" | "tool";
   position: { x: number; y: number };
   data: {
     agent?: WorkflowAgent;
@@ -45,3 +39,9 @@ export interface WorkflowEdge {
   sourceHandle?: string | null;
   targetHandle?: string | null;
 }
+
+export type WorkflowConfig = {
+  main_task: string;
+  relations: string;
+  agents: WorkflowAgent[];
+};

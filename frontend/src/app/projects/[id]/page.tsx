@@ -1,57 +1,62 @@
-"use client"
+"use client";
 
-import { useParams, useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
-import { useAuth, type Project } from "@/contexts/AuthContext"
-import { ChatInterface } from "@/components/chat-interface"
-import { Canvas } from "@/components/canvas"
-import { Navigation } from "@/components/navigation"
-
+import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useAuth, type Project } from "@/contexts/AuthContext";
+import { ChatInterface } from "@/components/chat/chat-interface";
+import { Canvas } from "@/components/canvas";
+import { Navigation } from "@/components/navigation";
 
 export default function ProjectPage() {
-  const params = useParams()
-  const router = useRouter()
-  const projectId = params.id as string
-  const { user, subscribeToProject } = useAuth()
+  const params = useParams();
+  const router = useRouter();
+  const projectId = params.id as string;
+  const { user, subscribeToProject } = useAuth();
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
-      router.push("/auth")
-      return
+      router.push("/auth");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     // Set up real-time subscription to project data
-    const unsubscribe = subscribeToProject(user.uid, projectId, (projectData) => {
-      if (projectData) {
-        setProject(projectData)
-        setError(null)
-      } else {
-        setError("Project not found")
-      }
-      setLoading(false)
-    })
+    const unsubscribe = subscribeToProject(
+      user.uid,
+      projectId,
+      (projectData) => {
+        if (projectData) {
+          setProject(projectData);
+          setError(null);
+        } else {
+          setError("Project not found");
+        }
+        setLoading(false);
+      },
+    );
 
     // Cleanup subscription on component unmount
     return () => {
-      unsubscribe()
-    }
-  }, [user, projectId, subscribeToProject, router])
+      unsubscribe();
+    };
+  }, [user, projectId, subscribeToProject, router]);
 
   if (loading) {
     return (
       <div className="w-full min-h-screen relative bg-[#F7F5F3] overflow-x-hidden flex flex-col justify-center items-center max-w-[100vw]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-[#37322F] border-t-transparent rounded-full animate-spin"></div>
-          <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">Loading project...</div>
+          <div className="text-[#37322F] text-lg font-medium leading-6 font-sans">
+            Loading project...
+          </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !project) {
@@ -82,26 +87,26 @@ export default function ProjectPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-          <div className="w-full h-screen relative z-10">
-            <div className="flex h-full bg-gray-50">
-              {/* Left side - Chat Interface */}
-              <div className="w-[480px] border-r border-gray-200 bg-white h-full overflow-hidden">
-                <ChatInterface
-                  projectId={projectId}
-                  initialMessages={project.messages || []}
-                  projectName={project.name}
-                />
-              </div>
+    <div className="w-full h-screen relative z-10">
+      <div className="flex h-full bg-gray-50">
+        {/* Left side - Chat Interface */}
+        <div className="w-[480px] border-r border-gray-200 bg-white h-full overflow-hidden">
+          <ChatInterface
+            projectId={projectId}
+            initialMessages={project.messages || []}
+            projectName={project.name}
+          />
+        </div>
 
-              {/* Right side - Canvas */}
-              <div className="flex-1 h-full overflow-hidden">
-                <Canvas project={project} />
-              </div>
-            </div>
-          </div>
-  )
+        {/* Right side - Canvas */}
+        <div className="flex-1 h-full overflow-hidden">
+          <Canvas project={project} />
+        </div>
+      </div>
+    </div>
+  );
 }
