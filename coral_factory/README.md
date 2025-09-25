@@ -59,3 +59,73 @@ uvicorn app:app --host 0.0.0.0 --port 8001
 ```
 
 
+
+
+## TEST ENDPOINTS
+
+```bash
+curl -X GET "http://204.12.168.160:8001/auth/authorize/florisfok5@gmail.com/Slack" \
+  -H "Authorization: Bearer bearer-token-2024"
+
+curl -X GET "http://localhost:8001/auth/tools" \
+  -H "Authorization: Bearer bearer-token-2024"
+
+
+
+curl -X POST "http://localhost:8001/run/workflow/local" \
+  -H "Authorization: Bearer bearer-token-2024" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workflow_config": {
+      "objective": "Do research and send the information to the user using Slack and Email.",
+      "relations_type": "manager",
+      "model_name": "gpt-4.1",
+      "api_key": "OPENAI_API_KEY",
+      "agents": [
+        {
+          "name": "Research agent",
+          "mcp_servers": [
+            {
+              "name": "arxiv",
+              "server_type": "HTTP",
+              "params": {
+                "url": "https://arxiv.org", 
+                "timeout": 60
+              }
+            }
+          ],
+          "toolkits": [],
+          "persona": "research scientist",
+          "output": "A detailed, referenced research summary.",
+          "guidelines": "Be thorough and cite sources. Summarise the paper in a few sentences. Write the text for an engineering audience."
+        },
+        {
+          "name": "Slack agent",
+          "mcp_servers": [],
+          "toolkits": ["slack"],
+          "persona": "expert slack user",
+          "output": "Well-documented, working code.",
+          "guidelines": "Write clean, efficient, slack messages. Use the slack formatting to make the message look nice."
+        },
+        {
+          "name": "Email agent",
+          "mcp_servers": [],
+          "toolkits": ["gmail"],
+          "persona": "Has access to gmail and can send emails",
+          "output": "Clear, insightful emails.",
+          "guidelines": "Use the gmail tools to send emails. End the email with a signature: sent from the Reef Factory."
+        }
+      ]
+    },
+    "user_id": "user_id",
+    "user_task": "Which Slack channels are there and mail me the list to mail"
+  }'
+
+
+curl -X GET "http://localhost:8001/workflow/status/<trace_id>" \
+  -H "Authorization: Bearer coral-bearer-token-2024"
+
+curl -X GET "http://localhost:8001/workflow/result/<trace_id>" \
+  -H "Authorization: Bearer coral-bearer-token-2024"
+
+```
