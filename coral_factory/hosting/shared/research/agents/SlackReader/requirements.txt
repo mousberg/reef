@@ -1,6 +1,0 @@
-openai-agents[litellm]
-agents-arcade
-arcadepy
-python-dotenv
-PyYAML
-firebase-admin
