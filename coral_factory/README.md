@@ -58,22 +58,17 @@ pip install -r requirements.txt
 uvicorn app:app --host 0.0.0.0 --port 8001
 ```
 
-
-
-
 ## TEST ENDPOINTS
 
 ```bash
-curl -X GET "http://204.12.168.160:8001/auth/authorize/florisfok5@gmail.com/Slack" \
-  -H "Authorization: Bearer bearer-token-2024"
+curl -X GET "http://204.12.168.160:8001/auth/authorize/<user_id>/Slack" \
+  -H "Authorization: Bearer <bearer-token>"
 
 curl -X GET "http://localhost:8001/auth/tools" \
-  -H "Authorization: Bearer bearer-token-2024"
-
-
+  -H "Authorization: Bearer <bearer-token>"
 
 curl -X POST "http://localhost:8001/run/workflow/local" \
-  -H "Authorization: Bearer bearer-token-2024" \
+  -H "Authorization: Bearer <bearer-token>" \
   -H "Content-Type: application/json" \
   -d '{
     "workflow_config": {
@@ -123,9 +118,9 @@ curl -X POST "http://localhost:8001/run/workflow/local" \
 
 
 curl -X GET "http://localhost:8001/workflow/status/<trace_id>" \
-  -H "Authorization: Bearer coral-bearer-token-2024"
+  -H "Authorization: Bearer <bearer-token>"
 
 curl -X GET "http://localhost:8001/workflow/result/<trace_id>" \
-  -H "Authorization: Bearer coral-bearer-token-2024"
+  -H "Authorization: Bearer <bearer-token>"
 
 ```
