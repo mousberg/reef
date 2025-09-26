@@ -1,0 +1,46 @@
+name: Deploy Factory to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "coral_factory/**"
+
+jobs:
+  deploy:
+    name: Build & Deploy Factory
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Google Artifact Registry
+        run: gcloud auth configure-docker gcr.io
+
+      - name: Build Docker Image
+        working-directory: ./coral_factory
+        run: |
+          docker build --platform linux/amd64 -t gcr.io/reefs-c1adb/coral-factory .
+
+      - name: Push Docker Image
+        run: |
+          docker push gcr.io/reefs-c1adb/coral-factory
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy coral-factory \
+            --image gcr.io/reefs-c1adb/coral-factory \
+            --platform managed \
+            --region europe-west1 \
+            --allow-unauthenticated \
+            --project reefs-c1adb
