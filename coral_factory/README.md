@@ -76,7 +76,7 @@ docker run --rm \
 docker run --rm \
   -p 8001:8001 \
   --name coral-factory \
-  -e FACTORY_BEARER_TOKEN="bearer-token-2024" \
+  -e FACTORY_BEARER_TOKEN="bearer-token" \
   -e ARCADE_API_KEY="your-arcade-api-key" \
   -e OPENAI_API_KEY="your-openai-api-key" \
   -e FIREBASE_PROJECT_ID="your-firebase-project-id" \
