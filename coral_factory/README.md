@@ -41,7 +41,9 @@ sudo systemctl enable docker
 ## SEND
 rsync -avz local_path remote:remote_path
 
-## BUILD AND RUN
+## RUN
+
+### Local
 ```bash
 # ENV
 EXPORT FIREBASE_PROJECT_ID = ""
@@ -57,6 +59,35 @@ pip install -r requirements.txt
 # RUN
 uvicorn app:app --host 0.0.0.0 --port 8001
 ```
+
+### Docker
+```bash
+# Build image (from this directory)
+docker build -t coral-factory:latest .
+
+# Run container (basic)
+docker run --rm \
+  -p 8001:8001 \
+  --name coral-factory \
+  coral-factory:latest
+
+# Run container with env vars and Firebase service account mounted
+# Replace the example values and JSON path with your own
+docker run --rm \
+  -p 8001:8001 \
+  --name coral-factory \
+  -e FACTORY_BEARER_TOKEN="bearer-token-2024" \
+  -e ARCADE_API_KEY="your-arcade-api-key" \
+  -e OPENAI_API_KEY="your-openai-api-key" \
+  -e FIREBASE_PROJECT_ID="your-firebase-project-id" \
+  -e FIREBASE_SERVICE_ACCOUNT_PATH="/secrets/firebase.json" \
+  -v $(pwd)/path/to/firebase-service-account.json:/secrets/firebase.json:ro \
+  coral-factory:latest
+
+# Health check (no auth required)
+curl http://localhost:8001/health
+```
+
 
 ## TEST ENDPOINTS
 
