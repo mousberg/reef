@@ -31,7 +31,11 @@ export default function CTASection() {
               </div>
               <div className="text-muted-foreground text-sm font-medium leading-[18px] font-sans flex items-center gap-1">
                 Made with{" "}
-                <img src="/heart.svg" alt="heart" className="w-4 h-4 inline" />{" "}
+                <img
+                  src="/heart.svg"
+                  alt="heart"
+                  className="w-4 h-4 inline filter dark:invert"
+                />{" "}
                 in New York
               </div>
             </div>
