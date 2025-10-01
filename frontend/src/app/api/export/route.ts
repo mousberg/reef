@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const FACTORY_URL = process.env.FACTORY_URL || "http://204.12.168.160:8001";
+    const FACTORY_URL = process.env.FACTORY_URL || "https://coral-factory-540229907345.europe-west1.run.app";
     const FACTORY_TOKEN =
       process.env.FACTORY_TOKEN || "coral-bearer-token-2024";
 

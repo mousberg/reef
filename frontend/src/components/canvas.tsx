@@ -30,12 +30,17 @@ export function Canvas({ project }: CanvasProps) {
       return;
     }
 
+    if (!user?.uid) {
+      toast.error("User not authenticated");
+      return;
+    }
+
     try {
       setExporting(true);
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workflowState: project.workflowState }),
+        body: JSON.stringify({ workflowState: project.workflowState, userId: user.uid }),
       });
 
       const data = await res.json().catch(() => ({}));
