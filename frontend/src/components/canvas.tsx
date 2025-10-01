@@ -6,12 +6,15 @@ import { useState } from "react";
 import type { Project } from "@/contexts/AuthContext";
 import { RunQueryAlertDialog } from "./ui/run-query-alert-dialog";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CanvasProps {
   project: Project;
 }
 
 export function Canvas({ project }: CanvasProps) {
+  const { user } = useAuth();
+
   // Convert workflowState to JSON string for WorkflowCanvas component
   const workflowJson = project.workflowState
     ? JSON.stringify(project.workflowState, null, 2)
@@ -54,12 +57,17 @@ export function Canvas({ project }: CanvasProps) {
   };
 
   const handleQuerySubmit = async (query: string) => {
+    if (!user?.uid) {
+      toast.error("User not authenticated");
+      return;
+    }
+
     try {
       setRunning(true);
       const res = await fetch("/api/deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, userId: user.uid }),
       });
 
       const data = await res.json().catch(() => ({}));
