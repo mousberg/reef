@@ -81,6 +81,7 @@ export interface Project {
   updatedAt: any;
   messages: Message[];
   workflowState?: WorkflowState;
+  builtWorkflow?: any; // Factory-ready workflow config
 }
 
 interface AuthContextType {

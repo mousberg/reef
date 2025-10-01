@@ -40,7 +40,11 @@ export function Canvas({ project }: CanvasProps) {
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workflowState: project.workflowState, userId: user.uid }),
+        body: JSON.stringify({
+          workflowState: project.workflowState,
+          userId: user.uid,
+          projectId: project.id
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -49,7 +53,7 @@ export function Canvas({ project }: CanvasProps) {
         return;
       }
 
-      toast.success("Exported to factory successfully");
+      toast.success("Workflow built successfully");
     } catch (e: any) {
       toast.error(e?.message || "Export failed");
     } finally {
@@ -72,7 +76,11 @@ export function Canvas({ project }: CanvasProps) {
       const res = await fetch("/api/deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, userId: user.uid }),
+        body: JSON.stringify({
+          query,
+          userId: user.uid,
+          projectId: project.id
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -81,7 +89,7 @@ export function Canvas({ project }: CanvasProps) {
         return;
       }
 
-      toast.success("Run started successfully");
+      toast.success("Workflow started successfully");
     } catch (e: any) {
       toast.error(e?.message || "Run failed");
     } finally {

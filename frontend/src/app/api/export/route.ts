@@ -1,10 +1,37 @@
 import { NextRequest } from "next/server";
+import { firestore } from "@/lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+
+// Transform frontend WorkflowState to Factory WorkflowConfig
+function transformToFactoryConfig(workflowState: any): any {
+  const agentsArray = Array.isArray(workflowState.agents)
+    ? workflowState.agents
+    : Object.values(workflowState.agents || {});
+
+  // Transform each agent to factory format
+  const factoryAgents = agentsArray.map((agent: any) => ({
+    name: agent.name || "Unnamed Agent",
+    persona: agent.instructions || agent.task || "AI Assistant",
+    output: agent.expected_output || "Provide a helpful response",
+    guidelines: agent.instructions || "",
+    mcp_servers: [], // Can be populated later if needed
+    toolkits: agent.tools || [], // Arcade toolkit names
+  }));
+
+  return {
+    objective: workflowState.main_task || "Complete the user's task",
+    relations_type: workflowState.relations || "single",
+    model_name: "gpt-4o",
+    api_key: process.env.OPENAI_API_KEY || "",
+    agents: factoryAgents,
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { workflowState, userId } = body || {};
+    const { workflowState, userId, projectId } = body || {};
 
     if (!workflowState || typeof workflowState !== "object") {
       return new Response(
@@ -19,29 +46,27 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (!projectId) {
+      return new Response(JSON.stringify({ error: "projectId is required" }), {
+        status: 400,
+      });
+    }
+
     const FACTORY_URL = process.env.FACTORY_URL || "https://coral-factory-540229907345.europe-west1.run.app";
     const FACTORY_TOKEN =
       process.env.FACTORY_TOKEN || "coral-bearer-token-2024";
 
-    // Transform if needed: backend expects { main_task, relations, agents: [...] }
-    // If UI stored agents as a map, convert to array. Otherwise pass-through.
-    const agentsArray = Array.isArray(workflowState.agents)
-      ? workflowState.agents
-      : Object.values(workflowState.agents || {});
+    // Transform WorkflowState to Factory WorkflowConfig
+    const builtWorkflow = transformToFactoryConfig(workflowState);
 
-    const payload = {
-      main_task: workflowState.main_task,
-      relations: workflowState.relations,
-      agents: agentsArray,
-    };
-
-    const res = await fetch(`${FACTORY_URL}/create/workflow`, {
+    // Verify the workflow with factory
+    const res = await fetch(`${FACTORY_URL}/verify/workflow`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${FACTORY_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(builtWorkflow),
     });
 
     const text = await res.text();
@@ -55,7 +80,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       return new Response(
         JSON.stringify({
-          error: "Factory export failed",
+          error: "Factory verification failed",
           status: res.status,
           data,
         }),
@@ -63,7 +88,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return new Response(JSON.stringify({ success: true, data }), {
+    // Store builtWorkflow in Firebase
+    try {
+      const projectRef = doc(firestore, "users", userId, "projects", projectId);
+      await updateDoc(projectRef, {
+        builtWorkflow,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (firebaseErr: any) {
+      return new Response(
+        JSON.stringify({
+          error: "Failed to store workflow in Firebase",
+          message: firebaseErr?.message || String(firebaseErr),
+        }),
+        { status: 500 },
+      );
+    }
+
+    return new Response(JSON.stringify({ success: true, builtWorkflow }), {
       status: 200,
     });
   } catch (err: any) {
