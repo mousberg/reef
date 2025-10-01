@@ -72,9 +72,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const FACTORY_URL = process.env.FACTORY_URL || "https://coral-factory-540229907345.europe-west1.run.app";
-    const FACTORY_TOKEN =
-      process.env.FACTORY_TOKEN || "bearer-token-2024";
+    const FACTORY_URL =
+      process.env.FACTORY_URL ||
+      "https://coral-factory-540229907345.europe-west1.run.app";
+    const FACTORY_TOKEN = process.env.FACTORY_TOKEN || "bearer-token-2024";
 
     // Transform WorkflowState to Factory WorkflowConfig
     const builtWorkflow = transformToFactoryConfig(workflowState);

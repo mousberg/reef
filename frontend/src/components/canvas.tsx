@@ -43,7 +43,7 @@ export function Canvas({ project }: CanvasProps) {
         body: JSON.stringify({
           workflowState: project.workflowState,
           userId: user.uid,
-          projectId: project.id
+          projectId: project.id,
         }),
       });
 
@@ -79,7 +79,7 @@ export function Canvas({ project }: CanvasProps) {
         body: JSON.stringify({
           query,
           userId: user.uid,
-          projectId: project.id
+          projectId: project.id,
         }),
       });
 

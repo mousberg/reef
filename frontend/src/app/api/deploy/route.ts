@@ -32,10 +32,9 @@ export async function POST(req: NextRequest) {
       const projectSnap = await getDoc(projectRef);
 
       if (!projectSnap.exists()) {
-        return new Response(
-          JSON.stringify({ error: "Project not found" }),
-          { status: 404 },
-        );
+        return new Response(JSON.stringify({ error: "Project not found" }), {
+          status: 404,
+        });
       }
 
       builtWorkflow = projectSnap.data()?.builtWorkflow;
@@ -43,7 +42,7 @@ export async function POST(req: NextRequest) {
       if (!builtWorkflow) {
         return new Response(
           JSON.stringify({
-            error: "Workflow not built yet. Please click 'Build' first."
+            error: "Workflow not built yet. Please click 'Build' first.",
           }),
           { status: 400 },
         );
@@ -61,8 +60,7 @@ export async function POST(req: NextRequest) {
     const FACTORY_URL =
       process.env.FACTORY_URL ||
       "https://coral-factory-540229907345.europe-west1.run.app";
-    const FACTORY_TOKEN =
-      process.env.FACTORY_TOKEN || "bearer-token-2024";
+    const FACTORY_TOKEN = process.env.FACTORY_TOKEN || "bearer-token-2024";
 
     // Payload for factory /run/workflow/local endpoint
     const payload = {
