@@ -18,9 +18,29 @@ function transformToFactoryConfig(workflowState: any): any {
     toolkits: agent.tools || [], // Arcade toolkit names
   }));
 
+  // Map relations to valid factory enum values
+  // Valid values: 'manager', 'chain', 'group-chat', 'triage', 'single'
+  let relationType = "single"; // default
+  const relations = workflowState.relations?.toLowerCase() || "";
+
+  if (relations.includes("manager") || relations.includes("delegate")) {
+    relationType = "manager";
+  } else if (relations.includes("chain") || relations.includes("sequential")) {
+    relationType = "chain";
+  } else if (relations.includes("group") || relations.includes("chat")) {
+    relationType = "group-chat";
+  } else if (relations.includes("triage") || relations.includes("handoff")) {
+    relationType = "triage";
+  } else if (agentsArray.length === 1) {
+    relationType = "single";
+  } else if (agentsArray.length > 1) {
+    // Default to manager for multiple agents
+    relationType = "manager";
+  }
+
   return {
     objective: workflowState.main_task || "Complete the user's task",
-    relations_type: workflowState.relations || "single",
+    relations_type: relationType,
     model_name: "gpt-4o",
     api_key: process.env.OPENAI_API_KEY || "",
     agents: factoryAgents,
@@ -54,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     const FACTORY_URL = process.env.FACTORY_URL || "https://coral-factory-540229907345.europe-west1.run.app";
     const FACTORY_TOKEN =
-      process.env.FACTORY_TOKEN || "coral-bearer-token-2024";
+      process.env.FACTORY_TOKEN || "bearer-token-2024";
 
     // Transform WorkflowState to Factory WorkflowConfig
     const builtWorkflow = transformToFactoryConfig(workflowState);

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       process.env.FACTORY_URL ||
       "https://coral-factory-540229907345.europe-west1.run.app";
     const FACTORY_TOKEN =
-      process.env.FACTORY_TOKEN || "coral-bearer-token-2024";
+      process.env.FACTORY_TOKEN || "bearer-token-2024";
 
     // Payload for factory /run/workflow/local endpoint
     const payload = {
