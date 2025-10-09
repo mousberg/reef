@@ -9,6 +9,12 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../lib/firebase";
 import { toast } from "sonner";
 import { Footer } from "../../components/Footer";
+import {
+  GoogleIcon,
+  GitHubIcon,
+  NotionIcon,
+  SlackIcon,
+} from "../../components/ProviderIcons";
 
 interface UserData {
   firstName: string;
@@ -40,16 +46,35 @@ export default function SettingsPage() {
     {
       id: "google",
       name: "Google",
-      description: "Connect your Google account",
+      description: "Access Gmail and Google services",
+      icon: GoogleIcon,
       scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+      enabled: true,
     },
-    { id: "github", name: "GitHub", description: "Connect your GitHub account" },
+    {
+      id: "github",
+      name: "GitHub",
+      description: "Access repositories and code",
+      icon: GitHubIcon,
+      enabled: false,
+      comingSoon: true,
+    },
     {
       id: "notion",
       name: "Notion",
       description: "Connect your Notion workspace",
+      icon: NotionIcon,
+      enabled: false,
+      comingSoon: true,
     },
-    { id: "slack", name: "Slack", description: "Connect your Slack workspace" },
+    {
+      id: "slack",
+      name: "Slack",
+      description: "Integrate with Slack channels",
+      icon: SlackIcon,
+      enabled: false,
+      comingSoon: true,
+    },
   ];
 
   useEffect(() => {
@@ -148,7 +173,9 @@ export default function SettingsPage() {
       window.location.href = data.authorization_url;
     } catch (error: any) {
       console.error("Failed to authorize tool:", error);
-      toast.error(error.message || "Failed to authorize tool. Please try again.");
+      toast.error(
+        error.message || "Failed to authorize tool. Please try again.",
+      );
       setAuthorizingTool(null);
     }
   };
@@ -309,35 +336,64 @@ export default function SettingsPage() {
                       </p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {availableTools.map((tool) => (
-                        <div
-                          key={tool.id}
-                          className="bg-background dark:bg-card/50 border border-border rounded-[12px] p-4 flex flex-col justify-between"
-                        >
-                          <div className="mb-3">
-                            <h4 className="text-foreground text-base font-medium leading-5 font-sans mb-1">
-                              {tool.name}
-                            </h4>
-                            <p className="text-foreground/60 text-xs font-medium leading-4 font-sans">
-                              {tool.description}
-                            </p>
-                          </div>
-                          <Button
-                            onClick={() =>
-                              handleAuthorizeTool(
-                                tool.id,
-                                "scopes" in tool ? tool.scopes : undefined,
-                              )
-                            }
-                            disabled={authorizingTool === tool.id}
-                            className="w-full bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-[8px] px-4 py-2 text-sm font-medium leading-5 font-sans transition-all disabled:opacity-50"
+                      {availableTools.map((tool) => {
+                        const Icon = tool.icon;
+                        const isDisabled =
+                          !tool.enabled || authorizingTool === tool.id;
+
+                        return (
+                          <div
+                            key={tool.id}
+                            className={`relative bg-background dark:bg-card/50 border rounded-[16px] p-5 flex flex-col justify-between transition-all ${
+                              tool.enabled
+                                ? "border-border hover:border-primary/40 hover:shadow-lg"
+                                : "border-border/50 opacity-60"
+                            }`}
                           >
-                            {authorizingTool === tool.id
-                              ? "Connecting..."
-                              : "Connect"}
-                          </Button>
-                        </div>
-                      ))}
+                            {tool.comingSoon && (
+                              <div className="absolute top-3 right-3 bg-primary/10 text-primary text-[10px] font-semibold px-2 py-1 rounded-full">
+                                COMING SOON
+                              </div>
+                            )}
+
+                            <div className="mb-4">
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className="flex-shrink-0">
+                                  <Icon />
+                                </div>
+                                <h4 className="text-foreground text-base font-semibold leading-5 font-sans">
+                                  {tool.name}
+                                </h4>
+                              </div>
+                              <p className="text-foreground/60 text-sm font-medium leading-5 font-sans">
+                                {tool.description}
+                              </p>
+                            </div>
+
+                            <Button
+                              onClick={() =>
+                                tool.enabled &&
+                                handleAuthorizeTool(
+                                  tool.id,
+                                  "scopes" in tool ? tool.scopes : undefined,
+                                )
+                              }
+                              disabled={isDisabled}
+                              className={`w-full rounded-[10px] px-4 py-2.5 text-sm font-semibold leading-5 font-sans transition-all ${
+                                tool.enabled
+                                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md disabled:opacity-50"
+                                  : "bg-muted text-muted-foreground cursor-not-allowed"
+                              }`}
+                            >
+                              {authorizingTool === tool.id
+                                ? "Connecting..."
+                                : tool.enabled
+                                  ? "Connect"
+                                  : "Coming Soon"}
+                            </Button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
