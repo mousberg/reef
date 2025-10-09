@@ -10,14 +10,14 @@ export async function POST(req: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: "Missing required parameter: userId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!toolId) {
       return NextResponse.json(
         { error: "Missing required parameter: toolId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         "status code:",
         error.status,
         "data:",
-        error.data
+        error.data,
       );
 
       return NextResponse.json(
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
           status: error.status,
           data: error.data,
         },
-        { status: error.status || 500 }
+        { status: error.status || 500 },
       );
     }
   } catch (err: any) {
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
         error: "Internal server error",
         message: err?.message || String(err),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
