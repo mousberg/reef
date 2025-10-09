@@ -63,8 +63,7 @@ export default function SettingsPage() {
       name: "Notion",
       description: "Connect your Notion workspace",
       icon: NotionIcon,
-      enabled: false,
-      comingSoon: true,
+      enabled: true,
     },
     {
       id: "slack",
