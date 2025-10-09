@@ -70,8 +70,7 @@ export default function SettingsPage() {
       name: "Slack",
       description: "Integrate with Slack channels",
       icon: SlackIcon,
-      enabled: false,
-      comingSoon: true,
+      enabled: true,
     },
   ];
 
@@ -348,12 +347,6 @@ export default function SettingsPage() {
                                 : "border-border/50 opacity-60"
                             }`}
                           >
-                            {tool.comingSoon && (
-                              <div className="absolute top-3 right-3 bg-primary/10 text-primary text-[10px] font-semibold px-2 py-1 rounded-full">
-                                COMING SOON
-                              </div>
-                            )}
-
                             <div className="mb-4">
                               <div className="flex items-center gap-3 mb-3">
                                 <div className="flex-shrink-0">
