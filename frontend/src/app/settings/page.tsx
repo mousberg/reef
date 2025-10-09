@@ -9,6 +9,12 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../lib/firebase";
 import { toast } from "sonner";
 import { Footer } from "../../components/Footer";
+import {
+  GoogleIcon,
+  GitHubIcon,
+  NotionIcon,
+  SlackIcon,
+} from "../../components/ProviderIcons";
 
 interface UserData {
   firstName: string;
@@ -32,7 +38,41 @@ export default function SettingsPage() {
     lastName: "",
     marketingAccepted: false,
   });
+  const [authorizingTool, setAuthorizingTool] = useState<string | null>(null);
   const router = useRouter();
+
+  // Available Arcade tools
+  const availableTools = [
+    {
+      id: "google",
+      name: "Google",
+      description: "Access Gmail and Google services",
+      icon: GoogleIcon,
+      scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+      enabled: true,
+    },
+    {
+      id: "github",
+      name: "GitHub",
+      description: "Access repositories and code",
+      icon: GitHubIcon,
+      enabled: true,
+    },
+    {
+      id: "notion",
+      name: "Notion",
+      description: "Connect your Notion workspace",
+      icon: NotionIcon,
+      enabled: true,
+    },
+    {
+      id: "slack",
+      name: "Slack",
+      description: "Integrate with Slack channels",
+      icon: SlackIcon,
+      enabled: true,
+    },
+  ];
 
   useEffect(() => {
     if (!user) {
@@ -100,6 +140,40 @@ export default function SettingsPage() {
       console.error("Failed to logout:", error);
     } finally {
       setLoggingOut(false);
+    }
+  };
+
+  const handleAuthorizeTool = async (toolId: string, scopes?: string[]) => {
+    if (!user) return;
+
+    setAuthorizingTool(toolId);
+    try {
+      const response = await fetch("/api/arcade/authorize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          toolId,
+          scopes,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to start authorization");
+      }
+
+      // Redirect to Arcade's authorization URL
+      window.location.href = data.authorization_url;
+    } catch (error: any) {
+      console.error("Failed to authorize tool:", error);
+      toast.error(
+        error.message || "Failed to authorize tool. Please try again.",
+      );
+      setAuthorizingTool(null);
     }
   };
 
@@ -246,6 +320,72 @@ export default function SettingsPage() {
                     >
                       {saving ? "Saving..." : "Save Changes"}
                     </Button>
+                  </div>
+
+                  {/* Arcade Tool Integrations */}
+                  <div className="mb-6 pb-6 border-b border-border">
+                    <div className="mb-4">
+                      <h3 className="text-foreground text-lg font-medium leading-6 font-sans mb-1">
+                        Tool Integrations
+                      </h3>
+                      <p className="text-foreground/70 text-sm font-medium leading-5 font-sans">
+                        Connect tools to enable AI agent capabilities
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {availableTools.map((tool) => {
+                        const Icon = tool.icon;
+                        const isDisabled =
+                          !tool.enabled || authorizingTool === tool.id;
+
+                        return (
+                          <div
+                            key={tool.id}
+                            className={`relative bg-background dark:bg-card/50 border rounded-[16px] p-5 flex flex-col justify-between transition-all ${
+                              tool.enabled
+                                ? "border-border hover:border-primary/40 hover:shadow-lg"
+                                : "border-border/50 opacity-60"
+                            }`}
+                          >
+                            <div className="mb-4">
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className="flex-shrink-0">
+                                  <Icon />
+                                </div>
+                                <h4 className="text-foreground text-base font-semibold leading-5 font-sans">
+                                  {tool.name}
+                                </h4>
+                              </div>
+                              <p className="text-foreground/60 text-sm font-medium leading-5 font-sans">
+                                {tool.description}
+                              </p>
+                            </div>
+
+                            <Button
+                              onClick={() =>
+                                tool.enabled &&
+                                handleAuthorizeTool(
+                                  tool.id,
+                                  "scopes" in tool ? tool.scopes : undefined,
+                                )
+                              }
+                              disabled={isDisabled}
+                              className={`w-full rounded-[10px] px-4 py-2.5 text-sm font-semibold leading-5 font-sans transition-all ${
+                                tool.enabled
+                                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md disabled:opacity-50"
+                                  : "bg-muted text-muted-foreground cursor-not-allowed"
+                              }`}
+                            >
+                              {authorizingTool === tool.id
+                                ? "Connecting..."
+                                : tool.enabled
+                                  ? "Connect"
+                                  : "Coming Soon"}
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <div className="flex justify-between items-center">
