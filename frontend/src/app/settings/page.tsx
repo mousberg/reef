@@ -56,8 +56,7 @@ export default function SettingsPage() {
       name: "GitHub",
       description: "Access repositories and code",
       icon: GitHubIcon,
-      enabled: false,
-      comingSoon: true,
+      enabled: true,
     },
     {
       id: "notion",
