@@ -39,6 +39,10 @@ export default function SettingsPage() {
     marketingAccepted: false,
   });
   const [authorizingTool, setAuthorizingTool] = useState<string | null>(null);
+  const [connectedTools, setConnectedTools] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [checkingStatus, setCheckingStatus] = useState(true);
   const router = useRouter();
 
   // Available Arcade tools
@@ -100,6 +104,47 @@ export default function SettingsPage() {
 
     fetchUserData();
   }, [user, getUserData, router]);
+
+  // Check authorization status for all tools
+  useEffect(() => {
+    const checkToolStatus = async () => {
+      if (!user) return;
+
+      setCheckingStatus(true);
+      const statusChecks = availableTools.map(async (tool) => {
+        if (!tool.enabled) return { toolId: tool.id, authorized: false };
+
+        try {
+          const response = await fetch("/api/arcade/status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.uid, toolId: tool.id }),
+          });
+          const data = await response.json();
+          return { toolId: tool.id, authorized: data.authorized || false };
+        } catch (error) {
+          console.error(`Failed to check status for ${tool.id}:`, error);
+          return { toolId: tool.id, authorized: false };
+        }
+      });
+
+      const results = await Promise.all(statusChecks);
+      const statusMap = results.reduce(
+        (acc, { toolId, authorized }) => {
+          acc[toolId] = authorized;
+          return acc;
+        },
+        {} as Record<string, boolean>
+      );
+
+      setConnectedTools(statusMap);
+      setCheckingStatus(false);
+    };
+
+    if (user) {
+      checkToolStatus();
+    }
+  }, [user]);
 
   const handleSave = async () => {
     if (!user || !userData) return;
@@ -335,6 +380,7 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {availableTools.map((tool) => {
                         const Icon = tool.icon;
+                        const isConnected = connectedTools[tool.id] || false;
                         const isDisabled =
                           !tool.enabled || authorizingTool === tool.id;
 
@@ -343,10 +389,29 @@ export default function SettingsPage() {
                             key={tool.id}
                             className={`relative bg-background dark:bg-card/50 border rounded-[16px] p-5 flex flex-col justify-between transition-all ${
                               tool.enabled
-                                ? "border-border hover:border-primary/40 hover:shadow-lg"
+                                ? isConnected
+                                  ? "border-green-500/40 hover:border-green-500/60 hover:shadow-lg"
+                                  : "border-border hover:border-primary/40 hover:shadow-lg"
                                 : "border-border/50 opacity-60"
                             }`}
                           >
+                            {isConnected && (
+                              <div className="absolute top-3 right-3 flex items-center gap-1 bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-semibold px-2 py-1 rounded-full">
+                                <svg
+                                  className="w-3 h-3"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                CONNECTED
+                              </div>
+                            )}
+
                             <div className="mb-4">
                               <div className="flex items-center gap-3 mb-3">
                                 <div className="flex-shrink-0">
@@ -359,6 +424,11 @@ export default function SettingsPage() {
                               <p className="text-foreground/60 text-sm font-medium leading-5 font-sans">
                                 {tool.description}
                               </p>
+                              {checkingStatus && tool.enabled && (
+                                <p className="text-foreground/40 text-xs font-medium leading-4 font-sans mt-2">
+                                  Checking status...
+                                </p>
+                              )}
                             </div>
 
                             <Button
@@ -372,14 +442,18 @@ export default function SettingsPage() {
                               disabled={isDisabled}
                               className={`w-full rounded-[10px] px-4 py-2.5 text-sm font-semibold leading-5 font-sans transition-all ${
                                 tool.enabled
-                                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md disabled:opacity-50"
+                                  ? isConnected
+                                    ? "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20"
+                                    : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md disabled:opacity-50"
                                   : "bg-muted text-muted-foreground cursor-not-allowed"
                               }`}
                             >
                               {authorizingTool === tool.id
                                 ? "Connecting..."
                                 : tool.enabled
-                                  ? "Connect"
+                                  ? isConnected
+                                    ? "Reconnect"
+                                    : "Connect"
                                   : "Coming Soon"}
                             </Button>
                           </div>
