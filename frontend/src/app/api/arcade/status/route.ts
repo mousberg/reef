@@ -10,14 +10,14 @@ export async function POST(req: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: "Missing required parameter: userId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!toolId) {
       return NextResponse.json(
         { error: "Missing required parameter: toolId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       // Check if any tool in this toolkit has completed token status
       const isAuthorized = tools.items.some(
         (tool) =>
-          tool.requirements?.authorization?.token_status === "completed"
+          tool.requirements?.authorization?.token_status === "completed",
       );
 
       return NextResponse.json({
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         "status code:",
         error.status,
         "data:",
-        error.data
+        error.data,
       );
 
       return NextResponse.json(
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: "Failed to fetch tools",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (err: any) {
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         error: "Internal server error",
         message: err?.message || String(err),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

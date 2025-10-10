@@ -40,7 +40,7 @@ export default function SettingsPage() {
   });
   const [authorizingTool, setAuthorizingTool] = useState<string | null>(null);
   const [connectedTools, setConnectedTools] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [checkingStatus, setCheckingStatus] = useState(true);
   const router = useRouter();
@@ -134,7 +134,7 @@ export default function SettingsPage() {
           acc[toolId] = authorized;
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
 
       setConnectedTools(statusMap);
