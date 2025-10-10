@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Arcade } from "@arcadeai/arcadejs";
-import { writeFileSync } from "fs";
-import { join } from "path";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,72 +25,18 @@ export async function POST(req: NextRequest) {
     const client = new Arcade();
 
     try {
-      // Get all tools for the user to check authorization status
-      const tools = await client.tools.list({ user_id: userId });
+      // Fetch tools for the requested toolkit
+      const tools = await client.tools.list({
+        toolkit: toolId,
+        user_id: userId,
+        limit: 30,
+      });
 
-      // Check if any tool has authorization for this provider
-      let isAuthorized = false;
-      const logLines: string[] = [];
-
-      logLines.push(`\n=== Checking authorization for ${toolId} ===`);
-      logLines.push(`User: ${userId}\n`);
-
-      let matchCount = 0;
-
-      for await (const tool of tools) {
-        // Only log tools that match the provider we're looking for
-        const providerId = tool.requirements?.authorization?.provider_id;
-        if (providerId === toolId) {
-          matchCount++;
-          logLines.push(`\n>>> MATCH #${matchCount}: ${tool.name} <<<`);
-
-          if (tool.requirements) {
-            logLines.push(`  Requirements met: ${tool.requirements.met}`);
-
-            // Check authorization status
-            if (tool.requirements.authorization) {
-              logLines.push(
-                `  Authorization status: ${tool.requirements.authorization.status}`
-              );
-              logLines.push(
-                `  Token status: ${tool.requirements.authorization.token_status}`
-              );
-              logLines.push(
-                `  Provider ID: ${tool.requirements.authorization.provider_id}`
-              );
-            }
-
-            // Check secret requirements
-            if (tool.requirements.secrets) {
-              tool.requirements.secrets.forEach((secret: any) => {
-                logLines.push(`  Secret '${secret.key}' met: ${secret.met}`);
-                if (!secret.met && secret.status_reason) {
-                  logLines.push(`    Reason: ${secret.status_reason}`);
-                }
-              });
-            }
-          }
-
-          logLines.push("---\n");
-
-          // Check if tool matches our provider and is authorized
-          if (
-            tool.requirements?.authorization?.provider_id === toolId &&
-            tool.requirements?.authorization?.token_status === "completed"
-          ) {
-            isAuthorized = true;
-          }
-        }
-      }
-
-      logLines.push(`\nTotal matching tools for ${toolId}: ${matchCount}`);
-
-      logLines.push(`\nResult: ${toolId} authorized = ${isAuthorized}`);
-
-      // Write to file
-      const logPath = join(process.cwd(), `arcade-tools-${toolId}.txt`);
-      writeFileSync(logPath, logLines.join("\n"), "utf-8");
-      console.log(`📝 Log written to: ${logPath}`);
+      // Check if any tool in this toolkit has completed token status
+      const isAuthorized = tools.items.some(
+        (tool) =>
+          tool.requirements?.authorization?.token_status === "completed"
+      );
 
       return NextResponse.json({
         success: true,
@@ -108,12 +52,13 @@ export async function POST(req: NextRequest) {
         error.data
       );
 
-      // If there's an error, assume not authorized
-      return NextResponse.json({
-        success: true,
-        authorized: false,
-        toolId,
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to fetch tools",
+        },
+        { status: 500 }
+      );
     }
   } catch (err: any) {
     console.error("Error in Arcade status route:", err);
