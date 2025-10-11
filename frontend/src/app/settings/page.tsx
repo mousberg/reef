@@ -15,6 +15,7 @@ import {
   NotionIcon,
   SlackIcon,
 } from "../../components/ProviderIcons";
+import { Skeleton } from "../../components/ui/skeleton";
 
 interface UserData {
   firstName: string;
@@ -378,87 +379,105 @@ export default function SettingsPage() {
                       </p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {availableTools.map((tool) => {
-                        const Icon = tool.icon;
-                        const isConnected = connectedTools[tool.id] || false;
-                        const isDisabled =
-                          !tool.enabled || authorizingTool === tool.id;
-
-                        return (
-                          <div
-                            key={tool.id}
-                            className={`relative bg-background dark:bg-card/50 border rounded-[16px] p-5 flex flex-col justify-between transition-all ${
-                              tool.enabled
-                                ? isConnected
-                                  ? "border-green-500/40 hover:border-green-500/60 hover:shadow-lg"
-                                  : "border-border hover:border-primary/40 hover:shadow-lg"
-                                : "border-border/50 opacity-60"
-                            }`}
-                          >
-                            {isConnected && (
-                              <div className="absolute top-3 right-3 flex items-center gap-1 bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-semibold px-2 py-1 rounded-full">
-                                <svg
-                                  className="w-3 h-3"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                CONNECTED
-                              </div>
-                            )}
-
-                            <div className="mb-4">
-                              <div className="flex items-center gap-3 mb-3">
-                                <div className="flex-shrink-0">
-                                  <Icon />
+                      {checkingStatus ? (
+                        // Skeleton loading state
+                        <>
+                          {[1, 2, 3, 4].map((i) => (
+                            <div
+                              key={i}
+                              className="relative bg-background dark:bg-card/50 border border-border rounded-[16px] p-5 flex flex-col justify-between"
+                            >
+                              <div className="mb-4">
+                                <div className="flex items-center gap-3 mb-3">
+                                  <Skeleton className="h-8 w-8 rounded-lg" />
+                                  <Skeleton className="h-5 w-24" />
                                 </div>
-                                <h4 className="text-foreground text-base font-semibold leading-5 font-sans">
-                                  {tool.name}
-                                </h4>
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-3/4 mt-2" />
                               </div>
-                              <p className="text-foreground/60 text-sm font-medium leading-5 font-sans">
-                                {tool.description}
-                              </p>
-                              {checkingStatus && tool.enabled && (
-                                <p className="text-foreground/40 text-xs font-medium leading-4 font-sans mt-2">
-                                  Checking status...
-                                </p>
-                              )}
+                              <Skeleton className="h-10 w-full rounded-[10px]" />
                             </div>
+                          ))}
+                        </>
+                      ) : (
+                        // Actual tool cards
+                        availableTools.map((tool) => {
+                          const Icon = tool.icon;
+                          const isConnected = connectedTools[tool.id] || false;
+                          const isDisabled =
+                            !tool.enabled || authorizingTool === tool.id;
 
-                            <Button
-                              onClick={() =>
-                                tool.enabled &&
-                                handleAuthorizeTool(
-                                  tool.id,
-                                  "scopes" in tool ? tool.scopes : undefined,
-                                )
-                              }
-                              disabled={isDisabled}
-                              className={`w-full rounded-[10px] px-4 py-2.5 text-sm font-semibold leading-5 font-sans transition-all ${
+                          return (
+                            <div
+                              key={tool.id}
+                              className={`relative bg-background dark:bg-card/50 border rounded-[16px] p-5 flex flex-col justify-between transition-all ${
                                 tool.enabled
                                   ? isConnected
-                                    ? "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20"
-                                    : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md disabled:opacity-50"
-                                  : "bg-muted text-muted-foreground cursor-not-allowed"
+                                    ? "border-green-500/40 hover:border-green-500/60 hover:shadow-lg"
+                                    : "border-border hover:border-primary/40 hover:shadow-lg"
+                                  : "border-border/50 opacity-60"
                               }`}
                             >
-                              {authorizingTool === tool.id
-                                ? "Connecting..."
-                                : tool.enabled
-                                  ? isConnected
-                                    ? "Reconnect"
-                                    : "Connect"
-                                  : "Coming Soon"}
-                            </Button>
-                          </div>
-                        );
-                      })}
+                              {isConnected && (
+                                <div className="absolute top-3 right-3 flex items-center gap-1 bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-semibold px-2 py-1 rounded-full">
+                                  <svg
+                                    className="w-3 h-3"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                  CONNECTED
+                                </div>
+                              )}
+
+                              <div className="mb-4">
+                                <div className="flex items-center gap-3 mb-3">
+                                  <div className="flex-shrink-0">
+                                    <Icon />
+                                  </div>
+                                  <h4 className="text-foreground text-base font-semibold leading-5 font-sans">
+                                    {tool.name}
+                                  </h4>
+                                </div>
+                                <p className="text-foreground/60 text-sm font-medium leading-5 font-sans">
+                                  {tool.description}
+                                </p>
+                              </div>
+
+                              <Button
+                                onClick={() =>
+                                  tool.enabled &&
+                                  handleAuthorizeTool(
+                                    tool.id,
+                                    "scopes" in tool ? tool.scopes : undefined,
+                                  )
+                                }
+                                disabled={isDisabled}
+                                className={`w-full rounded-[10px] px-4 py-2.5 text-sm font-semibold leading-5 font-sans transition-all ${
+                                  tool.enabled
+                                    ? isConnected
+                                      ? "bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20"
+                                      : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md disabled:opacity-50"
+                                    : "bg-muted text-muted-foreground cursor-not-allowed"
+                                }`}
+                              >
+                                {authorizingTool === tool.id
+                                  ? "Connecting..."
+                                  : tool.enabled
+                                    ? isConnected
+                                      ? "Reconnect"
+                                      : "Connect"
+                                    : "Coming Soon"}
+                              </Button>
+                            </div>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
 
