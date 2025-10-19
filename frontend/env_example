@@ -9,3 +9,5 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
 OPENAI_API_KEY=your_openai_api_key_here
 MISTRAL_API_KEY=your_mistral_api_key_here
+
+ARCADE_API_KEY=your_arcade_api_key_here
