@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Allow users to access only their own document in the "users" collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Allow access to any subcollections under the user doc
+      match /{subCollection=**}/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Deletion request
+    match /deletion-requests/{user_id} {
+    	// Allow write to deletion requests for the user
+    	allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Optionally, make all other data completely inaccessible
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
