@@ -12,6 +12,7 @@ from agents.extensions.models.litellm_model import LitellmModel # type: ignore
 
 from arcadepy import AsyncArcade # type: ignore
 from agents_arcade import get_arcade_tools # type: ignore
+import logging
 
 
 default_timeout = 60
@@ -110,7 +111,7 @@ async def _build_mcp_servers(
 
 async def build_agent(
     agent_name: str, user_id: str, model_name: str, mcp_servers: List[Dict[str, Any]],
-    toolkits: List[str], api_key: str, persona: str, output: str, 
+    toolkits: List[str], api_key: str, persona: str, output: str,
     guidelines: str, context: Dict[str, Any] = {}, tracer: List[Any] = None
 ) -> Agent:
     # set_tracing_disabled(True)
@@ -121,49 +122,70 @@ async def build_agent(
     # if '/' not in model_name:
     #     raise Exception("USE LITELLM MODEL NAME")
 
-    # In case of any MCPs
-    async with AsyncExitStack() as stack:
+    # Initialize Arcade client - keep alive for agent lifetime
+    # The AsyncArcade client maintains a persistent HTTP session
+    arcade_client = AsyncArcade()
 
-        mcp_servers = await _build_mcp_servers(stack, mcp_servers)
-        arcade_client = AsyncArcade()
+    tools = None
+    if len(toolkits) > 0:
+        logging.info(f"Fetching tools for agent {agent_name} with toolkits: {toolkits}")
+        context["user_id"] = user_id
+        try:
+            # Get Arcade tools - these are function wrappers that use the arcade_client
+            # The 'toolkits' parameter here actually contains specific tool names (e.g., "Gmail.SendEmail")
+            # not toolkit names (e.g., "Gmail"), so we pass them as 'tools' not 'toolkits'
+            tools = await get_arcade_tools(arcade_client, tools=toolkits)
+            logging.info(f"Agent {agent_name} retrieved {len(tools)} tools from Arcade: {[t.name for t in tools]}")
+        except Exception as e:
+            logging.error(f"Failed to get Arcade tools for {agent_name}: {e}")
+            raise
 
-        tools = None
-        if len(toolkits) > 0:
-            context["user_id"] = user_id
-            tools = await get_arcade_tools(arcade_client, toolkits=toolkits)
+    # Build MCP servers if needed
+    # TODO: MCP servers currently use AsyncExitStack which may cause issues
+    # if servers need to persist after this function returns
+    built_mcp_servers = None
+    if mcp_servers and len(mcp_servers) > 0:
+        # Create a stack that won't be automatically closed
+        # The servers will remain open for the agent's lifetime
+        stack = AsyncExitStack()
+        built_mcp_servers = await _build_mcp_servers(stack, mcp_servers)
+        # Note: stack is NOT used in 'async with' so it won't auto-close
 
-        # Context: Time and __system__ 
-        context_string = f"- The time is: {time.asctime()}\n"
-        context_string += (context.get("__system__") or "")
+    # Context: Time and __system__
+    context_string = f"- The time is: {time.asctime()}\n"
+    context_string += (context.get("__system__") or "")
 
-        # Guidelines
-        if len(guidelines) > 0:
-            guidelines_string = "- " + "\n- ".join(guidelines)
-        else:
-            guidelines_string = ""
+    # Guidelines
+    if len(guidelines) > 0:
+        guidelines_string = "- " + "\n- ".join(guidelines)
+    else:
+        guidelines_string = ""
 
-        # System prompt
-        system_prompt = BASE_PROMPT.format(
-            persona=persona,
-            guidelines=guidelines_string,
-            output=output,
-            context=context_string
-        )
-            
-        # Build agent
-        agent_kwargs: Dict[str, Any] = {
-            "name": agent_name,
-            "instructions": system_prompt,
-            # "model": LitellmModel(model=model_name, api_key=api_key),
-            # "model_settings": ModelSettings(tool_choice="required", temperature=0.0),
-            "model": model_name,
-        }
+    # System prompt
+    system_prompt = BASE_PROMPT.format(
+        persona=persona,
+        guidelines=guidelines_string,
+        output=output,
+        context=context_string
+    )
 
-        # Optional params
-        if tools:
-            agent_kwargs["tools"] = tools
-        
-        if mcp_servers:
-            agent_kwargs["mcp_servers"] = mcp_servers
+    # Build agent
+    agent_kwargs: Dict[str, Any] = {
+        "name": agent_name,
+        "instructions": system_prompt,
+        # "model": LitellmModel(model=model_name, api_key=api_key),
+        # "model_settings": ModelSettings(tool_choice="required", temperature=0.0),
+        "model": model_name,
+    }
 
-        return Agent(**agent_kwargs)
+    # Optional params
+    if tools:
+        agent_kwargs["tools"] = tools
+        logging.info(f"Agent {agent_name} kwargs includes {len(tools)} tools")
+
+    if built_mcp_servers:
+        agent_kwargs["mcp_servers"] = built_mcp_servers
+
+    agent = Agent(**agent_kwargs)
+    logging.info(f"Agent {agent_name} created with tools: {hasattr(agent, 'tools')} - count: {len(agent.tools) if hasattr(agent, 'tools') else 0}")
+    return agent
