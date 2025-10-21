@@ -8,6 +8,8 @@ import { RunQueryAlertDialog } from "./ui/run-query-alert-dialog";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSaveWorkflow } from "@/hooks/useSaveWorkflow";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "@/lib/firebase";
 
 interface CanvasProps {
   project: Project;
@@ -61,13 +63,31 @@ export function Canvas({ project }: CanvasProps) {
 
     try {
       setRunning(true);
+
+      // Fetch builtWorkflow from Firestore (client-side read with auth context)
+      const projectRef = doc(firestore, "users", user.uid, "projects", project.id);
+      const projectSnap = await getDoc(projectRef);
+
+      if (!projectSnap.exists()) {
+        toast.error("Project not found");
+        return;
+      }
+
+      const builtWorkflow = projectSnap.data()?.builtWorkflow;
+
+      if (!builtWorkflow) {
+        toast.error("Workflow not built yet. Please click 'Build' first.");
+        return;
+      }
+
+      // Call deploy API with builtWorkflow
       const res = await fetch("/api/deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query,
           userId: user.uid,
-          projectId: project.id,
+          builtWorkflow,
         }),
       });
 
