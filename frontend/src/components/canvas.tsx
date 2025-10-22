@@ -65,7 +65,13 @@ export function Canvas({ project }: CanvasProps) {
       setRunning(true);
 
       // Fetch builtWorkflow from Firestore (client-side read with auth context)
-      const projectRef = doc(firestore, "users", user.uid, "projects", project.id);
+      const projectRef = doc(
+        firestore,
+        "users",
+        user.uid,
+        "projects",
+        project.id,
+      );
       const projectSnap = await getDoc(projectRef);
 
       if (!projectSnap.exists()) {
