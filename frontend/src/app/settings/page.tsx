@@ -54,7 +54,13 @@ export default function SettingsPage() {
       name: "Google",
       description: "Access Gmail and Google services",
       icon: GoogleIcon,
-      scopes: ["https://www.googleapis.com/auth/gmail.readonly"],
+      scopes: [
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/gmail.send",
+        "https://www.googleapis.com/auth/gmail.modify",
+      ],
       enabled: true,
     },
     {
@@ -62,6 +68,7 @@ export default function SettingsPage() {
       name: "GitHub",
       description: "Access repositories and code",
       icon: GitHubIcon,
+      scopes: ["repo"],
       enabled: true,
     },
     {
@@ -76,6 +83,21 @@ export default function SettingsPage() {
       name: "Slack",
       description: "Integrate with Slack channels",
       icon: SlackIcon,
+      scopes: [
+        "channels.read",
+        "channels.write",
+        "groups.read",
+        "groups:history",
+        "groups:write",
+        "im:history",
+        "im:read",
+        "im:write",
+        "mpim:history",
+        "mpim:read",
+        "mpim:write",
+        "users:read",
+        "users:read.email",
+      ],
       enabled: true,
     },
     {
@@ -83,6 +105,7 @@ export default function SettingsPage() {
       name: "X",
       description: "Integrate with X (Twitter)",
       icon: XIcon,
+      scopes: ["tweet.read", "tweet.write"],
       enabled: true,
     },
   ];
