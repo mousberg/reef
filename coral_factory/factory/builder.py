@@ -39,7 +39,7 @@ async def delegate_task(agent_name: str, task: str):
     agent = agents[agent_name]
     logging.info(f"Agent {agent_name} has tools: {hasattr(agent, 'tools')} - count: {len(agent.tools) if hasattr(agent, 'tools') else 0}")
     result = await Runner.run(agent, task, context=global_context)
-    logging.info(f"Agent {agent_name} returned:\n{result.final_output[:100]}...\n\n")
+    logging.info(f"Agent {agent_name} returned:\n{result.final_output}\n\n")
     return result.final_output
 
 

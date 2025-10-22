@@ -149,6 +149,7 @@ async def build_agent(
         # The servers will remain open for the agent's lifetime
         stack = AsyncExitStack()
         built_mcp_servers = await _build_mcp_servers(stack, mcp_servers)
+        logging.debug(f"Agent {agent_name} built {len(built_mcp_servers)} MCP servers")
         # Note: stack is NOT used in 'async with' so it won't auto-close
 
     # Context: Time and __system__
