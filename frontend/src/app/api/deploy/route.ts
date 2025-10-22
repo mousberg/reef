@@ -1,11 +1,9 @@
 import { NextRequest } from "next/server";
-import { firestore } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { query, userId, projectId } = body || {};
+    const { query, userId, builtWorkflow } = body || {};
 
     if (!query || typeof query !== "string") {
       return new Response(JSON.stringify({ error: "query is required" }), {
@@ -19,41 +17,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (!projectId || typeof projectId !== "string") {
-      return new Response(JSON.stringify({ error: "projectId is required" }), {
-        status: 400,
-      });
-    }
-
-    // Get the builtWorkflow from Firebase
-    let builtWorkflow: any;
-    try {
-      const projectRef = doc(firestore, "users", userId, "projects", projectId);
-      const projectSnap = await getDoc(projectRef);
-
-      if (!projectSnap.exists()) {
-        return new Response(JSON.stringify({ error: "Project not found" }), {
-          status: 404,
-        });
-      }
-
-      builtWorkflow = projectSnap.data()?.builtWorkflow;
-
-      if (!builtWorkflow) {
-        return new Response(
-          JSON.stringify({
-            error: "Workflow not built yet. Please click 'Build' first.",
-          }),
-          { status: 400 },
-        );
-      }
-    } catch (firebaseErr: any) {
+    if (!builtWorkflow || typeof builtWorkflow !== "object") {
       return new Response(
         JSON.stringify({
-          error: "Failed to fetch workflow from Firebase",
-          message: firebaseErr?.message || String(firebaseErr),
+          error: "Workflow not built yet. Please click 'Build' first.",
         }),
-        { status: 500 },
+        { status: 400 },
       );
     }
 
