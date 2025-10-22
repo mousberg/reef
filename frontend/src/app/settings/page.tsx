@@ -14,6 +14,7 @@ import {
   GitHubIcon,
   NotionIcon,
   SlackIcon,
+  XIcon,
 } from "../../components/ProviderIcons";
 import { Skeleton } from "../../components/ui/skeleton";
 
@@ -75,6 +76,13 @@ export default function SettingsPage() {
       name: "Slack",
       description: "Integrate with Slack channels",
       icon: SlackIcon,
+      enabled: true,
+    },
+    {
+      id: "x",
+      name: "X",
+      description: "Integrate with X (Twitter)",
+      icon: XIcon,
       enabled: true,
     },
   ];
