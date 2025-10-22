@@ -7,6 +7,10 @@ from dotenv import load_dotenv
 import uvicorn
 import os
 import uuid
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 from factory.builder import WorkflowConfig
 from factory.runner import WorkflowRunner
@@ -61,15 +65,18 @@ async def run_workflow(run_workflow_request: RunWorkflowRequest, token: str = De
     global running_workflows
     trace_id = str(uuid.uuid4())
 
+    logger.info(f"run_workflow_request: {run_workflow_request}")
+
     runner = WorkflowRunner(
         workflow_config=run_workflow_request.workflow_config,
         user_id=run_workflow_request.user_id,
         user_task=run_workflow_request.user_task,
         trace_id=trace_id
     )
+    logger.info(f"-------Workflow Runner Started-------")
     runner.start()
     running_workflows[trace_id] = runner
-
+    logger.info(f"-------Workflow Runner Added to Running Workflows-------")
     return JSONResponse(content={"success": True, "trace_id": trace_id})
 
 @app.get("/workflow/status/{trace_id}")
