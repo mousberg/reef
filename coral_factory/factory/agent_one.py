@@ -5,7 +5,7 @@ from contextlib import AsyncExitStack
 from typing import Any, Dict, List
 import time
 
-from agents import Agent, set_trace_processors # type: ignore
+from agents import Agent, set_trace_processors, function_tool # type: ignore
 from agents.mcp import MCPServerStreamableHttp, MCPServerSse # type: ignore
 from agents.model_settings import ModelSettings # type: ignore
 from agents.extensions.models.litellm_model import LitellmModel # type: ignore
@@ -23,27 +23,33 @@ default_cache_tools_list = True
 
 def create_logged_tool_wrapper(original_tool, agent_name: str):
     """
-    Wraps an Arcade tool to add comprehensive logging before and after execution.
+    Wraps an Arcade FunctionTool to add comprehensive logging before and after execution.
+    Returns the original FunctionTool object with its on_invoke_tool replaced by the logged wrapper.
     """
-    original_func = original_tool.function if hasattr(original_tool, 'function') else original_tool
-    
-    @functools.wraps(original_func)
+    # FunctionTool objects have 'on_invoke_tool' attribute, not 'function'
+    if not hasattr(original_tool, 'on_invoke_tool'):
+        logging.warning(f"[TOOL_INIT] ⚠️  Tool does not have 'on_invoke_tool' attribute: {original_tool}")
+        return original_tool
+
+    # Store the original invocation function
+    original_invoke = original_tool.on_invoke_tool
+    tool_name = getattr(original_tool, 'name', 'unknown')
+
+    @functools.wraps(original_invoke)
     async def logged_wrapper(*args, **kwargs):
-        tool_name = getattr(original_tool, 'name', str(original_tool))
-        
         # Log the tool call attempt
         logging.info(f"[TOOL_CALL] 🔧 Agent '{agent_name}' calling tool: {tool_name}")
         logging.info(f"[TOOL_CALL]   Args: {args}")
         logging.info(f"[TOOL_CALL]   Kwargs: {json.dumps(kwargs, default=str, indent=2)}")
-        
+
         try:
-            # Execute the original tool
-            result = await original_func(*args, **kwargs)
-            
+            # Execute the original tool invocation
+            result = await original_invoke(*args, **kwargs)
+
             # Log success
             logging.info(f"[TOOL_CALL] ✅ Tool '{tool_name}' completed successfully")
             logging.info(f"[TOOL_CALL]   Result type: {type(result)}")
-            
+
             # Try to log result in a readable way
             try:
                 if isinstance(result, (str, int, float, bool, type(None))):
@@ -54,9 +60,9 @@ def create_logged_tool_wrapper(original_tool, agent_name: str):
                     logging.info(f"[TOOL_CALL]   Result: {str(result)[:500]}")  # Truncate long results
             except Exception as log_err:
                 logging.warning(f"[TOOL_CALL]   Could not log result: {log_err}")
-            
+
             return result
-            
+
         except Exception as e:
             # Log failure with full details
             logging.error(f"[TOOL_CALL] ❌ Tool '{tool_name}' failed with error: {type(e).__name__}: {e}")
@@ -65,16 +71,13 @@ def create_logged_tool_wrapper(original_tool, agent_name: str):
             logging.error(f"[TOOL_CALL]   Args: {args}")
             logging.error(f"[TOOL_CALL]   Kwargs: {kwargs}")
             logging.exception(f"[TOOL_CALL]   Full traceback:")
-            
+
             # Re-raise to let the agent handle it
             raise
-    
-    # Preserve tool attributes
-    if hasattr(original_tool, 'function'):
-        original_tool.function = logged_wrapper
-        return original_tool
-    else:
-        return logged_wrapper
+
+    # Replace the on_invoke_tool with our logged wrapper
+    original_tool.on_invoke_tool = logged_wrapper
+    return original_tool
 
 
 # TODO Add reasoning prompt to reasoning models!
