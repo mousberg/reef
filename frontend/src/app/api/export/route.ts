@@ -1,6 +1,4 @@
 import { NextRequest } from "next/server";
-import { firestore } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
 
 // Transform frontend WorkflowState to Factory WorkflowConfig
 function transformToFactoryConfig(workflowState: any): any {
@@ -51,25 +49,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { workflowState, userId, projectId } = body || {};
+    const { workflowState } = body || {};
 
     if (!workflowState || typeof workflowState !== "object") {
       return new Response(
         JSON.stringify({ error: "workflowState is required" }),
         { status: 400 },
       );
-    }
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: "userId is required" }), {
-        status: 400,
-      });
-    }
-
-    if (!projectId) {
-      return new Response(JSON.stringify({ error: "projectId is required" }), {
-        status: 400,
-      });
     }
 
     const FACTORY_URL =
@@ -109,23 +95,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Store builtWorkflow in Firebase
-    try {
-      const projectRef = doc(firestore, "users", userId, "projects", projectId);
-      await updateDoc(projectRef, {
-        builtWorkflow,
-        updatedAt: new Date().toISOString(),
-      });
-    } catch (firebaseErr: any) {
-      return new Response(
-        JSON.stringify({
-          error: "Failed to store workflow in Firebase",
-          message: firebaseErr?.message || String(firebaseErr),
-        }),
-        { status: 500 },
-      );
-    }
-
+    // Return the built workflow - client will handle Firestore write
     return new Response(JSON.stringify({ success: true, builtWorkflow }), {
       status: 200,
     });
