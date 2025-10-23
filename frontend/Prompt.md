@@ -535,3 +535,834 @@ Get comprehensive user profile and Gmail account information.
 
 Parameters:
 This tool does not take any parameters.
+
+## GitHub
+
+### GitHub.GetUser
+
+Get information about the authenticated GitHub user.
+
+Parameters:
+This tool does not take any parameters.
+
+### GitHub.ListRepositories
+
+List repositories accessible to the authenticated user.
+
+Parameters:
+
+- visibility (string, optional) Filter by repository visibility. Options: 'all', 'public', 'private'. Defaults to 'all'.
+- sort (string, optional) Sort repositories by. Options: 'created', 'updated', 'pushed', 'full_name'. Defaults to 'full_name'.
+- per_page (integer, optional) Number of repositories per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+### GitHub.GetRepository
+
+Get detailed information about a specific repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+
+### GitHub.ListBranches
+
+List branches in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- per_page (integer, optional) Number of branches per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+### GitHub.GetBranch
+
+Get information about a specific branch.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- branch (string, required) The branch name.
+
+### GitHub.CreateBranch
+
+Create a new branch in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- branch_name (string, required) The name for the new branch.
+- from_branch (string, optional) The branch to create from. Defaults to the repository's default branch.
+
+### GitHub.ListPullRequests
+
+List pull requests in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- state (string, optional) Filter by state. Options: 'open', 'closed', 'all'. Defaults to 'open'.
+- per_page (integer, optional) Number of pull requests per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+### GitHub.GetPullRequest
+
+Get detailed information about a specific pull request.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- pull_number (integer, required) The pull request number.
+
+### GitHub.CreatePullRequest
+
+Create a new pull request in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- title (string, required) The title of the pull request.
+- body (string, optional) The description of the pull request.
+- head (string, required) The name of the branch where your changes are implemented.
+- base (string, required) The name of the branch you want the changes pulled into.
+
+### GitHub.UpdatePullRequest
+
+Update an existing pull request.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- pull_number (integer, required) The pull request number.
+- title (string, optional) The updated title of the pull request.
+- body (string, optional) The updated description of the pull request.
+- state (string, optional) The state of the pull request. Options: 'open', 'closed'.
+
+### GitHub.MergePullRequest
+
+Merge a pull request.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- pull_number (integer, required) The pull request number.
+- commit_title (string, optional) The title for the merge commit.
+- commit_message (string, optional) The message for the merge commit.
+- merge_method (string, optional) The merge method. Options: 'merge', 'squash', 'rebase'. Defaults to 'merge'.
+
+### GitHub.ListIssues
+
+List issues in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- state (string, optional) Filter by state. Options: 'open', 'closed', 'all'. Defaults to 'open'.
+- labels (array[string], optional) Filter by labels.
+- per_page (integer, optional) Number of issues per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+### GitHub.GetIssue
+
+Get detailed information about a specific issue.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- issue_number (integer, required) The issue number.
+
+### GitHub.CreateIssue
+
+Create a new issue in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- title (string, required) The title of the issue.
+- body (string, optional) The body/description of the issue.
+- labels (array[string], optional) Labels to apply to the issue.
+- assignees (array[string], optional) Usernames to assign to the issue.
+
+### GitHub.UpdateIssue
+
+Update an existing issue.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- issue_number (integer, required) The issue number.
+- title (string, optional) The updated title of the issue.
+- body (string, optional) The updated body/description of the issue.
+- state (string, optional) The state of the issue. Options: 'open', 'closed'.
+- labels (array[string], optional) Updated labels for the issue.
+
+### GitHub.ListCommits
+
+List commits in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- sha (string, optional) SHA or branch to start listing commits from.
+- per_page (integer, optional) Number of commits per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+### GitHub.GetCommit
+
+Get detailed information about a specific commit.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- commit_sha (string, required) The commit SHA.
+
+### GitHub.GetFileContent
+
+Get the contents of a file in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- path (string, required) The file path in the repository.
+- ref (string, optional) The name of the commit/branch/tag. Defaults to the repository's default branch.
+
+### GitHub.CreateOrUpdateFile
+
+Create or update a file in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- path (string, required) The file path in the repository.
+- message (string, required) The commit message.
+- content (string, required) The new file content (base64 encoded).
+- branch (string, optional) The branch name. Defaults to the repository's default branch.
+- sha (string, optional) The blob SHA of the file being replaced (required if updating an existing file).
+
+### GitHub.DeleteFile
+
+Delete a file in a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- path (string, required) The file path in the repository.
+- message (string, required) The commit message.
+- sha (string, required) The blob SHA of the file being deleted.
+- branch (string, optional) The branch name. Defaults to the repository's default branch.
+
+### GitHub.SearchRepositories
+
+Search for repositories on GitHub.
+
+Parameters:
+
+- query (string, required) The search query.
+- sort (string, optional) Sort by. Options: 'stars', 'forks', 'help-wanted-issues', 'updated'.
+- order (string, optional) Sort order. Options: 'asc', 'desc'. Defaults to 'desc'.
+- per_page (integer, optional) Number of results per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+### GitHub.SearchCode
+
+Search for code in repositories.
+
+Parameters:
+
+- query (string, required) The search query.
+- sort (string, optional) Sort by. Options: 'indexed'.
+- order (string, optional) Sort order. Options: 'asc', 'desc'. Defaults to 'desc'.
+- per_page (integer, optional) Number of results per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+### GitHub.ListCollaborators
+
+List collaborators for a repository.
+
+Parameters:
+
+- owner (string, required) The repository owner's username.
+- repo (string, required) The repository name.
+- per_page (integer, optional) Number of collaborators per page. Defaults to 30.
+- page (integer, optional) Page number for pagination. Defaults to 1.
+
+## Notion
+
+### Notion.SearchPages
+
+Search for pages in Notion.
+
+Parameters:
+
+- query (string, optional) The text to search for.
+- filter (object, optional) Filter results by type. Options: { "property": "object", "value": "page" } or { "property": "object", "value": "database" }.
+- sort (object, optional) Sort the results. Example: { "direction": "ascending", "timestamp": "last_edited_time" }.
+- page_size (integer, optional) Number of results per page. Defaults to 100.
+- start_cursor (string, optional) Pagination cursor.
+
+### Notion.GetPage
+
+Get the details of a specific page.
+
+Parameters:
+
+- page_id (string, required) The ID of the page to retrieve.
+
+### Notion.CreatePage
+
+Create a new page in Notion.
+
+Parameters:
+
+- parent_id (string, required) The ID of the parent page or database.
+- parent_type (string, required) Type of parent. Options: 'page_id', 'database_id'.
+- title (string, required) The title of the new page.
+- content (array[object], optional) The content blocks for the page.
+- properties (object, optional) Properties for the page (required if parent is a database).
+
+### Notion.UpdatePage
+
+Update an existing page.
+
+Parameters:
+
+- page_id (string, required) The ID of the page to update.
+- properties (object, optional) Updated properties for the page.
+- archived (boolean, optional) Whether to archive the page.
+
+### Notion.GetPageContent
+
+Get the content blocks of a page.
+
+Parameters:
+
+- page_id (string, required) The ID of the page.
+- page_size (integer, optional) Number of blocks per page. Defaults to 100.
+- start_cursor (string, optional) Pagination cursor.
+
+### Notion.AppendBlockChildren
+
+Append content blocks to a page or block.
+
+Parameters:
+
+- block_id (string, required) The ID of the parent block or page.
+- children (array[object], required) Array of block objects to append.
+
+### Notion.UpdateBlock
+
+Update an existing block.
+
+Parameters:
+
+- block_id (string, required) The ID of the block to update.
+- content (object, required) The updated block content.
+- archived (boolean, optional) Whether to archive the block.
+
+### Notion.DeleteBlock
+
+Delete a block (archive it).
+
+Parameters:
+
+- block_id (string, required) The ID of the block to delete.
+
+### Notion.ListDatabases
+
+List all databases shared with the integration.
+
+Parameters:
+
+- page_size (integer, optional) Number of databases per page. Defaults to 100.
+- start_cursor (string, optional) Pagination cursor.
+
+### Notion.GetDatabase
+
+Get the details of a specific database.
+
+Parameters:
+
+- database_id (string, required) The ID of the database to retrieve.
+
+### Notion.QueryDatabase
+
+Query a database and retrieve entries.
+
+Parameters:
+
+- database_id (string, required) The ID of the database to query.
+- filter (object, optional) Filter object to narrow down results.
+- sorts (array[object], optional) Array of sort objects.
+- page_size (integer, optional) Number of results per page. Defaults to 100.
+- start_cursor (string, optional) Pagination cursor.
+
+### Notion.CreateDatabase
+
+Create a new database.
+
+Parameters:
+
+- parent_id (string, required) The ID of the parent page.
+- title (string, required) The title of the database.
+- properties (object, required) Schema defining the database properties.
+
+### Notion.UpdateDatabase
+
+Update an existing database.
+
+Parameters:
+
+- database_id (string, required) The ID of the database to update.
+- title (string, optional) Updated title for the database.
+- properties (object, optional) Updated properties schema.
+- archived (boolean, optional) Whether to archive the database.
+
+### Notion.GetUser
+
+Get information about a user.
+
+Parameters:
+
+- user_id (string, required) The ID of the user.
+
+### Notion.ListUsers
+
+List all users in the workspace.
+
+Parameters:
+
+- page_size (integer, optional) Number of users per page. Defaults to 100.
+- start_cursor (string, optional) Pagination cursor.
+
+### Notion.GetCurrentUser
+
+Get information about the bot user.
+
+Parameters:
+This tool does not take any parameters.
+
+### Notion.SearchByTitle
+
+Search for pages by title.
+
+Parameters:
+
+- title (string, required) The title to search for.
+- page_size (integer, optional) Number of results per page. Defaults to 100.
+
+### Notion.GetComments
+
+Get comments on a page or block.
+
+Parameters:
+
+- block_id (string, required) The ID of the block or page.
+- page_size (integer, optional) Number of comments per page. Defaults to 100.
+- start_cursor (string, optional) Pagination cursor.
+
+### Notion.CreateComment
+
+Create a comment on a page or block.
+
+Parameters:
+
+- block_id (string, required) The ID of the block or page to comment on.
+- rich_text (array[object], required) The comment content as rich text objects.
+
+## Spotify
+
+### Spotify.GetCurrentUserProfile
+
+Get detailed profile information about the current user.
+
+Parameters:
+This tool does not take any parameters.
+
+### Spotify.GetCurrentlyPlaying
+
+Get the user's currently playing track.
+
+Parameters:
+
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetRecentlyPlayed
+
+Get the current user's recently played tracks.
+
+Parameters:
+
+- limit (integer, optional) The maximum number of items to return. Default: 20. Maximum: 50.
+- after (integer, optional) A Unix timestamp in milliseconds. Returns all items after this cursor position.
+- before (integer, optional) A Unix timestamp in milliseconds. Returns all items before this cursor position.
+
+### Spotify.GetTopTracks
+
+Get the current user's top tracks based on calculated affinity.
+
+Parameters:
+
+- time_range (string, optional) Time period. Options: 'long_term', 'medium_term', 'short_term'. Defaults to 'medium_term'.
+- limit (integer, optional) Number of tracks to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first item to return. Defaults to 0.
+
+### Spotify.GetTopArtists
+
+Get the current user's top artists based on calculated affinity.
+
+Parameters:
+
+- time_range (string, optional) Time period. Options: 'long_term', 'medium_term', 'short_term'. Defaults to 'medium_term'.
+- limit (integer, optional) Number of artists to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first item to return. Defaults to 0.
+
+### Spotify.GetUserPlaylists
+
+Get a list of the current user's playlists.
+
+Parameters:
+
+- limit (integer, optional) The maximum number of playlists to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first playlist to return. Defaults to 0.
+
+### Spotify.GetPlaylist
+
+Get detailed information about a specific playlist.
+
+Parameters:
+
+- playlist_id (string, required) The Spotify ID of the playlist.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetPlaylistTracks
+
+Get the tracks in a playlist.
+
+Parameters:
+
+- playlist_id (string, required) The Spotify ID of the playlist.
+- limit (integer, optional) The maximum number of tracks to return. Default: 100. Maximum: 100.
+- offset (integer, optional) The index of the first track to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.CreatePlaylist
+
+Create a new playlist for the current user.
+
+Parameters:
+
+- name (string, required) The name for the new playlist.
+- description (string, optional) The playlist description.
+- public (boolean, optional) Whether the playlist should be public. Defaults to true.
+- collaborative (boolean, optional) Whether the playlist should be collaborative. Defaults to false.
+
+### Spotify.UpdatePlaylist
+
+Update a playlist's details.
+
+Parameters:
+
+- playlist_id (string, required) The Spotify ID of the playlist.
+- name (string, optional) The updated name for the playlist.
+- description (string, optional) The updated description.
+- public (boolean, optional) Whether the playlist should be public.
+- collaborative (boolean, optional) Whether the playlist should be collaborative.
+
+### Spotify.AddTracksToPlaylist
+
+Add tracks to a playlist.
+
+Parameters:
+
+- playlist_id (string, required) The Spotify ID of the playlist.
+- track_uris (array[string], required) Array of Spotify track URIs to add.
+- position (integer, optional) The position to insert the tracks.
+
+### Spotify.RemoveTracksFromPlaylist
+
+Remove tracks from a playlist.
+
+Parameters:
+
+- playlist_id (string, required) The Spotify ID of the playlist.
+- track_uris (array[string], required) Array of Spotify track URIs to remove.
+
+### Spotify.SearchTracks
+
+Search for tracks.
+
+Parameters:
+
+- query (string, required) The search query.
+- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first result to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.SearchArtists
+
+Search for artists.
+
+Parameters:
+
+- query (string, required) The search query.
+- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first result to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.SearchAlbums
+
+Search for albums.
+
+Parameters:
+
+- query (string, required) The search query.
+- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first result to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.SearchPlaylists
+
+Search for playlists.
+
+Parameters:
+
+- query (string, required) The search query.
+- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first result to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetTrack
+
+Get detailed information about a track.
+
+Parameters:
+
+- track_id (string, required) The Spotify ID of the track.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetArtist
+
+Get detailed information about an artist.
+
+Parameters:
+
+- artist_id (string, required) The Spotify ID of the artist.
+
+### Spotify.GetArtistTopTracks
+
+Get an artist's top tracks.
+
+Parameters:
+
+- artist_id (string, required) The Spotify ID of the artist.
+- market (string, required) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetArtistAlbums
+
+Get an artist's albums.
+
+Parameters:
+
+- artist_id (string, required) The Spotify ID of the artist.
+- limit (integer, optional) The maximum number of albums to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first album to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetAlbum
+
+Get detailed information about an album.
+
+Parameters:
+
+- album_id (string, required) The Spotify ID of the album.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetAlbumTracks
+
+Get the tracks in an album.
+
+Parameters:
+
+- album_id (string, required) The Spotify ID of the album.
+- limit (integer, optional) The maximum number of tracks to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first track to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.GetUserSavedTracks
+
+Get the user's saved tracks (liked songs).
+
+Parameters:
+
+- limit (integer, optional) The maximum number of tracks to return. Default: 20. Maximum: 50.
+- offset (integer, optional) The index of the first track to return. Defaults to 0.
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.SaveTracks
+
+Save tracks to the user's library.
+
+Parameters:
+
+- track_ids (array[string], required) Array of Spotify track IDs to save.
+
+### Spotify.RemoveSavedTracks
+
+Remove tracks from the user's library.
+
+Parameters:
+
+- track_ids (array[string], required) Array of Spotify track IDs to remove.
+
+### Spotify.CheckSavedTracks
+
+Check if tracks are in the user's library.
+
+Parameters:
+
+- track_ids (array[string], required) Array of Spotify track IDs to check.
+
+### Spotify.GetFollowedArtists
+
+Get the user's followed artists.
+
+Parameters:
+
+- limit (integer, optional) The maximum number of artists to return. Default: 20. Maximum: 50.
+- after (string, optional) The last artist ID retrieved from the previous request.
+
+### Spotify.FollowArtists
+
+Follow artists.
+
+Parameters:
+
+- artist_ids (array[string], required) Array of Spotify artist IDs to follow.
+
+### Spotify.UnfollowArtists
+
+Unfollow artists.
+
+Parameters:
+
+- artist_ids (array[string], required) Array of Spotify artist IDs to unfollow.
+
+### Spotify.CheckFollowingArtists
+
+Check if the user follows specific artists.
+
+Parameters:
+
+- artist_ids (array[string], required) Array of Spotify artist IDs to check.
+
+### Spotify.StartPlayback
+
+Start or resume playback.
+
+Parameters:
+
+- device_id (string, optional) The ID of the device to play on.
+- context_uri (string, optional) Spotify URI of the context to play (album, artist, playlist).
+- track_uris (array[string], optional) Array of track URIs to play.
+- position_ms (integer, optional) Position in milliseconds to start playback.
+
+### Spotify.PausePlayback
+
+Pause playback.
+
+Parameters:
+
+- device_id (string, optional) The ID of the device to pause on.
+
+### Spotify.SkipToNext
+
+Skip to the next track.
+
+Parameters:
+
+- device_id (string, optional) The ID of the device to skip on.
+
+### Spotify.SkipToPrevious
+
+Skip to the previous track.
+
+Parameters:
+
+- device_id (string, optional) The ID of the device to skip on.
+
+### Spotify.SeekToPosition
+
+Seek to a position in the current track.
+
+Parameters:
+
+- position_ms (integer, required) The position in milliseconds to seek to.
+- device_id (string, optional) The ID of the device to seek on.
+
+### Spotify.SetPlaybackVolume
+
+Set the playback volume.
+
+Parameters:
+
+- volume_percent (integer, required) The volume to set (0-100).
+- device_id (string, optional) The ID of the device to set volume on.
+
+### Spotify.SetRepeatMode
+
+Set the repeat mode for playback.
+
+Parameters:
+
+- state (string, required) The repeat mode. Options: 'track', 'context', 'off'.
+- device_id (string, optional) The ID of the device to set repeat mode on.
+
+### Spotify.SetShuffleMode
+
+Toggle shuffle mode for playback.
+
+Parameters:
+
+- state (boolean, required) Whether to enable shuffle.
+- device_id (string, optional) The ID of the device to set shuffle on.
+
+### Spotify.GetAvailableDevices
+
+Get the user's available playback devices.
+
+Parameters:
+This tool does not take any parameters.
+
+### Spotify.GetPlaybackState
+
+Get information about the user's current playback state.
+
+Parameters:
+
+- market (string, optional) An ISO 3166-1 alpha-2 country code.
+
+### Spotify.TransferPlayback
+
+Transfer playback to a different device.
+
+Parameters:
+
+- device_ids (array[string], required) Array containing a single device ID to transfer playback to.
+- play (boolean, optional) Whether to ensure playback happens on new device. Defaults to false.
