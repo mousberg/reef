@@ -140,8 +140,8 @@ export default function ProjectsPage() {
         projects.map((p) =>
           p.id === projectId
             ? { ...p, name: trimmedName, updatedAt: new Date() }
-            : p
-        )
+            : p,
+        ),
       );
       toast.success("Project renamed successfully");
       setEditingProject(null);
@@ -351,18 +351,18 @@ export default function ProjectsPage() {
                                       e.stopPropagation();
                                       console.log(
                                         "Three dots clicked, current activeDropdown:",
-                                        activeDropdown
+                                        activeDropdown,
                                       );
                                       setActiveDropdown(
                                         activeDropdown === project.id
                                           ? null
-                                          : project.id
+                                          : project.id,
                                       );
                                       console.log(
                                         "Setting activeDropdown to:",
                                         activeDropdown === project.id
                                           ? null
-                                          : project.id
+                                          : project.id,
                                       );
                                     }}
                                     className="p-2 hover:bg-accent dark:hover:bg-accent/50 rounded-[8px] transition-colors"
@@ -419,11 +419,11 @@ export default function ProjectsPage() {
                                           e.stopPropagation();
                                           console.log(
                                             "Delete button clicked for project:",
-                                            project.id
+                                            project.id,
                                           );
                                           openDeleteConfirmation(
                                             project.id,
-                                            project.name
+                                            project.name,
                                           );
                                         }}
                                         disabled={deleting === project.id}
