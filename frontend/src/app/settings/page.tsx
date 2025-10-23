@@ -42,7 +42,7 @@ export default function SettingsPage() {
   });
   const [authorizingTool, setAuthorizingTool] = useState<string | null>(null);
   const [connectedTools, setConnectedTools] = useState<Record<string, boolean>>(
-    {},
+    {}
   );
   const [checkingStatus, setCheckingStatus] = useState(true);
   const router = useRouter();
@@ -166,7 +166,7 @@ export default function SettingsPage() {
           acc[toolId] = authorized;
           return acc;
         },
-        {} as Record<string, boolean>,
+        {} as Record<string, boolean>
       );
 
       setConnectedTools(statusMap);
@@ -248,7 +248,7 @@ export default function SettingsPage() {
     } catch (error: any) {
       console.error("Failed to authorize tool:", error);
       toast.error(
-        error.message || "Failed to authorize tool. Please try again.",
+        error.message || "Failed to authorize tool. Please try again."
       );
       setAuthorizingTool(null);
     }
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                       {checkingStatus ? (
                         // Skeleton loading state
                         <>
-                          {[1, 2, 3, 4].map((i) => (
+                          {[1, 2, 3, 4, 5].map((i) => (
                             <div
                               key={i}
                               className="relative bg-background dark:bg-card/50 border border-border rounded-[16px] p-5 flex flex-col justify-between"
@@ -485,7 +485,7 @@ export default function SettingsPage() {
                                   tool.enabled &&
                                   handleAuthorizeTool(
                                     tool.id,
-                                    "scopes" in tool ? tool.scopes : undefined,
+                                    "scopes" in tool ? tool.scopes : undefined
                                   )
                                 }
                                 disabled={isDisabled}
