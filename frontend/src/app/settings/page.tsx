@@ -413,7 +413,7 @@ export default function SettingsPage() {
                       {checkingStatus ? (
                         // Skeleton loading state
                         <>
-                          {[1, 2, 3, 4].map((i) => (
+                          {[1, 2, 3, 4, 5].map((i) => (
                             <div
                               key={i}
                               className="relative bg-background dark:bg-card/50 border border-border rounded-[16px] p-5 flex flex-col justify-between"
