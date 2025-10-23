@@ -13,8 +13,8 @@ import { toast } from "sonner";
 interface Project {
   id: string;
   name: string;
-  createdAt: any;
-  updatedAt: any;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export default function ProjectsPage() {
@@ -43,7 +43,23 @@ export default function ProjectsPage() {
     const fetchProjects = async () => {
       try {
         const userProjects = await getUserProjects(user.uid);
-        setProjects(userProjects);
+        // Sort projects by updatedAt (most recent first)
+        const sortedProjects = userProjects.sort((a, b) => {
+          const aTime =
+            a.updatedAt?.toDate?.() ||
+            a.updatedAt ||
+            a.createdAt?.toDate?.() ||
+            a.createdAt ||
+            0;
+          const bTime =
+            b.updatedAt?.toDate?.() ||
+            b.updatedAt ||
+            b.createdAt?.toDate?.() ||
+            b.createdAt ||
+            0;
+          return new Date(bTime).getTime() - new Date(aTime).getTime();
+        });
+        setProjects(sortedProjects);
       } catch (error) {
         console.error("Failed to fetch projects:", error);
       } finally {
@@ -124,8 +140,8 @@ export default function ProjectsPage() {
         projects.map((p) =>
           p.id === projectId
             ? { ...p, name: trimmedName, updatedAt: new Date() }
-            : p,
-        ),
+            : p
+        )
       );
       toast.success("Project renamed successfully");
       setEditingProject(null);
@@ -301,11 +317,7 @@ export default function ProjectsPage() {
                                 </h3>
                               )}
                               <div className="text-foreground/50 text-sm font-medium leading-5 font-sans">
-                                Created{" "}
-                                {new Date(
-                                  project.createdAt?.toDate?.() ||
-                                    project.createdAt,
-                                ).toLocaleDateString()}
+                                Created {project.createdAt.toString()}
                               </div>
                             </div>
                             {editingProject !== project.id && (
@@ -339,18 +351,18 @@ export default function ProjectsPage() {
                                       e.stopPropagation();
                                       console.log(
                                         "Three dots clicked, current activeDropdown:",
-                                        activeDropdown,
+                                        activeDropdown
                                       );
                                       setActiveDropdown(
                                         activeDropdown === project.id
                                           ? null
-                                          : project.id,
+                                          : project.id
                                       );
                                       console.log(
                                         "Setting activeDropdown to:",
                                         activeDropdown === project.id
                                           ? null
-                                          : project.id,
+                                          : project.id
                                       );
                                     }}
                                     className="p-2 hover:bg-accent dark:hover:bg-accent/50 rounded-[8px] transition-colors"
@@ -407,11 +419,11 @@ export default function ProjectsPage() {
                                           e.stopPropagation();
                                           console.log(
                                             "Delete button clicked for project:",
-                                            project.id,
+                                            project.id
                                           );
                                           openDeleteConfirmation(
                                             project.id,
-                                            project.name,
+                                            project.name
                                           );
                                         }}
                                         disabled={deleting === project.id}
