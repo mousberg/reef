@@ -15,6 +15,7 @@ import {
   NotionIcon,
   SlackIcon,
   XIcon,
+  SpotifyIcon,
 } from "../../components/ProviderIcons";
 import { Skeleton } from "../../components/ui/skeleton";
 
@@ -106,6 +107,40 @@ export default function SettingsPage() {
       description: "Integrate with X (Twitter)",
       icon: XIcon,
       scopes: ["tweet.read", "tweet.write"],
+      enabled: true,
+    },
+    {
+      id: "spotify",
+      name: "Spotify",
+      description: "Integrate with Spotify",
+      icon: SpotifyIcon,
+      scopes: [
+        "ugc-image-upload",
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "user-read-currently-playing",
+        "app-remote-control",
+        "streaming",
+        "playlist-read-private",
+        "playlist-read-collaborative",
+        "playlist-modify-private",
+        "playlist-modify-public",
+        "user-follow-modify",
+        "user-follow-read",
+        "user-read-playback-position",
+        "user-top-read",
+        "user-read-recently-played",
+        "user-library-modify",
+        "user-library-read",
+        "user-read-email",
+        "user-read-private",
+        "user-personalized",
+        "user-soa-link",
+        "user-soa-unlink",
+        "soa-manage-entitlements",
+        "soa-manage-partner",
+        "soa-create-partner",
+      ],
       enabled: true,
     },
   ];
@@ -413,7 +448,7 @@ export default function SettingsPage() {
                       {checkingStatus ? (
                         // Skeleton loading state
                         <>
-                          {[1, 2, 3, 4, 5].map((i) => (
+                          {[1, 2, 3, 4, 5, 6].map((i) => (
                             <div
                               key={i}
                               className="relative bg-background dark:bg-card/50 border border-border rounded-[16px] p-5 flex flex-col justify-between"
