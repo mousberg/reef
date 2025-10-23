@@ -9,12 +9,13 @@ import { Footer } from "../../components/Footer";
 import { ConfirmationDialog } from "../../components/ConfirmationDialog";
 import { AnimatedAIInput } from "../../components/ui/animated-ai-input";
 import { toast } from "sonner";
+import { Timestamp } from "firebase/firestore";
 
 interface Project {
   id: string;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 export default function ProjectsPage() {
@@ -139,7 +140,7 @@ export default function ProjectsPage() {
       setProjects(
         projects.map((p) =>
           p.id === projectId
-            ? { ...p, name: trimmedName, updatedAt: new Date() }
+            ? { ...p, name: trimmedName, updatedAt: Timestamp.now() }
             : p,
         ),
       );
@@ -317,7 +318,11 @@ export default function ProjectsPage() {
                                 </h3>
                               )}
                               <div className="text-foreground/50 text-sm font-medium leading-5 font-sans">
-                                Created {project.createdAt.toString()}
+                                Created{" "}
+                                {new Date(
+                                  project.createdAt?.toDate?.() ||
+                                    project.createdAt,
+                                ).toLocaleDateString()}
                               </div>
                             </div>
                             {editingProject !== project.id && (
