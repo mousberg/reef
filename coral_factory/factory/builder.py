@@ -169,8 +169,34 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
         return result.final_output
 
     elif workflow_config.relations_type == "chain":
-        logging.info(f"[WORKFLOW] Chain mode not implemented yet")
-        pass  # Build script that chains all the agents suing handoff
+        logging.info(f"[WORKFLOW] Chain mode - sequential execution of agents")
+        logging.info(f"[WORKFLOW]   Agent chain order: {[a.name for a in workflow_config.agents]}")
+        
+        # Chain agents using handoffs - each agent hands off to the next
+        agent_list = list(agents.values())
+        
+        if len(agent_list) == 1:
+            # Single agent, just run it
+            logging.info(f"[WORKFLOW] Single agent in chain, running directly")
+            result = await Runner.run(agent_list[0], user_task)
+            logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
+            logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
+            return result.final_output
+        
+        # Build chain from end to start
+        # Last agent has no handoffs
+        for i in range(len(agent_list) - 2, -1, -1):
+            # Each agent hands off to the next agent in the chain
+            agent_list[i].handoffs = [agent_list[i + 1]]
+            logging.info(f"[WORKFLOW]   {workflow_config.agents[i].name} -> {workflow_config.agents[i + 1].name}")
+        
+        # Start with the first agent
+        first_agent = agent_list[0]
+        logging.info(f"[WORKFLOW] Starting chain with first agent: {workflow_config.agents[0].name}")
+        result = await Runner.run(first_agent, user_task)
+        logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
+        logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
+        return result.final_output
 
     elif workflow_config.relations_type == "group-chat":
         logging.info(f"[WORKFLOW] Group chat mode not implemented yet")
