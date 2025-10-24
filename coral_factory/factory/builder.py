@@ -177,8 +177,8 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
         
         if len(agent_list) == 1:
             # Single agent, just run it
-            logging.info(f"[WORKFLOW] Single agent in chain, running directly")
-            result = await Runner.run(agent_list[0], user_task)
+            logging.info(f"[WORKFLOW] Single agent in chain, running directly with context: {global_context}")
+            result = await Runner.run(agent_list[0], user_task, context=global_context)
             logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
             logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
             return result.final_output
@@ -193,7 +193,8 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
         # Start with the first agent
         first_agent = agent_list[0]
         logging.info(f"[WORKFLOW] Starting chain with first agent: {workflow_config.agents[0].name}")
-        result = await Runner.run(first_agent, user_task)
+        logging.info(f"[WORKFLOW] Running with context: {global_context}")
+        result = await Runner.run(first_agent, user_task, context=global_context)
         logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
         logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
         return result.final_output
@@ -211,8 +212,8 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
             model=workflow_config.model_name,
             handoffs=[a for a in agents.values()]
         )
-        logging.info(f"[WORKFLOW] Running triage agent...")
-        result = await Runner.run(manager_agent, user_task)
+        logging.info(f"[WORKFLOW] Running triage agent with context: {global_context}")
+        result = await Runner.run(manager_agent, user_task, context=global_context)
         logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
         logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
         return result.final_output
@@ -221,7 +222,8 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
         first_agent_name = workflow_config.agents[0].name
         logging.info(f"[WORKFLOW] Running single agent: {first_agent_name}")
         first_agent = agents[first_agent_name]
-        result = await Runner.run(first_agent, user_task)
+        logging.info(f"[WORKFLOW] Running with context: {global_context}")
+        result = await Runner.run(first_agent, user_task, context=global_context)
         logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
         logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
         return result.final_output
