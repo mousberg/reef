@@ -169,8 +169,38 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
         return result.final_output
 
     elif workflow_config.relations_type == "chain":
-        logging.info(f"[WORKFLOW] Chain mode not implemented yet")
-        pass  # Build script that chains all the agents suing handoff
+        logging.info(f"[WORKFLOW] Chain mode - sequential execution of agents")
+        logging.info(f"[WORKFLOW]   Agent chain order: {[a.name for a in workflow_config.agents]}")
+        
+        # Get agents in order
+        agent_list = list(agents.values())
+        agent_names = [a.name for a in workflow_config.agents]
+        
+        # Sequential execution: each agent's output becomes next agent's input
+        current_task = user_task
+        
+        for i, agent in enumerate(agent_list):
+            agent_name = agent_names[i]
+            logging.info(f"[WORKFLOW] 🔗 Chain step {i+1}/{len(agent_list)}: Running agent '{agent_name}'")
+            logging.info(f"[WORKFLOW]   Input: {current_task[:200]}...")  # Log first 200 chars
+            
+            # Run the agent with the current task and context
+            result = await Runner.run(agent, current_task, context=global_context)
+            current_output = result.final_output
+            
+            logging.info(f"[WORKFLOW] ✅ Agent '{agent_name}' completed")
+            logging.info(f"[WORKFLOW]   Output: {current_output[:200]}...")  # Log first 200 chars
+            
+            # Output of this agent becomes input for next agent
+            if i < len(agent_list) - 1:
+                next_agent_name = agent_names[i + 1]
+                # Format the task for the next agent: include context from previous step
+                current_task = f"Previous step output from {agent_name}: {current_output}\n\nYour task: Continue the workflow by processing this output."
+                logging.info(f"[WORKFLOW]   Passing output to next agent: {next_agent_name}")
+            else:
+                # Last agent - return its output
+                logging.info(f"[WORKFLOW] ✅ Chain completed successfully")
+                return current_output
 
     elif workflow_config.relations_type == "group-chat":
         logging.info(f"[WORKFLOW] Group chat mode not implemented yet")
@@ -185,8 +215,8 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
             model=workflow_config.model_name,
             handoffs=[a for a in agents.values()]
         )
-        logging.info(f"[WORKFLOW] Running triage agent...")
-        result = await Runner.run(manager_agent, user_task)
+        logging.info(f"[WORKFLOW] Running triage agent with context: {global_context}")
+        result = await Runner.run(manager_agent, user_task, context=global_context)
         logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
         logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
         return result.final_output
@@ -195,7 +225,8 @@ async def start_agents(workflow_config: WorkflowConfig, user_task: str, user_id:
         first_agent_name = workflow_config.agents[0].name
         logging.info(f"[WORKFLOW] Running single agent: {first_agent_name}")
         first_agent = agents[first_agent_name]
-        result = await Runner.run(first_agent, user_task)
+        logging.info(f"[WORKFLOW] Running with context: {global_context}")
+        result = await Runner.run(first_agent, user_task, context=global_context)
         logging.info(f"[WORKFLOW] ✅ Workflow completed successfully")
         logging.info(f"[WORKFLOW]   Final output: {result.final_output}")
         return result.final_output

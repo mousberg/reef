@@ -988,381 +988,104 @@ Parameters:
 
 ## Spotify
 
-### Spotify.GetCurrentUserProfile
+### Spotify.GetTrackFromId
 
-Get detailed profile information about the current user.
+Get information about a track.
+
+Parameters:
+
+- track_id (string, required) The Spotify ID of the track.
+
+### Spotify.AdjustPlaybackPosition
+
+Adjust the playback position within the currently playing track. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+
+- absolute_position_ms (integer, optional) The absolute position in milliseconds to seek to.
+- relative_position_ms (integer, optional) The relative position from the current playback position in milliseconds to seek to.
+
+### Spotify.SkipToPreviousTrack
+
+Skip to the previous track in the user's queue, if any. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+This tool does not take any parameters.
+
+### Spotify.SkipToNextTrack
+
+Skip to the next track in the user's queue, if any. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+This tool does not take any parameters.
+
+### Spotify.PausePlayback
+
+Pause the currently playing track, if any. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+This tool does not take any parameters.
+
+### Spotify.ResumePlayback
+
+Resume the currently playing track, if any. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+This tool does not take any parameters.
+
+### Spotify.StartTracksPlaybackById
+
+Start playback of a list of tracks (songs). Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+
+- track_ids (array, required) A list of Spotify track (song) IDs to play. Order of execution is not guaranteed.
+- position_ms (integer, optional) The position in milliseconds to start the first track from.
+
+### Spotify.GetPlaybackState
+
+Get information about the user's current playback state, including track or episode, and active device. Note: This tool currently requires a self-hosted instance of Arcade.
 
 Parameters:
 This tool does not take any parameters.
 
 ### Spotify.GetCurrentlyPlaying
 
-Get the user's currently playing track.
-
-Parameters:
-
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetRecentlyPlayed
-
-Get the current user's recently played tracks.
-
-Parameters:
-
-- limit (integer, optional) The maximum number of items to return. Default: 20. Maximum: 50.
-- after (integer, optional) A Unix timestamp in milliseconds. Returns all items after this cursor position.
-- before (integer, optional) A Unix timestamp in milliseconds. Returns all items before this cursor position.
-
-### Spotify.GetTopTracks
-
-Get the current user's top tracks based on calculated affinity.
-
-Parameters:
-
-- time_range (string, optional) Time period. Options: 'long_term', 'medium_term', 'short_term'. Defaults to 'medium_term'.
-- limit (integer, optional) Number of tracks to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first item to return. Defaults to 0.
-
-### Spotify.GetTopArtists
-
-Get the current user's top artists based on calculated affinity.
-
-Parameters:
-
-- time_range (string, optional) Time period. Options: 'long_term', 'medium_term', 'short_term'. Defaults to 'medium_term'.
-- limit (integer, optional) Number of artists to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first item to return. Defaults to 0.
-
-### Spotify.GetUserPlaylists
-
-Get a list of the current user's playlists.
-
-Parameters:
-
-- limit (integer, optional) The maximum number of playlists to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first playlist to return. Defaults to 0.
-
-### Spotify.GetPlaylist
-
-Get detailed information about a specific playlist.
-
-Parameters:
-
-- playlist_id (string, required) The Spotify ID of the playlist.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetPlaylistTracks
-
-Get the tracks in a playlist.
-
-Parameters:
-
-- playlist_id (string, required) The Spotify ID of the playlist.
-- limit (integer, optional) The maximum number of tracks to return. Default: 100. Maximum: 100.
-- offset (integer, optional) The index of the first track to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.CreatePlaylist
-
-Create a new playlist for the current user.
-
-Parameters:
-
-- name (string, required) The name for the new playlist.
-- description (string, optional) The playlist description.
-- public (boolean, optional) Whether the playlist should be public. Defaults to true.
-- collaborative (boolean, optional) Whether the playlist should be collaborative. Defaults to false.
-
-### Spotify.UpdatePlaylist
-
-Update a playlist's details.
-
-Parameters:
-
-- playlist_id (string, required) The Spotify ID of the playlist.
-- name (string, optional) The updated name for the playlist.
-- description (string, optional) The updated description.
-- public (boolean, optional) Whether the playlist should be public.
-- collaborative (boolean, optional) Whether the playlist should be collaborative.
-
-### Spotify.AddTracksToPlaylist
-
-Add tracks to a playlist.
-
-Parameters:
-
-- playlist_id (string, required) The Spotify ID of the playlist.
-- track_uris (array[string], required) Array of Spotify track URIs to add.
-- position (integer, optional) The position to insert the tracks.
-
-### Spotify.RemoveTracksFromPlaylist
-
-Remove tracks from a playlist.
-
-Parameters:
-
-- playlist_id (string, required) The Spotify ID of the playlist.
-- track_uris (array[string], required) Array of Spotify track URIs to remove.
-
-### Spotify.SearchTracks
-
-Search for tracks.
-
-Parameters:
-
-- query (string, required) The search query.
-- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first result to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.SearchArtists
-
-Search for artists.
-
-Parameters:
-
-- query (string, required) The search query.
-- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first result to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.SearchAlbums
-
-Search for albums.
-
-Parameters:
-
-- query (string, required) The search query.
-- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first result to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.SearchPlaylists
-
-Search for playlists.
-
-Parameters:
-
-- query (string, required) The search query.
-- limit (integer, optional) The maximum number of results to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first result to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetTrack
-
-Get detailed information about a track.
-
-Parameters:
-
-- track_id (string, required) The Spotify ID of the track.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetArtist
-
-Get detailed information about an artist.
-
-Parameters:
-
-- artist_id (string, required) The Spotify ID of the artist.
-
-### Spotify.GetArtistTopTracks
-
-Get an artist's top tracks.
-
-Parameters:
-
-- artist_id (string, required) The Spotify ID of the artist.
-- market (string, required) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetArtistAlbums
-
-Get an artist's albums.
-
-Parameters:
-
-- artist_id (string, required) The Spotify ID of the artist.
-- limit (integer, optional) The maximum number of albums to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first album to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetAlbum
-
-Get detailed information about an album.
-
-Parameters:
-
-- album_id (string, required) The Spotify ID of the album.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetAlbumTracks
-
-Get the tracks in an album.
-
-Parameters:
-
-- album_id (string, required) The Spotify ID of the album.
-- limit (integer, optional) The maximum number of tracks to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first track to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.GetUserSavedTracks
-
-Get the user's saved tracks (liked songs).
-
-Parameters:
-
-- limit (integer, optional) The maximum number of tracks to return. Default: 20. Maximum: 50.
-- offset (integer, optional) The index of the first track to return. Defaults to 0.
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.SaveTracks
-
-Save tracks to the user's library.
-
-Parameters:
-
-- track_ids (array[string], required) Array of Spotify track IDs to save.
-
-### Spotify.RemoveSavedTracks
-
-Remove tracks from the user's library.
-
-Parameters:
-
-- track_ids (array[string], required) Array of Spotify track IDs to remove.
-
-### Spotify.CheckSavedTracks
-
-Check if tracks are in the user's library.
-
-Parameters:
-
-- track_ids (array[string], required) Array of Spotify track IDs to check.
-
-### Spotify.GetFollowedArtists
-
-Get the user's followed artists.
-
-Parameters:
-
-- limit (integer, optional) The maximum number of artists to return. Default: 20. Maximum: 50.
-- after (string, optional) The last artist ID retrieved from the previous request.
-
-### Spotify.FollowArtists
-
-Follow artists.
-
-Parameters:
-
-- artist_ids (array[string], required) Array of Spotify artist IDs to follow.
-
-### Spotify.UnfollowArtists
-
-Unfollow artists.
-
-Parameters:
-
-- artist_ids (array[string], required) Array of Spotify artist IDs to unfollow.
-
-### Spotify.CheckFollowingArtists
-
-Check if the user follows specific artists.
-
-Parameters:
-
-- artist_ids (array[string], required) Array of Spotify artist IDs to check.
-
-### Spotify.StartPlayback
-
-Start or resume playback.
-
-Parameters:
-
-- device_id (string, optional) The ID of the device to play on.
-- context_uri (string, optional) Spotify URI of the context to play (album, artist, playlist).
-- track_uris (array[string], optional) Array of track URIs to play.
-- position_ms (integer, optional) Position in milliseconds to start playback.
-
-### Spotify.PausePlayback
-
-Pause playback.
-
-Parameters:
-
-- device_id (string, optional) The ID of the device to pause on.
-
-### Spotify.SkipToNext
-
-Skip to the next track.
-
-Parameters:
-
-- device_id (string, optional) The ID of the device to skip on.
-
-### Spotify.SkipToPrevious
-
-Skip to the previous track.
-
-Parameters:
-
-- device_id (string, optional) The ID of the device to skip on.
-
-### Spotify.SeekToPosition
-
-Seek to a position in the current track.
-
-Parameters:
-
-- position_ms (integer, required) The position in milliseconds to seek to.
-- device_id (string, optional) The ID of the device to seek on.
-
-### Spotify.SetPlaybackVolume
-
-Set the playback volume.
-
-Parameters:
-
-- volume_percent (integer, required) The volume to set (0-100).
-- device_id (string, optional) The ID of the device to set volume on.
-
-### Spotify.SetRepeatMode
-
-Set the repeat mode for playback.
-
-Parameters:
-
-- state (string, required) The repeat mode. Options: 'track', 'context', 'off'.
-- device_id (string, optional) The ID of the device to set repeat mode on.
-
-### Spotify.SetShuffleMode
-
-Toggle shuffle mode for playback.
-
-Parameters:
-
-- state (boolean, required) Whether to enable shuffle.
-- device_id (string, optional) The ID of the device to set shuffle on.
-
-### Spotify.GetAvailableDevices
-
-Get the user's available playback devices.
+Get information about the user's currently playing track. Note: This tool currently requires a self-hosted instance of Arcade.
 
 Parameters:
 This tool does not take any parameters.
 
-### Spotify.GetPlaybackState
+### Spotify.PlayArtistByName
 
-Get information about the user's current playback state.
-
-Parameters:
-
-- market (string, optional) An ISO 3166-1 alpha-2 country code.
-
-### Spotify.TransferPlayback
-
-Transfer playback to a different device.
+Plays a song by an artist and queues four more songs by the same artist. Note: This tool currently requires a self-hosted instance of Arcade.
 
 Parameters:
 
-- device_ids (array[string], required) Array containing a single device ID to transfer playback to.
-- play (boolean, optional) Whether to ensure playback happens on new device. Defaults to false.
+- name (string, required) The name of the artist to play.
+
+### Spotify.PlayTrackByName
+
+Plays a song by name. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+
+- track_name (string, required) The name of the track to play.
+- artist_name (string, optional) The name of the artist of the track.
+
+### Spotify.GetAvailableDevices
+
+Get the available devices. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+This tool does not take any parameters.
+
+### Spotify.Search
+
+Search Spotify catalog information. Note: This tool currently requires a self-hosted instance of Arcade.
+
+Parameters:
+
+- q (string, required) The search query.
+- types (array, required) The types of results to return, Valid values are 'album', 'artist', 'playlist', 'track', 'show', 'episode', 'audiobook'.
+- limit (integer, optional) The maximum number of results to return. Defaults to 1.
