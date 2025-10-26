@@ -9,15 +9,9 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { firestore } from "../../lib/firebase";
 import { toast } from "sonner";
 import { Footer } from "../../components/Footer";
-import {
-  GoogleIcon,
-  GitHubIcon,
-  NotionIcon,
-  SlackIcon,
-  XIcon,
-  SpotifyIcon,
-} from "../../components/ProviderIcons";
 import { Skeleton } from "../../components/ui/skeleton";
+import { ToolProvider } from "../../types/tools";
+import { toolsProviders } from "../../lib/tools-providers";
 
 interface UserData {
   firstName: string;
@@ -48,96 +42,8 @@ export default function SettingsPage() {
   const [checkingStatus, setCheckingStatus] = useState(true);
   const router = useRouter();
 
-  // Available Arcade tools
-  const availableTools = [
-    {
-      id: "google",
-      name: "Google",
-      description: "Access Gmail and Google services",
-      icon: GoogleIcon,
-      scopes: [
-        "https://www.googleapis.com/auth/gmail.readonly",
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/gmail.send",
-        "https://www.googleapis.com/auth/gmail.modify",
-      ],
-      enabled: true,
-    },
-    {
-      id: "github",
-      name: "GitHub",
-      description: "Access repositories and code",
-      icon: GitHubIcon,
-      scopes: ["repo"],
-      enabled: true,
-    },
-    {
-      id: "notion",
-      name: "Notion",
-      description: "Connect your Notion workspace",
-      icon: NotionIcon,
-      enabled: true,
-    },
-    {
-      id: "slack",
-      name: "Slack",
-      description: "Integrate with Slack channels",
-      icon: SlackIcon,
-      scopes: [
-        "channels.read",
-        "channels.write",
-        "groups.read",
-        "groups:history",
-        "groups:write",
-        "im:history",
-        "im:read",
-        "im:write",
-        "mpim:history",
-        "mpim:read",
-        "mpim:write",
-        "users:read",
-        "users:read.email",
-      ],
-      enabled: true,
-    },
-    {
-      id: "x",
-      name: "X",
-      description: "Integrate with X (Twitter)",
-      icon: XIcon,
-      scopes: ["tweet.read", "tweet.write"],
-      enabled: true,
-    },
-    {
-      id: "spotify",
-      name: "Spotify",
-      description: "Integrate with Spotify",
-      icon: SpotifyIcon,
-      scopes: [
-        "ugc-image-upload",
-        "user-follow-modify",
-        "playlist-modify-private",
-        "playlist-modify-public",
-        "user-library-modify",
-        "playlist-read-collaborative",
-        "user-read-currently-playing",
-        "user-follow-read",
-        "user-read-playback-position",
-        "user-read-playback-state",
-        "playlist-read-private",
-        "user-read-recently-played",
-        "user-top-read",
-        "user-read-email",
-        "user-library-read",
-        "user-read-private",
-        "app-remote-control",
-        "streaming",
-        "user-modify-playback-state",
-      ],
-      enabled: true,
-    },
-  ];
+  // Available Arcade tools - dynamically configured
+  const availableTools: ToolProvider[] = toolsProviders;
 
   useEffect(() => {
     if (!user) {
