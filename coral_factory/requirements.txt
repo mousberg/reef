@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-pydantic
-python-dotenv
-openai-agents
-arcadepy
-agents-arcade
-firebase-admin
-litellm
