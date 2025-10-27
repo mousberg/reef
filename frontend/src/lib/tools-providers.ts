@@ -1,4 +1,4 @@
-import { ToolProvider } from '../types/tools';
+import { ToolProvider } from "../types/tools";
 import {
   GoogleIcon,
   GitHubIcon,
@@ -6,7 +6,7 @@ import {
   SlackIcon,
   XIcon,
   SpotifyIcon,
-} from '../components/ProviderIcons';
+} from "../components/ProviderIcons";
 
 // Centralized tools configuration for providers
 export const toolsProviders: ToolProvider[] = [
