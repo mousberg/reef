@@ -7,7 +7,7 @@ import {
   XIcon,
   SpotifyIcon,
   LinkedInIcon,
-} from '../components/ProviderIcons';
+} from "../components/ProviderIcons";
 
 // Centralized tools configuration for providers
 export const toolsProviders: ToolProvider[] = [
@@ -109,9 +109,7 @@ export const toolsProviders: ToolProvider[] = [
     name: "LinkedIn",
     description: "Integrate with LinkedIn",
     icon: LinkedInIcon,
-    scopes: [
-        "w_member_social",
-    ],
+    scopes: ["w_member_social"],
     enabled: true,
     tools: [],
   },
