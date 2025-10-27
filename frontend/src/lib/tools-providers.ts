@@ -1,4 +1,4 @@
-import { ToolProvider } from '../types/tools';
+import { ToolProvider } from "../types/tools";
 import {
   GoogleIcon,
   GitHubIcon,
