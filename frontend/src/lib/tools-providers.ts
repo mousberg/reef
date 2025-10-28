@@ -7,6 +7,7 @@ import {
   XIcon,
   SpotifyIcon,
   LinkedInIcon,
+  RedditIcon,
 } from "../components/ProviderIcons";
 
 // Centralized tools configuration for providers
@@ -110,6 +111,15 @@ export const toolsProviders: ToolProvider[] = [
     description: "Integrate with LinkedIn",
     icon: LinkedInIcon,
     scopes: ["w_member_social"],
+    enabled: true,
+    tools: [],
+  },
+  {
+    id: "reddit",
+    name: "Reddit",
+    description: "Integrate with Reddit",
+    icon: RedditIcon,
+    scopes: ["read", "submit"],
     enabled: true,
     tools: [],
   },
