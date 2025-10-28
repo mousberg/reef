@@ -647,6 +647,246 @@ const spotifyTools: ToolDefinition[] = [
   },
 ];
 
+// Reddit Tools
+const redditTools: ToolDefinition[] = [
+  {
+    tool_name: "Reddit.SubmitTextPost",
+    description: "Submit a text-based post to a subreddit.",
+    parameters: [
+      {
+        name: "subreddit",
+        type: "string",
+        required: true,
+        description:
+          "The name of the subreddit to which the post will be submitted.",
+      },
+      {
+        name: "title",
+        type: "string",
+        required: true,
+        description: "The title of the submission.",
+      },
+      {
+        name: "body",
+        type: "string",
+        required: false,
+        description:
+          "The body of the post in markdown format. Should never be the same as the title.",
+      },
+      {
+        name: "nsfw",
+        type: "boolean",
+        required: false,
+        description: "Indicates if the submission is NSFW.",
+        default: false,
+      },
+      {
+        name: "spoiler",
+        type: "boolean",
+        required: false,
+        description: "Indicates if the post is marked as a spoiler.",
+        default: false,
+      },
+      {
+        name: "send_replies",
+        type: "boolean",
+        required: false,
+        description: "If true, sends replies to the user's inbox.",
+        default: true,
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.CommentOnPost",
+    description: "Comment on a Reddit post.",
+    parameters: [
+      {
+        name: "post_identifier",
+        type: "string",
+        required: true,
+        description:
+          "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
+      },
+      {
+        name: "text",
+        type: "string",
+        required: true,
+        description: "The body of the comment in markdown format.",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.ReplyToComment",
+    description: "Reply to a Reddit comment.",
+    parameters: [
+      {
+        name: "comment_identifier",
+        type: "string",
+        required: true,
+        description:
+          "The identifier of the Reddit comment to reply to. The identifier may be a comment ID, a Reddit URL to the comment, a permalink to the comment, or the fullname of the comment.",
+      },
+      {
+        name: "text",
+        type: "string",
+        required: true,
+        description: "The body of the reply in markdown format.",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.GetPostsInSubreddit",
+    description:
+      "Gets posts titles, links, and other metadata in the specified subreddit.",
+    parameters: [
+      {
+        name: "subreddit",
+        type: "string",
+        required: true,
+        description: "The name of the subreddit to fetch posts from.",
+      },
+      {
+        name: "listing",
+        type: "string",
+        required: false,
+        description:
+          "The type of listing to fetch. Valid values are 'hot', 'new', 'rising', 'top', 'controversial'.",
+        default: "hot",
+      },
+      {
+        name: "limit",
+        type: "integer",
+        required: false,
+        description: "The maximum number of posts to fetch. Max is 100.",
+        default: 10,
+      },
+      {
+        name: "cursor",
+        type: "string",
+        required: false,
+        description: "The pagination token from a previous call.",
+      },
+      {
+        name: "time_range",
+        type: "string",
+        required: false,
+        description:
+          "The time range for filtering posts. Must be provided if the listing type is 'top' or 'controversial'. Valid values are 'NOW', 'TODAY', 'THIS_WEEK', 'THIS_MONTH', 'THIS_YEAR', 'ALL_TIME'.",
+        default: "TODAY",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.GetContentOfPost",
+    description: "Get the content (body) of a Reddit post by its identifier.",
+    parameters: [
+      {
+        name: "post_identifier",
+        type: "string",
+        required: true,
+        description:
+          "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.GetContentOfMultiplePosts",
+    description:
+      "Get the content (body) of multiple Reddit posts by their identifiers in a single request.",
+    parameters: [
+      {
+        name: "post_identifiers",
+        type: "array",
+        required: true,
+        description:
+          "A list of identifiers of the Reddit posts. The identifiers may be Reddit URLs, permalinks, fullnames, or post ids.",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.GetTopLevelComments",
+    description: "Get the first page of top-level comments of a Reddit post.",
+    parameters: [
+      {
+        name: "post_identifier",
+        type: "string",
+        required: true,
+        description:
+          "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.CheckSubredditAccess",
+    description:
+      "Checks whether the specified subreddit exists and also if it is accessible to the authenticated user.",
+    parameters: [
+      {
+        name: "subreddit",
+        type: "string",
+        required: true,
+        description: "The name of the subreddit to check.",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.GetSubredditRules",
+    description: "Gets the rules of the specified subreddit.",
+    parameters: [
+      {
+        name: "subreddit",
+        type: "string",
+        required: true,
+        description: "The name of the subreddit for which to fetch rules.",
+      },
+    ],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.GetMyUsername",
+    description: "Gets the username of the authenticated user.",
+    parameters: [],
+    category: "social",
+  },
+  {
+    tool_name: "Reddit.GetMyPosts",
+    description:
+      "Get posts that were created by the authenticated user sorted by newest first.",
+    parameters: [
+      {
+        name: "limit",
+        type: "integer",
+        required: false,
+        description: "The maximum number of posts to fetch. Max is 100.",
+        default: 10,
+      },
+      {
+        name: "include_body",
+        type: "boolean",
+        required: false,
+        description:
+          "Whether to include the body of the posts in the response.",
+        default: true,
+      },
+      {
+        name: "cursor",
+        type: "string",
+        required: false,
+        description: "The pagination token from a previous call.",
+      },
+    ],
+    category: "social",
+  },
+];
+
 // Combine all tools
 const allTools: ToolDefinition[] = [
   ...twitterTools,
@@ -659,6 +899,7 @@ const allTools: ToolDefinition[] = [
   ...githubTools,
   ...notionTools,
   ...spotifyTools,
+  ...redditTools,
 ];
 
 export const toolsConfig: ToolsConfig = {
