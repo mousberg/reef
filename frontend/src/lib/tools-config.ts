@@ -657,7 +657,8 @@ const redditTools: ToolDefinition[] = [
         name: "subreddit",
         type: "string",
         required: true,
-        description: "The name of the subreddit to which the post will be submitted.",
+        description:
+          "The name of the subreddit to which the post will be submitted.",
       },
       {
         name: "title",
@@ -669,7 +670,8 @@ const redditTools: ToolDefinition[] = [
         name: "body",
         type: "string",
         required: false,
-        description: "The body of the post in markdown format. Should never be the same as the title.",
+        description:
+          "The body of the post in markdown format. Should never be the same as the title.",
       },
       {
         name: "nsfw",
@@ -703,7 +705,8 @@ const redditTools: ToolDefinition[] = [
         name: "post_identifier",
         type: "string",
         required: true,
-        description: "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
+        description:
+          "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
       },
       {
         name: "text",
@@ -722,7 +725,8 @@ const redditTools: ToolDefinition[] = [
         name: "comment_identifier",
         type: "string",
         required: true,
-        description: "The identifier of the Reddit comment to reply to. The identifier may be a comment ID, a Reddit URL to the comment, a permalink to the comment, or the fullname of the comment.",
+        description:
+          "The identifier of the Reddit comment to reply to. The identifier may be a comment ID, a Reddit URL to the comment, a permalink to the comment, or the fullname of the comment.",
       },
       {
         name: "text",
@@ -735,7 +739,8 @@ const redditTools: ToolDefinition[] = [
   },
   {
     tool_name: "Reddit.GetPostsInSubreddit",
-    description: "Gets posts titles, links, and other metadata in the specified subreddit.",
+    description:
+      "Gets posts titles, links, and other metadata in the specified subreddit.",
     parameters: [
       {
         name: "subreddit",
@@ -747,7 +752,8 @@ const redditTools: ToolDefinition[] = [
         name: "listing",
         type: "string",
         required: false,
-        description: "The type of listing to fetch. Valid values are 'hot', 'new', 'rising', 'top', 'controversial'.",
+        description:
+          "The type of listing to fetch. Valid values are 'hot', 'new', 'rising', 'top', 'controversial'.",
         default: "hot",
       },
       {
@@ -767,7 +773,8 @@ const redditTools: ToolDefinition[] = [
         name: "time_range",
         type: "string",
         required: false,
-        description: "The time range for filtering posts. Must be provided if the listing type is 'top' or 'controversial'. Valid values are 'NOW', 'TODAY', 'THIS_WEEK', 'THIS_MONTH', 'THIS_YEAR', 'ALL_TIME'.",
+        description:
+          "The time range for filtering posts. Must be provided if the listing type is 'top' or 'controversial'. Valid values are 'NOW', 'TODAY', 'THIS_WEEK', 'THIS_MONTH', 'THIS_YEAR', 'ALL_TIME'.",
         default: "TODAY",
       },
     ],
@@ -781,20 +788,23 @@ const redditTools: ToolDefinition[] = [
         name: "post_identifier",
         type: "string",
         required: true,
-        description: "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
+        description:
+          "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
       },
     ],
     category: "social",
   },
   {
     tool_name: "Reddit.GetContentOfMultiplePosts",
-    description: "Get the content (body) of multiple Reddit posts by their identifiers in a single request.",
+    description:
+      "Get the content (body) of multiple Reddit posts by their identifiers in a single request.",
     parameters: [
       {
         name: "post_identifiers",
         type: "array",
         required: true,
-        description: "A list of identifiers of the Reddit posts. The identifiers may be Reddit URLs, permalinks, fullnames, or post ids.",
+        description:
+          "A list of identifiers of the Reddit posts. The identifiers may be Reddit URLs, permalinks, fullnames, or post ids.",
       },
     ],
     category: "social",
@@ -807,14 +817,16 @@ const redditTools: ToolDefinition[] = [
         name: "post_identifier",
         type: "string",
         required: true,
-        description: "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
+        description:
+          "The identifier of the Reddit post. The identifier may be a Reddit URL, a permalink, a fullname, or a post id.",
       },
     ],
     category: "social",
   },
   {
     tool_name: "Reddit.CheckSubredditAccess",
-    description: "Checks whether the specified subreddit exists and also if it is accessible to the authenticated user.",
+    description:
+      "Checks whether the specified subreddit exists and also if it is accessible to the authenticated user.",
     parameters: [
       {
         name: "subreddit",
@@ -846,7 +858,8 @@ const redditTools: ToolDefinition[] = [
   },
   {
     tool_name: "Reddit.GetMyPosts",
-    description: "Get posts that were created by the authenticated user sorted by newest first.",
+    description:
+      "Get posts that were created by the authenticated user sorted by newest first.",
     parameters: [
       {
         name: "limit",
@@ -859,7 +872,8 @@ const redditTools: ToolDefinition[] = [
         name: "include_body",
         type: "boolean",
         required: false,
-        description: "Whether to include the body of the posts in the response.",
+        description:
+          "Whether to include the body of the posts in the response.",
         default: true,
       },
       {
