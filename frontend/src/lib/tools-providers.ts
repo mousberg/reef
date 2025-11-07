@@ -6,6 +6,7 @@ import {
   SlackIcon,
   XIcon,
   SpotifyIcon,
+  LinkedInIcon,
 } from "../components/ProviderIcons";
 
 // Centralized tools configuration for providers
@@ -100,6 +101,15 @@ export const toolsProviders: ToolProvider[] = [
       "streaming",
       "user-modify-playback-state",
     ],
+    enabled: true,
+    tools: [],
+  },
+  {
+    id: "linkedin",
+    name: "LinkedIn",
+    description: "Integrate with LinkedIn",
+    icon: LinkedInIcon,
+    scopes: ["w_member_social"],
     enabled: true,
     tools: [],
   },
