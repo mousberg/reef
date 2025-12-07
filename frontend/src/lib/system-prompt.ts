@@ -1,4 +1,4 @@
-import { generateToolsPrompt } from './tools-prompt-generator';
+import { generateToolsPrompt } from "./tools-prompt-generator";
 
 export function getSystemPrompt(): string {
   const tools_prompt = generateToolsPrompt();

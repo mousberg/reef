@@ -1,4 +1,4 @@
-import { ToolProvider } from '../types/tools';
+import { ToolProvider } from "../types/tools";
 import {
   GoogleIcon,
   GitHubIcon,
@@ -7,7 +7,8 @@ import {
   XIcon,
   SpotifyIcon,
   LinkedInIcon,
-} from '../components/ProviderIcons';
+  RedditIcon,
+} from "../components/ProviderIcons";
 
 // Centralized tools configuration for providers
 export const toolsProviders: ToolProvider[] = [
@@ -109,8 +110,38 @@ export const toolsProviders: ToolProvider[] = [
     name: "LinkedIn",
     description: "Integrate with LinkedIn",
     icon: LinkedInIcon,
+    scopes: ["w_member_social"],
+    enabled: true,
+    tools: [],
+  },
+  {
+    id: "reddit",
+    name: "Reddit",
+    description: "Integrate with Reddit",
+    icon: RedditIcon,
     scopes: [
-        "w_member_social",
+      "read",
+      "submit",
+      "identity",
+      "subscribe",
+      "history",
+      "account",
+      "announcements",
+      "edit",
+      "flair",
+      "livemanage",
+      "modconfig",
+      "modlog",
+      "modothers",
+      "modtraffic",
+      "modwiki",
+      "mysubreddits",
+      "privatemessages",
+      "report",
+      "save",
+      "vote",
+      "wikiedit",
+      "wikiread",
     ],
     enabled: true,
     tools: [],
