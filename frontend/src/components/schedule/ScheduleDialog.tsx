@@ -191,7 +191,7 @@ export function ScheduleDialog({
                         variant="outline"
                         className={cn(
                           "flex-1 justify-start text-left font-normal",
-                          !selectedDate && "text-muted-foreground"
+                          !selectedDate && "text-muted-foreground",
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />

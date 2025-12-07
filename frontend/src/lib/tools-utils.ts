@@ -30,11 +30,3 @@ export default {
   getToolsByCategory,
   getToolDefinition,
 };
-
-
-
-
-
-
-
-

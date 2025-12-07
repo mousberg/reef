@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     if (!projectId || !userId) {
       return NextResponse.json(
         { error: "projectId and userId are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
         error: "Failed to fetch scheduled tasks",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -64,31 +64,38 @@ export async function POST(req: NextRequest) {
     } = body;
 
     // Validation
-    if (!userId || !projectId || !workflowName || !builtWorkflow || !query || !schedule) {
+    if (
+      !userId ||
+      !projectId ||
+      !workflowName ||
+      !builtWorkflow ||
+      !query ||
+      !schedule
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (schedule.type !== "once" && schedule.type !== "recurring") {
       return NextResponse.json(
         { error: "Invalid schedule type. Must be 'once' or 'recurring'" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (schedule.type === "recurring" && !schedule.cron) {
       return NextResponse.json(
         { error: "Cron expression required for recurring schedules" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (schedule.type === "once" && !schedule.runAt) {
       return NextResponse.json(
         { error: "runAt timestamp required for one-time schedules" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -142,7 +149,7 @@ export async function POST(req: NextRequest) {
         error: "Failed to create scheduled task",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -159,7 +166,7 @@ export async function PATCH(req: NextRequest) {
     if (!userId || !projectId || !taskId || !updates) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -175,7 +182,7 @@ export async function PATCH(req: NextRequest) {
     if (!taskDoc.exists) {
       return NextResponse.json(
         { error: "Scheduled task not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -183,7 +190,7 @@ export async function PATCH(req: NextRequest) {
     if (updates.schedule) {
       if (updates.schedule.type === "once" && updates.schedule.runAt) {
         updates.schedule.runAt = Timestamp.fromDate(
-          new Date(updates.schedule.runAt)
+          new Date(updates.schedule.runAt),
         );
       }
 
@@ -211,7 +218,7 @@ export async function PATCH(req: NextRequest) {
         error: "Failed to update scheduled task",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -230,7 +237,7 @@ export async function DELETE(req: NextRequest) {
     if (!userId || !projectId || !taskId) {
       return NextResponse.json(
         { error: "userId, projectId, and taskId are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -246,7 +253,7 @@ export async function DELETE(req: NextRequest) {
     if (!taskDoc.exists) {
       return NextResponse.json(
         { error: "Scheduled task not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -263,7 +270,7 @@ export async function DELETE(req: NextRequest) {
         error: "Failed to delete scheduled task",
         details: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

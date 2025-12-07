@@ -29,11 +29,3 @@ export interface ToolsConfig {
   providers: ToolProvider[];
   tools: ToolDefinition[];
 }
-
-
-
-
-
-
-
-

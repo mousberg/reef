@@ -29,7 +29,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreVertical, Trash2, Play, Clock, CheckCircle2, XCircle } from "lucide-react";
+import {
+  MoreVertical,
+  Trash2,
+  Play,
+  Clock,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { ScheduledTask, cronToText } from "@/types/schedule";
 import { Timestamp } from "firebase/firestore";
 
@@ -50,7 +57,7 @@ export function ScheduledTasksList({
 }: ScheduledTasksListProps) {
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [processingTasks, setProcessingTasks] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const handleToggle = async (taskId: string, enabled: boolean) => {

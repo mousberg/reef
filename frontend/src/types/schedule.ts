@@ -77,7 +77,7 @@ export const CRON_PRESETS = {
  */
 export function cronToText(cron: string): string {
   const preset = Object.entries(CRON_PRESETS).find(
-    ([, value]) => value === cron
+    ([, value]) => value === cron,
   );
   if (preset) return preset[0];
 
