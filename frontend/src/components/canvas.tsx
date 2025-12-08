@@ -5,11 +5,13 @@ import { AnimatedCoral } from "./animated-coral";
 import { useState } from "react";
 import type { Project } from "@/contexts/AuthContext";
 import { RunQueryAlertDialog } from "./ui/run-query-alert-dialog";
+import { ScheduleDialog, ScheduleFormData } from "./schedule/ScheduleDialog";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSaveWorkflow } from "@/hooks/useSaveWorkflow";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
+import { Clock } from "lucide-react";
 
 interface CanvasProps {
   project: Project;
@@ -26,6 +28,7 @@ export function Canvas({ project }: CanvasProps) {
 
   const [running, setRunning] = useState(false);
   const [showQueryDialog, setShowQueryDialog] = useState(false);
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
 
   const handleExport = async () => {
     if (!project.workflowState) {
@@ -111,6 +114,96 @@ export function Canvas({ project }: CanvasProps) {
     }
   };
 
+  const handleSchedule = async () => {
+    if (!project.workflowState) {
+      toast.error("No workflow to schedule. Please create a workflow first.");
+      return;
+    }
+
+    if (!user?.uid) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    // Check if workflow is built
+    const projectRef = doc(
+      firestore,
+      "users",
+      user.uid,
+      "projects",
+      project.id,
+    );
+    const projectSnap = await getDoc(projectRef);
+
+    if (!projectSnap.exists() || !projectSnap.data()?.builtWorkflow) {
+      toast.error("Workflow not built yet. Please click 'Build' first.");
+      return;
+    }
+
+    setShowScheduleDialog(true);
+  };
+
+  const handleScheduleCreate = async (scheduleData: ScheduleFormData) => {
+    if (!user?.uid) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    try {
+      // Fetch builtWorkflow
+      const projectRef = doc(
+        firestore,
+        "users",
+        user.uid,
+        "projects",
+        project.id,
+      );
+      const projectSnap = await getDoc(projectRef);
+      const builtWorkflow = projectSnap.data()?.builtWorkflow;
+
+      if (!builtWorkflow) {
+        toast.error("Workflow not built. Please build first.");
+        return;
+      }
+
+      // Prepare schedule object
+      const schedule: any = {
+        type: scheduleData.scheduleType,
+      };
+
+      if (scheduleData.scheduleType === "recurring") {
+        schedule.cron = scheduleData.cronExpression;
+      } else {
+        schedule.runAt = scheduleData.runAt;
+      }
+
+      // Call schedules API
+      const res = await fetch("/api/schedules", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.uid,
+          projectId: project.id,
+          workflowName: scheduleData.workflowName,
+          builtWorkflow,
+          query: scheduleData.query,
+          schedule,
+          enabled: scheduleData.enabled,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data?.error || "Failed to create schedule");
+        return;
+      }
+
+      toast.success("Schedule created successfully");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to create schedule");
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-gray-50 h-screen">
       {/* Header */}
@@ -136,6 +229,17 @@ export function Canvas({ project }: CanvasProps) {
               <div className="w-full h-full absolute left-0 top-0 bg-gradient-to-b from-[rgba(255,255,255,0)] to-[rgba(0,0,0,0.10)] mix-blend-multiply"></div>
               <span className="text-white text-[13px] font-medium leading-5 font-sans relative z-10">
                 {running ? "Running..." : "Run"}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleSchedule}
+              className="relative px-4 py-[6px] bg-blue-600 dark:bg-blue-700 shadow-[0px_0px_0px_2.5px_rgba(255,255,255,0.08)_inset] dark:shadow-[0px_0px_0px_1px_rgba(255,255,255,0.15)_inset] overflow-hidden rounded-full flex justify-center items-center gap-1.5 cursor-pointer hover:opacity-90 transition-opacity"
+            >
+              <div className="w-full h-full absolute left-0 top-0 bg-gradient-to-b from-[rgba(255,255,255,0)] to-[rgba(0,0,0,0.10)] mix-blend-multiply"></div>
+              <Clock className="w-3.5 h-3.5 text-white relative z-10" />
+              <span className="text-white text-[13px] font-medium leading-5 font-sans relative z-10">
+                Schedule
               </span>
             </button>
             <button
@@ -167,6 +271,16 @@ export function Canvas({ project }: CanvasProps) {
         open={showQueryDialog}
         onOpenChange={setShowQueryDialog}
         onSubmit={handleQuerySubmit}
+      />
+
+      {/* Schedule Dialog */}
+      <ScheduleDialog
+        open={showScheduleDialog}
+        onOpenChange={setShowScheduleDialog}
+        onSchedule={handleScheduleCreate}
+        projectId={project.id}
+        workflowName={project.name}
+        builtWorkflow={null}
       />
     </div>
   );
