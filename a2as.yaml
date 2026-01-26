@@ -1,0 +1,204 @@
+manifest:
+  version: "0.1.2"
+  schema: https://a2as.org/cert/schema
+  subject:
+    name: mousberg/reef
+    source: https://github.com/mousberg/reef
+    branch: main
+    commit: "8dde680b"
+    scope: [coral_factory/factory/agent_one.py, coral_factory/factory/builder.py]
+  issued:
+    by: A2AS.org
+    at: '2026-01-26T16:14:24Z'
+  signatures:
+    digest: sha256:Y_5JsYBdnJZcdhGJsujtIagfc6PDsVeZZp7Gx3dHetc
+    key: ed25519:yAay4AUX9CQaek4VWQeb6rdbSLs7eRdBi3qAH2YWMZo
+    sig: ed25519:v1KtS98GeknP4LVwrc20KVtptPIw0VT2bYrvxJkE4x0g0srhpyMMtw23rd2G_xt_SQmOrzn7N__N46n3kGRoAA
+
+agents:
+  agent:
+    type: instance
+    models: [model_name]
+    params:
+      name: agent_name
+      instructions: system_prompt
+      function: build_agent
+  manager_agent.0:
+    type: instance
+    models: [workflow_config.model_name]
+    tools: [delegate_task]
+    params:
+      function: start_agents
+      name: manager agent
+      instance: manager_agent
+      instructions: [You are a manager agent. Solve the user's task by delegating tasks to the appropriate agents and delegating
+          the tasks to them.]
+  manager_agent.1:
+    type: instance
+    models: [workflow_config.model_name]
+    params:
+      function: start_agents
+      name: handoff agent
+      instance: manager_agent
+      instructions: [You are a manager agent. Solve the user's task by delegating tasks to the appropriate agents and delegating
+          the tasks to them.]
+
+models:
+  model_name:
+    type: variable
+    agents: [agent]
+  workflow_config.model_name:
+    type: variable
+    agents: [manager_agent.0, manager_agent.1]
+
+tools:
+  delegate_task:
+    type: decorator
+    agents: [manager_agent.0]
+
+imports:
+  Agent: agents.Agent
+  AgentConfig: factory.agent_one.AgentConfig
+  Any: typing.Any
+  Arcade: arcadepy.Arcade
+  AsyncArcade: arcadepy.AsyncArcade
+  AsyncExitStack: contextlib.AsyncExitStack
+  asyncio: asyncio
+  BaseModel: pydantic.BaseModel
+  build_agent: factory.agent_one.build_agent
+  datetime: datetime.datetime
+  Depends: fastapi.Depends
+  Dict: typing.Dict
+  Enum: enum.Enum
+  FastAPI: fastapi.FastAPI
+  function_tool: agents.function_tool
+  functools: functools
+  get_arcade_tools: agents_arcade.get_arcade_tools
+  HTTPAuthorizationCredentials: fastapi.security.HTTPAuthorizationCredentials
+  HTTPBearer: fastapi.security.HTTPBearer
+  HTTPException: fastapi.HTTPException
+  json: json
+  JSONResponse: fastapi.responses.JSONResponse
+  List: typing.List
+  LitellmModel: agents.extensions.models.litellm_model.LitellmModel
+  load_dotenv: dotenv.load_dotenv
+  logging: logging
+  MCPServerSse: agents.mcp.MCPServerSse
+  MCPServerStreamableHttp: agents.mcp.MCPServerStreamableHttp
+  ModelSettings: agents.model_settings.ModelSettings
+  OpenAIAgentsTracingProcessor: factory.trace_stream.OpenAIAgentsTracingProcessor
+  os: os
+  RunContextWrapper: agents.RunContextWrapper
+  Runner: agents.Runner
+  set_trace_processors: agents.set_trace_processors
+  start_agents: factory.builder.start_agents
+  status: fastapi.status
+  Thread: threading.Thread
+  time: time
+  uuid: uuid
+  uvicorn: uvicorn
+  WorkflowConfig: factory.builder.WorkflowConfig
+  WorkflowRunner: factory.runner.WorkflowRunner
+
+functions:
+  __init__:
+    type: sync
+    module: coral_factory.factory.runner
+    args: [self, workflow_config, user_id, user_task, trace_id]
+  _build_mcp_servers:
+    type: async
+    module: coral_factory.factory.agent_one
+    args: [stack, servers]
+    params:
+      returns: List[Any]
+  auth_status:
+    type: async
+    module: coral_factory.app
+    args: [token]
+  authorize:
+    type: async
+    module: coral_factory.app
+    args: [user_id, tool_name, token]
+  build_agent:
+    type: async
+    module: coral_factory.factory.agent_one
+    args: [agent_name, user_id, model_name, mcp_servers, toolkits, api_key, persona, output, guidelines, context, tracer]
+    params:
+      returns: Agent
+  builder:
+    type: async
+    module: coral_factory.factory.builder
+    args: [json_config, user_id, tracer]
+  create_logged_tool_wrapper:
+    type: sync
+    module: coral_factory.factory.agent_one
+    args: [original_tool, agent_name]
+  delegate_task:
+    type: tool
+    module: coral_factory.factory.builder
+    args: [agent_name, task]
+  get_workflow_result:
+    type: async
+    module: coral_factory.app
+    args: [trace_id]
+  get_workflow_status:
+    type: async
+    module: coral_factory.app
+    args: [trace_id]
+  health_check:
+    type: async
+    module: coral_factory.app
+  logged_wrapper:
+    type: async
+    module: coral_factory.factory.agent_one
+  run:
+    type: sync
+    module: coral_factory.factory.runner
+    args: [self]
+  run_workflow:
+    type: async
+    module: coral_factory.app
+    args: [run_workflow_request, token]
+  start_agents:
+    type: async
+    module: coral_factory.factory.builder
+    args: [workflow_config, user_task, user_id]
+  tools:
+    type: async
+    module: coral_factory.app
+    args: [token]
+  verify_token:
+    type: async
+    module: coral_factory.app
+    args: [credentials]
+  verify_workflow:
+    type: async
+    module: coral_factory.app
+    args: [workflow_config, token]
+
+variables:
+  ARCADE_API_KEY:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [coral_factory.factory.agent_one]
+  FACTORY_BEARER_TOKEN:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [coral_factory.app]
+  FIREBASE_PROJECT_ID:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [coral_factory.factory.builder]
+  FIREBASE_SERVICE_ACCOUNT_PATH:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [coral_factory.factory.builder]
+  OPENAI_API_KEY:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [coral_factory.factory.builder]
